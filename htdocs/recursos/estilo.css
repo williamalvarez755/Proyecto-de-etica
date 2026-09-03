@@ -1,0 +1,495 @@
+/* ==================================================================
+   HOJA DE ESTILO ÚNICA
+   Plataforma de ofertas laborales verificadas
+   ------------------------------------------------------------------
+   DIRECCIÓN VISUAL: "institucional cálido".
+
+   El problema de diseño no es que se vea bonito: es que se vea creíble
+   por alguien que ya fue engañado antes. Por eso:
+
+   - Papel claro y cálido, no blanco frío de plantilla.
+   - Un azul profundo, del lado del documento oficial, lejos del azul
+     brillante de la publicidad.
+   - Cero urgencia: sin rojos de "última oportunidad", sin contadores,
+     sin animaciones que apuren. Ese lenguaje visual es exactamente el
+     de las páginas de estafa, y acá juega en contra.
+   - Verde reservado. El verde SOLO significa "el origen de esto se
+     verificó". Si se usara para adornar, dejaría de significar algo.
+   - Tipografías del sistema: cargan al instante, no dependen de una
+     conexión saliente y se ven nativas en cada teléfono.
+   - Cuerpo de 17px y toques de 48px de alto: es un dedo bajo el sol,
+     no un mouse.
+
+   TODO lo visual sale de las variables de abajo. Cambiar la identidad
+   del proyecto es cambiar este bloque y nada más.
+   ================================================================== */
+
+:root {
+  /* --- Color --------------------------------------------------- */
+  --papel:          #FBFAF8;
+  --superficie:     #FFFFFF;
+  --superficie-2:   #F4F1EC;
+  --borde:          #E0DCD4;
+  --borde-fuerte:   #C9C3B8;
+
+  --tinta:          #1B1A17;
+  --tinta-suave:    #5A564E;
+
+  --azul:           #12496B;
+  --azul-oscuro:    #0C3550;
+  --azul-claro:     #E7EFF5;
+
+  --verde:          #1B6046;
+  --verde-claro:    #E9F3EE;
+
+  --ambar:          #7A5200;
+  --ambar-claro:    #FAF0DA;
+
+  --rojo:           #9B211A;
+  --rojo-claro:     #FBEBE9;
+
+  /* --- Tipografía ---------------------------------------------- */
+  --fuente: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+            "Helvetica Neue", Arial, sans-serif;
+
+  --texto-xs:   0.875rem;
+  --texto-sm:   0.9375rem;
+  --texto-base: 1rem;
+  --texto-lg:   1.125rem;
+  --texto-xl:   1.375rem;
+  --texto-2xl:  1.75rem;
+
+  /* --- Espaciado ----------------------------------------------- */
+  --esp-1: 4px;
+  --esp-2: 8px;
+  --esp-3: 12px;
+  --esp-4: 16px;
+  --esp-5: 24px;
+  --esp-6: 32px;
+  --esp-7: 48px;
+  --esp-8: 64px;
+
+  /* --- Formas -------------------------------------------------- */
+  --radio-sm: 6px;
+  --radio:    10px;
+  --radio-lg: 16px;
+
+  --sombra-1: 0 1px 2px rgba(27, 26, 23, 0.06);
+  --sombra-2: 0 2px 8px rgba(27, 26, 23, 0.08);
+
+  --ancho-maximo:  960px;
+  --ancho-angosto: 520px;
+}
+
+/* ==================================================================
+   Base
+   ================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--fuente);
+  font-size: 17px;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+h1, h2, h3 { line-height: 1.25; margin: 0; font-weight: 700; }
+
+p { margin: 0; }
+
+a { color: var(--azul); }
+a:hover { color: var(--azul-oscuro); }
+
+/* Foco siempre visible: mucha gente va a navegar con teclado, y en un
+   teléfono barato el foco es la única pista de dónde está parada. */
+:focus-visible {
+  outline: 3px solid var(--azul);
+  outline-offset: 2px;
+  border-radius: var(--radio-sm);
+}
+
+.saltar {
+  position: absolute;
+  left: -9999px;
+  top: var(--esp-2);
+  background: var(--azul);
+  color: #fff;
+  padding: var(--esp-3) var(--esp-4);
+  border-radius: var(--radio);
+  z-index: 100;
+}
+.saltar:focus { left: var(--esp-4); }
+
+
+/* ==================================================================
+   Estructura
+   ================================================================== */
+
+.contenedor {
+  width: 100%;
+  max-width: var(--ancho-maximo);
+  margin: 0 auto;
+  padding: 0 var(--esp-4);
+}
+.contenedor--angosto { max-width: var(--ancho-angosto); }
+
+.contenido {
+  flex: 1 0 auto;
+  padding: var(--esp-5) 0 var(--esp-7);
+}
+
+/* Apilar con separación pareja, sin andar poniendo márgenes sueltos. */
+.pila > * + *       { margin-top: var(--esp-4); }
+.pila-grande > * + * { margin-top: var(--esp-6); }
+
+/* Separación suelta, para no escribir estilos dentro del HTML.
+   La política de seguridad del sitio (CSP) bloquea el atributo
+   style="", así que TODO lo visual tiene que salir de una clase. */
+.separado       { margin-top: var(--esp-5); }
+.separado-poco  { margin-top: var(--esp-3); }
+
+
+/* ==================================================================
+   Barra superior
+   ================================================================== */
+
+.barra {
+  background: var(--superficie);
+  border-bottom: 1px solid var(--borde);
+}
+
+.barra__interior {
+  max-width: var(--ancho-maximo);
+  margin: 0 auto;
+  padding: var(--esp-3) var(--esp-4);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-3);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  color: var(--azul);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: var(--texto-lg);
+}
+.marca__icono { display: inline-flex; color: var(--verde); }
+
+.navegacion { display: flex; gap: var(--esp-2); flex-wrap: wrap; }
+
+.navegacion__enlace {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--esp-3);
+  border-radius: var(--radio);
+  color: var(--azul);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: var(--texto-sm);
+}
+.navegacion__enlace:hover { background: var(--azul-claro); }
+
+.navegacion__enlace--destacado {
+  background: var(--azul);
+  color: #fff;
+}
+.navegacion__enlace--destacado:hover { background: var(--azul-oscuro); color: #fff; }
+
+
+/* ==================================================================
+   Textos de página
+   ================================================================== */
+
+.titulo-pagina {
+  font-size: var(--texto-2xl);
+  letter-spacing: -0.01em;
+}
+
+.subtitulo { font-size: var(--texto-xl); }
+
+.texto-guia {
+  color: var(--tinta-suave);
+  font-size: var(--texto-lg);
+}
+
+.texto-menor { font-size: var(--texto-sm); color: var(--tinta-suave); }
+
+
+/* ==================================================================
+   Tarjetas
+   ================================================================== */
+
+.tarjeta {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-lg);
+  padding: var(--esp-5);
+  box-shadow: var(--sombra-1);
+}
+
+.tarjeta__titulo {
+  font-size: var(--texto-xl);
+  margin-bottom: var(--esp-2);
+}
+
+
+/* ==================================================================
+   Botones
+   Alto mínimo 48px: es un dedo, no un puntero.
+   ================================================================== */
+
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--esp-2);
+  min-height: 48px;
+  padding: var(--esp-3) var(--esp-5);
+  border: 2px solid transparent;
+  border-radius: var(--radio);
+  font-family: inherit;
+  font-size: var(--texto-base);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  text-align: center;
+}
+
+.boton--principal { background: var(--azul); color: #fff; }
+.boton--principal:hover { background: var(--azul-oscuro); color: #fff; }
+
+.boton--secundario {
+  background: var(--superficie);
+  color: var(--azul);
+  border-color: var(--borde-fuerte);
+}
+.boton--secundario:hover { background: var(--superficie-2); color: var(--azul-oscuro); }
+
+.boton--peligro { background: var(--superficie); color: var(--rojo); border-color: var(--rojo); }
+.boton--peligro:hover { background: var(--rojo-claro); color: var(--rojo); }
+
+.boton--ancho { width: 100%; }
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-3);
+}
+
+
+/* ==================================================================
+   Formularios
+   ================================================================== */
+
+.campo { display: block; }
+
+.campo + .campo { margin-top: var(--esp-5); }
+
+.etiqueta {
+  display: block;
+  font-weight: 600;
+  margin-bottom: var(--esp-2);
+}
+
+.ayuda {
+  display: block;
+  font-size: var(--texto-sm);
+  color: var(--tinta-suave);
+  margin-bottom: var(--esp-2);
+}
+
+.entrada {
+  width: 100%;
+  min-height: 48px;
+  padding: var(--esp-3);
+  border: 2px solid var(--borde-fuerte);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  color: var(--tinta);
+  font-family: inherit;
+  /* 17px a propósito: por debajo de 16px, el navegador del teléfono
+     hace zoom solo al tocar el campo y descoloca la pantalla. */
+  font-size: 17px;
+}
+.entrada:focus { border-color: var(--azul); }
+
+.entrada--error { border-color: var(--rojo); }
+
+.error-campo {
+  display: block;
+  margin-top: var(--esp-2);
+  color: var(--rojo);
+  font-size: var(--texto-sm);
+  font-weight: 600;
+}
+
+
+/* ==================================================================
+   Avisos
+   ================================================================== */
+
+.aviso {
+  padding: var(--esp-4);
+  border-radius: var(--radio);
+  border-left: 5px solid var(--borde-fuerte);
+  background: var(--superficie-2);
+  margin-bottom: var(--esp-5);
+}
+
+.aviso--exito { background: var(--verde-claro); border-left-color: var(--verde); color: #12402F; }
+.aviso--error { background: var(--rojo-claro);  border-left-color: var(--rojo);  color: #6E1712; }
+.aviso--aviso { background: var(--ambar-claro); border-left-color: var(--ambar); color: #5A3D00; }
+
+.aviso p + p { margin-top: var(--esp-2); }
+
+
+/* ==================================================================
+   Sello de verificación
+   El elemento más importante de la interfaz. Dice "verificamos de
+   dónde salió esto", NUNCA "tenés el trabajo asegurado": por eso es
+   una etiqueta sobria y siempre va acompañada de la fuente y las
+   fechas, nunca sola.
+   ================================================================== */
+
+.sello {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: var(--esp-1) var(--esp-3);
+  border-radius: 999px;
+  background: var(--verde-claro);
+  color: var(--verde);
+  border: 1px solid var(--verde);
+  font-size: var(--texto-sm);
+  font-weight: 700;
+}
+
+.insignia {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--esp-1) var(--esp-3);
+  border-radius: 999px;
+  background: var(--superficie-2);
+  border: 1px solid var(--borde-fuerte);
+  color: var(--tinta-suave);
+  font-size: var(--texto-xs);
+  font-weight: 600;
+}
+.insignia--rol { background: var(--azul-claro); border-color: var(--azul); color: var(--azul); }
+
+
+/* ==================================================================
+   Listas de datos y tablas
+   ================================================================== */
+
+.lista-datos { margin: 0; }
+.lista-datos dt {
+  font-size: var(--texto-sm);
+  color: var(--tinta-suave);
+  font-weight: 600;
+}
+.lista-datos dd {
+  margin: 0 0 var(--esp-4) 0;
+  word-break: break-word;
+}
+.lista-datos dd:last-child { margin-bottom: 0; }
+
+/* En pantalla angosta la tabla se desliza sola en lugar de romper
+   la página a lo ancho. */
+.tabla-desliza { overflow-x: auto; }
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--texto-sm);
+  background: var(--superficie);
+}
+.tabla th, .tabla td {
+  text-align: left;
+  padding: var(--esp-3);
+  border-bottom: 1px solid var(--borde);
+  vertical-align: top;
+}
+.tabla th {
+  background: var(--superficie-2);
+  font-size: var(--texto-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--tinta-suave);
+  white-space: nowrap;
+}
+
+/* Resultado de una comprobación (lo usa la página de diagnóstico). */
+.bien { color: var(--verde); font-weight: 700; }
+.mal  { color: var(--rojo);  font-weight: 700; }
+
+/* Estado vacío: nunca una pantalla en blanco. */
+.vacio {
+  text-align: center;
+  padding: var(--esp-7) var(--esp-4);
+  border: 2px dashed var(--borde-fuerte);
+  border-radius: var(--radio-lg);
+  color: var(--tinta-suave);
+  background: var(--superficie);
+}
+
+
+/* ==================================================================
+   Cuadrícula simple
+   ================================================================== */
+
+.rejilla { display: grid; gap: var(--esp-4); }
+
+
+/* ==================================================================
+   Pie
+   ================================================================== */
+
+.pie {
+  flex-shrink: 0;
+  background: var(--superficie-2);
+  border-top: 1px solid var(--borde);
+  padding: var(--esp-6) 0;
+}
+.pie__aclaracion {
+  font-size: var(--texto-sm);
+  color: var(--tinta-suave);
+  max-width: 60ch;
+}
+.pie__nota {
+  margin-top: var(--esp-3);
+  font-size: var(--texto-xs);
+  color: var(--tinta-suave);
+}
+
+
+/* ==================================================================
+   Pantallas anchas
+   Se agranda lo justo. El diseño se pensó para el teléfono.
+   ================================================================== */
+
+@media (min-width: 48rem) {
+  .titulo-pagina { font-size: 2.125rem; }
+  .contenido { padding: var(--esp-7) 0 var(--esp-8); }
+  .rejilla--dos { grid-template-columns: 1fr 1fr; }
+}
+
+
+/* Respeta a quien pidió menos movimiento en su sistema. */
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}

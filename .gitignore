@@ -1,0 +1,28 @@
+# ---------------------------------------------------------------
+#  Nunca deben entrar al repositorio
+# ---------------------------------------------------------------
+
+# Credenciales reales de la base de datos y de la instalación.
+# La plantilla config.ejemplo.php SÍ se versiona; este archivo NO.
+/app/config/config.php
+/app/config/instalacion.txt
+
+# Datos de personas. Un currículum jamás debe terminar en un repositorio.
+/app/almacen/cv/*
+/app/almacen/logs/*
+/app/almacen/respaldos/*
+!/app/almacen/cv/.gitkeep
+!/app/almacen/logs/.gitkeep
+!/app/almacen/respaldos/.gitkeep
+
+# Dependencia de la Fase 3 (smalot/pdfparser): se instala local y se sube por FTP.
+/vendor/
+/composer.lock
+
+# Basura del sistema
+Thumbs.db
+desktop.ini
+.DS_Store
+*.log
+*.bak
+*.tmp

@@ -1,0 +1,51 @@
+# ===================================================================
+#  Configuración de Apache para la carpeta pública
+#  ------------------------------------------------------------------
+#  Segunda línea de defensa. Las cabeceras de seguridad también se
+#  mandan desde PHP (app/nucleo/inicio.php), para que el sitio quede
+#  protegido aunque el hosting ignore parte de este archivo.
+# ===================================================================
+
+# No mostrar el listado de archivos de una carpeta que no tenga índice.
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Forzar HTTPS. InfinityFree entrega el sitio detrás de un proxy,
+    # por eso se revisa también la cabecera X-Forwarded-Proto.
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+</IfModule>
+
+# Nadie debe poder descargar estos archivos aunque por error queden
+# dentro de la carpeta pública.
+<FilesMatch "\.(sql|md|log|ini|bak|old|txt~|config)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Páginas de error propias, en español y con salida.
+ErrorDocument 404 /404.php
+ErrorDocument 403 /404.php
+
+<IfModule mod_headers.c>
+    # Para los archivos estáticos, que no pasan por PHP.
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "same-origin"
+</IfModule>
+
+# Que el navegador guarde el CSS y no lo vuelva a pedir en cada página:
+# menos espera para quien tiene internet lento, y menos peticiones
+# contra el tope diario del hosting.
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 7 days"
+    ExpiresByType image/svg+xml "access plus 7 days"
+</IfModule>

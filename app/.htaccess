@@ -1,0 +1,19 @@
+# ===================================================================
+#  Esta carpeta NO debe ser accesible desde internet.
+#  ------------------------------------------------------------------
+#  Normalmente ni siquiera hace falta, porque app/ está fuera de
+#  htdocs y el servidor no la publica. Está igual, como segunda línea
+#  de defensa: si algún día alguien mueve la carpeta por error, o el
+#  hosting cambia la raíz pública, esto la sigue tapando.
+#
+#  Acá adentro están los currículums de las personas y las
+#  credenciales de la base de datos.
+# ===================================================================
+
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+</IfModule>
