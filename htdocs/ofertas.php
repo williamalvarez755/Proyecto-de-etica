@@ -11,7 +11,7 @@
  * pais=loquesea, el filtro simplemente se ignora.
  */
 
-require __DIR__ . '/../app/nucleo/inicio.php';
+require __DIR__ . '/app/nucleo/inicio.php';
 
 // --- Filtros, validados uno por uno ------------------------------
 $texto = limpiar_texto(parametro('texto'));

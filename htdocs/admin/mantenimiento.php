@@ -25,7 +25,7 @@
  * vencida deja de verse sola aunque nadie entre acá en seis meses.
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 requerir_permiso('mantenimiento.ejecutar');
 

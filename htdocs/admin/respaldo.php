@@ -23,7 +23,7 @@
  * todas las letras antes de que alguien lo baje.
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 requerir_permiso('mantenimiento.ejecutar');
 

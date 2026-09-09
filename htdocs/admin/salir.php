@@ -6,7 +6,7 @@
  * y queda registrado en la bitácora.
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 if (es_post()) {
     registrar_accion('logout_admin', 'usuario', id_usuario_actual());

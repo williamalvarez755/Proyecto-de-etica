@@ -1,0 +1,36 @@
+# ===================================================================
+#  CURRÍCULUMS DE PERSONAS. ACCESO NEGADO.
+#  ------------------------------------------------------------------
+#  Esta carpeta guarda los archivos que sube la gente: sus currículums,
+#  con sus nombres, sus teléfonos y su historia laboral.
+#
+#  Es una segunda barrera, redundante a propósito con app/.htaccess.
+#  Si aquel se borrara por error, esta sigue en pie.
+#
+#  La única forma legítima de que alguien vea uno de estos archivos es
+#  a través de htdocs/cuenta/archivo_cv.php (su propio currículum) o
+#  htdocs/admin/archivo_cv.php (con permiso y consentimiento de por
+#  medio). Los dos comprueban quién pide antes de entregar nada, y el
+#  segundo deja registro en la bitácora.
+# ===================================================================
+
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+</IfModule>
+
+<FilesMatch ".*">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+Options -Indexes

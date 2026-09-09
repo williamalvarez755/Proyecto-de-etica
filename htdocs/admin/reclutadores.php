@@ -16,7 +16,7 @@
  * donde la persona se confunde.
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 requerir_permiso('reclutadores.gestionar');
 

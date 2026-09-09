@@ -13,7 +13,7 @@
  * Todo intento, bueno o malo, queda en la bitácora.
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 if (hay_sesion() && es_administrativo()) {
     redirigir('/admin/index.php');

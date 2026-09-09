@@ -14,7 +14,7 @@
  * conoce— no se queda puesta.
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 requerir_sesion();
 

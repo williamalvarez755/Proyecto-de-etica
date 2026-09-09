@@ -17,7 +17,7 @@
  * pregunta de ubicación es a dónde QUIERE ir (decisión D-008).
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 requerir_rol_usuario();
 

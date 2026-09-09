@@ -14,7 +14,7 @@
  * en ningún lado (regla 10).
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 requerir_permiso('usuarios.restablecer');
 

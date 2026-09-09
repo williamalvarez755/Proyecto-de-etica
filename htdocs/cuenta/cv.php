@@ -13,7 +13,7 @@
  * extensión cambiada se rechaza acá.
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 requerir_rol_usuario();
 

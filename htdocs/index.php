@@ -7,7 +7,7 @@
  * ninguna parte ni secciones anunciadas "para después".
  */
 
-require __DIR__ . '/../app/nucleo/inicio.php';
+require __DIR__ . '/app/nucleo/inicio.php';
 
 $titulo_pagina = 'Ofertas de trabajo con origen verificado';
 require RAIZ_APP . '/vistas/cabecera.php';

@@ -15,7 +15,7 @@
  * No se inventa nada: la hoja solo muestra lo que la persona escribió.
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 requerir_rol_usuario();
 

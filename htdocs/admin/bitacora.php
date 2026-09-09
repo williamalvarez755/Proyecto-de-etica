@@ -14,7 +14,7 @@
  * Solo quién hizo qué, cuándo y desde qué dirección.
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 requerir_permiso('bitacora.ver');
 

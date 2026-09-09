@@ -34,6 +34,14 @@ error_reporting(E_ALL);
  */
 function registrar_error(string $mensaje, string $archivo = '', int $linea = 0): void
 {
+    // Si la carpeta no existe, se crea. Pasa cuando se sube el sitio
+    // por FTP: las carpetas de almacén solo tienen archivos ocultos y
+    // varios programas de FTP las saltean sin avisar. Sin esto, los
+    // errores se perderían justo cuando más falta hacen.
+    if (!is_dir(RUTA_LOGS)) {
+        @mkdir(RUTA_LOGS, 0750, true);
+    }
+
     $ruta = RUTA_LOGS . '/errores-' . date('Y-m') . '.log';
 
     $linea_log = sprintf(

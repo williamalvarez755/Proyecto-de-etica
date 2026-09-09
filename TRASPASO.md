@@ -44,9 +44,26 @@ Copiar `app/config/config.ejemplo.php` como `app/config/config.php` y llenar:
 
 | Se sube | A dónde |
 |---|---|
-| `app/` completo | Raíz de la cuenta, **al lado de `htdocs`, no adentro** |
 | Contenido de `htdocs/` | Dentro de `htdocs/` |
-| `vendor/` | Raíz de la cuenta, al lado de `app/` |
+| `app/` completo | **Dentro de `htdocs/`** (ver la advertencia de abajo) |
+| `vendor/` completo | **Dentro de `htdocs/`** |
+
+> ⚠️ **Por qué `app/` va dentro de `htdocs` y no afuera, que sería lo correcto**
+>
+> InfinityFree encierra a PHP dentro de `htdocs` con `open_basedir`. Con `app/` afuera, ninguna
+> página carga: todo da error 500. Es la decisión **D-044** del `CLAUDE.md`.
+>
+> La consecuencia es que los currículums de las personas quedan dentro de la carpeta pública, y
+> lo único que impide descargarlos son tres archivos `.htaccess`. **Si alguno se borra, se
+> exponen.**
+>
+> Después de cualquier cambio en los `.htaccess`, comprobá en el navegador que
+> `/app/config/config.php` devuelva 403 o 404. Es la única prueba que confirma que la protección
+> sigue en pie.
+>
+> **En un servidor propio esto se revierte:** `app/` y `vendor/` vuelven afuera de la carpeta
+> pública, los `require` recuperan su `../`, y la protección deja de depender de un archivo de
+> configuración. Es lo primero que hay que hacer al migrar.
 
 **No se suben:** `sql/`, `herramientas/`, `*.md`, `.gitignore`, `composer.json`.
 
@@ -60,7 +77,12 @@ Subir `htdocs/diagnostico.php`, abrirlo, leerlo y **borrarlo**. Contesta:
 - Versión de PHP (necesita 8.0+) y de MySQL.
 - Extensiones: `pdo_mysql`, `mbstring`, `fileinfo`, `zip`, `openssl`.
 - `upload_max_filesize` y `post_max_size`.
-- **Si PHP puede leer y escribir fuera de `htdocs`.** De esto depende dónde van los currículums.
+- Si se puede escribir en la carpeta de currículums y si los `.htaccess` que la protegen están
+  puestos.
+
+**En InfinityFree (verificado el 2026-09-09):** PHP 8.3.19, todas las extensiones disponibles,
+512 MB de memoria, subida hasta 20 MB, y `open_basedir` limitado a `htdocs` — que es lo que
+obligó a la decisión D-044.
 
 ### 2.5. Primera cuenta
 
@@ -167,6 +189,7 @@ acerca a ese número, es señal de que hay que mudarse a un servidor propio, no 
 
 | Requisito | Por qué no se cumple | Cómo se resuelve al migrar |
 |---|---|---|
+| **Currículums fuera de la carpeta pública** | `open_basedir` encierra a PHP en `htdocs` | Mover `app/` y `vendor/` afuera y devolverle un nivel a los `require` (D-044) |
 | Usuario de MySQL con permisos mínimos | InfinityFree da un solo usuario con todos los privilegios y no deja crear otros | `GRANT` con solo SELECT, INSERT, UPDATE, DELETE sobre esta base |
 | Tareas programadas | No hay cron | Ver sección 7 |
 | Envío de correo | `mail()` deshabilitado y SMTP bloqueado | Ver sección 7 |
@@ -178,32 +201,41 @@ acerca a ese número, es señal de que hay que mudarse a un servidor propio, no 
 Estas son las cosas que se pueden mejorar, en orden de importancia. **Ninguna requiere reescribir
 la aplicación**: todo está escrito en PHP y SQL estándar a propósito.
 
-1. **Usuario de MySQL restringido.** Crear uno con solo los permisos necesarios y cambiar
+1. **Sacar `app/` y `vendor/` de la carpeta pública.** Es lo más importante de esta lista.
+   En InfinityFree tuvieron que quedar adentro porque `open_basedir` encierra a PHP en `htdocs`
+   (decisión D-044), y eso dejó la protección de los currículums dependiendo de unos `.htaccess`.
+   En un servidor propio:
+   - Mover `app/` y `vendor/` fuera de la raíz pública.
+   - Devolverle un nivel a los `require`: `__DIR__ . '/app/...'` → `__DIR__ . '/../app/...'` en
+     las 8 páginas de la raíz, y `'/../app/...'` → `'/../../app/...'` en las 33 de subcarpetas.
+   - Comprobar que el sitio carga y que `/app/` ya no existe como dirección web.
+
+2. **Usuario de MySQL restringido.** Crear uno con solo los permisos necesarios y cambiar
    `config.php`. Cinco minutos, y cierra el hueco más grande que deja el hosting gratuito.
 
-2. **Cron para lo periódico.** Hoy el vencimiento de ofertas y la limpieza se disparan a mano
+3. **Cron para lo periódico.** Hoy el vencimiento de ofertas y la limpieza se disparan a mano
    desde el panel (decisión D-003). Las funciones ya existen y están separadas:
    `vencer_ofertas_publicadas()`, `limpiar_intentos_viejos()`, `limpiar_restablecimientos_viejos()`.
    Basta un script que las llame y un cron diario. **Ojo:** el vencimiento *ya* protege a la
    persona sin cron, porque la consulta pública filtra por fecha (decisión D-018). El cron es para
    que el panel diga la verdad, no para la seguridad.
 
-3. **Correo.** Habilitaría la recuperación de contraseña por email y quitaría la carga de trabajo
+4. **Correo.** Habilitaría la recuperación de contraseña por email y quitaría la carga de trabajo
    del restablecimiento asistido (decisión D-005). El flujo actual seguiría sirviendo para quien
    no tiene correo, que no es poca gente en la población objetivo: **conviene conservarlo**, no
    reemplazarlo.
 
-4. **Automatizar la importación de fuentes externas.** `herramientas/generar_csv_adzuna.php` ya
+5. **Automatizar la importación de fuentes externas.** `herramientas/generar_csv_adzuna.php` ya
    hace la consulta y arma el CSV; hoy se corre a mano porque las conexiones salientes del hosting
    no son confiables (decisión D-004). En un servidor propio ese mismo script se puede automatizar
    sin tocarle una línea. **Lo que no cambia:** todo lo importado sigue entrando como `pendiente`
    y necesita verificación humana (decisión D-021). Eso no es una limitación del hosting, es una
    regla del proyecto.
 
-5. **Cabecera CSP.** Si el hosting deja de inyectar JavaScript en las respuestas, se puede
+6. **Cabecera CSP.** Si el hosting deja de inyectar JavaScript en las respuestas, se puede
    endurecer todavía más la línea de CSP en `app/nucleo/inicio.php`.
 
-6. **Pantalla para gestionar rubros.** Hoy agregar un oficio requiere una consulta en phpMyAdmin
+7. **Pantalla para gestionar rubros.** Hoy agregar un oficio requiere una consulta en phpMyAdmin
    (decisión D-022). Para que la institución no dependa de alguien con acceso a la base, conviene
    construirla.
 

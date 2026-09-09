@@ -20,7 +20,7 @@
  * que la decisión sea informada y no un "¿seguro? sí".
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 requerir_rol_usuario();
 

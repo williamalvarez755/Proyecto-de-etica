@@ -14,7 +14,7 @@
  * a la oferta y se la pone en revisión o se la retira, con su motivo.
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 requerir_permiso('reportes.revisar');
 

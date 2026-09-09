@@ -12,6 +12,23 @@ Options -Indexes
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    # -----------------------------------------------------------
+    #  Bloqueo de app/ y vendor/
+    # -----------------------------------------------------------
+    #  Estas dos carpetas tuvieron que quedar dentro de htdocs porque
+    #  este hosting no deja a PHP salir de acá (decisión D-016).
+    #  Adentro están los currículums de las personas y las credenciales
+    #  de la base de datos: NADA de ahí se sirve por internet.
+    #
+    #  Va primero que todo lo demás, incluso antes del redirect a
+    #  HTTPS: no queremos ni siquiera redirigir una petición a esas
+    #  carpetas, queremos cortarla.
+    #
+    #  Es redundante con app/.htaccess y app/almacen/.htaccess, a
+    #  propósito: son tres barreras para lo mismo.
+    RewriteRule ^app(/|$)    - [F,L]
+    RewriteRule ^vendor(/|$) - [F,L]
+
     # Forzar HTTPS. InfinityFree entrega el sitio detrás de un proxy,
     # por eso se revisa también la cabecera X-Forwarded-Proto.
     RewriteCond %{HTTPS} !=on

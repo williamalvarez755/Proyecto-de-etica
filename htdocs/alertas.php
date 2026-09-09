@@ -18,7 +18,7 @@
  * de la institución que dar un número dudoso.
  */
 
-require __DIR__ . '/../app/nucleo/inicio.php';
+require __DIR__ . '/app/nucleo/inicio.php';
 
 $titulo_pagina = 'Cómo reconocer una estafa';
 require RAIZ_APP . '/vistas/cabecera.php';

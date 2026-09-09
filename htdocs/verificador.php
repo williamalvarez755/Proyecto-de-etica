@@ -29,7 +29,7 @@
  * Ni una palabra de más.
  */
 
-require __DIR__ . '/../app/nucleo/inicio.php';
+require __DIR__ . '/app/nucleo/inicio.php';
 
 $busqueda   = limpiar_texto(parametro('nombre'));
 $resultado  = null;

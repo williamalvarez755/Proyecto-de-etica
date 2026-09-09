@@ -12,7 +12,7 @@
  * es eso y la persona necesita entender qué pasó.
  */
 
-require __DIR__ . '/../app/nucleo/inicio.php';
+require __DIR__ . '/app/nucleo/inicio.php';
 
 $id = id_valido(parametro('id'));
 $oferta = $id === null ? null : buscar_oferta_publica($id);

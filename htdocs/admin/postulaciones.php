@@ -16,7 +16,7 @@
  * y cuándo.
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 requerir_permiso('ofertas.ver');
 

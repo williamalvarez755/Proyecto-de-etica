@@ -80,8 +80,9 @@ Los últimos, además, para que el emparejamiento no pueda discriminar aunque qu
 2. Importar `sql/esquema.sql` y después `sql/datos_iniciales.sql` en phpMyAdmin.
 3. Copiar `app/config/config.ejemplo.php` como `app/config/config.php` y llenarlo.
    **Ese archivo nunca se sube al repositorio.**
-4. Subir por FTP la carpeta `app/` a la raíz de la cuenta (al lado de `htdocs`, no adentro) y el
-   contenido de `htdocs/` dentro de `htdocs`.
+4. Subir por FTP el contenido de `htdocs/`, más las carpetas `app/` y `vendor/`, todo dentro de
+   `htdocs`. Las dos últimas van ahí porque el hosting encierra a PHP en esa carpeta, y quedan
+   protegidas por `.htaccess` (ver decisión D-044 en `CLAUDE.md`).
 5. Abrir `/diagnostico.php` para comprobar el servidor, y borrarlo después.
 6. Crear por FTP `app/config/instalacion.txt` con una frase larga, abrir `/instalar.php` para
    crear la cuenta responsable, y borrar `instalar.php`.

@@ -7,7 +7,7 @@
  * una salida clara.
  */
 
-require __DIR__ . '/../app/nucleo/inicio.php';
+require __DIR__ . '/app/nucleo/inicio.php';
 
 http_response_code(404);
 

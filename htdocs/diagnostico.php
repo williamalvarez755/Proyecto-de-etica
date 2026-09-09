@@ -19,7 +19,10 @@
  * No muestra contraseñas ni datos de nadie.
  */
 
-$raiz_app = dirname(__DIR__) . '/app';
+// app/ vive DENTRO de htdocs porque el hosting no deja a PHP salir de
+// esta carpeta (ver decisión D-016 en CLAUDE.md). Está protegida por
+// .htaccess, y esta página comprueba que esa protección funcione.
+$raiz_app = __DIR__ . '/app';
 
 // -----------------------------------------------------------------
 //  Prueba de escritura fuera de htdocs
@@ -129,10 +132,10 @@ $php_bien = version_compare(PHP_VERSION, '8.0.0', '>=');
   </table>
   </div>
 
-  <h2 class="subtitulo">Lectura y escritura fuera de htdocs</h2>
+  <h2 class="subtitulo">Guardado de currículums</h2>
   <p class="texto-guia">
-    De esto depende que los currículums se puedan guardar donde nadie los pueda descargar
-    escribiendo una dirección.
+    La carpeta está dentro de htdocs porque este hosting no deja a PHP salir de ahí, y por eso
+    la protege un archivo .htaccess. Más abajo se comprueba que esa protección esté puesta.
   </p>
   <div class="tabla-desliza">
   <table class="tabla">
@@ -147,14 +150,45 @@ $php_bien = version_compare(PHP_VERSION, '8.0.0', '>=');
   </table>
   </div>
 
-  <?php if ($prueba['escribe'] && $prueba['lee'] && $prueba['borra']): ?>
+  <?php
+  // La protección de los currículums depende de estos dos .htaccess.
+  // Si faltan, los archivos quedarían descargables por dirección web.
+  $htaccess_app     = is_file($raiz_app . '/.htaccess');
+  $htaccess_almacen = is_file($raiz_app . '/almacen/.htaccess');
+  ?>
+
+  <h2 class="subtitulo">Protección de la carpeta</h2>
+  <div class="tabla-desliza">
+  <table class="tabla">
+    <tbody>
+      <?php
+      fila('Existe app/.htaccess',         $htaccess_app ? 'sí' : 'NO', $htaccess_app);
+      fila('Existe app/almacen/.htaccess', $htaccess_almacen ? 'sí' : 'NO', $htaccess_almacen);
+      ?>
+    </tbody>
+  </table>
+  </div>
+
+  <?php if ($prueba['escribe'] && $prueba['lee'] && $prueba['borra'] && $htaccess_app && $htaccess_almacen): ?>
     <p class="aviso aviso--exito">
-      Todo bien: los currículums se pueden guardar fuera de la carpeta pública, como está diseñado.
+      Todo bien: los currículums se pueden guardar y la carpeta está protegida.
+    </p>
+    <p class="aviso aviso--aviso">
+      <strong>Falta una comprobación que no se puede hacer desde acá.</strong>
+      Abrí en el navegador la dirección <em>/app/config/config.php</em> de este sitio.
+      Tiene que dar error 403 o 404. Si te muestra texto o te descarga algo, la protección
+      no está funcionando y hay que resolverlo antes de que nadie suba un currículum.
+    </p>
+  <?php elseif (!$htaccess_app || !$htaccess_almacen): ?>
+    <p class="aviso aviso--error">
+      <strong>Falta un archivo .htaccess de protección.</strong>
+      Sin él, los currículums de las personas se podrían descargar escribiendo una dirección.
+      Subilo antes de seguir.
     </p>
   <?php else: ?>
     <p class="aviso aviso--error">
-      Acá hay un problema. Antes de seguir con la Fase 3 hay que resolver dónde se guardan
-      los currículums. Copiá esta pantalla y avisá.
+      No se puede escribir en la carpeta de currículums. Nadie va a poder subir su CV.
+      Copiá esta pantalla y avisá.
     </p>
   <?php endif; ?>
 

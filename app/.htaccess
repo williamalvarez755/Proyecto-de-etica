@@ -1,19 +1,51 @@
 # ===================================================================
-#  Esta carpeta NO debe ser accesible desde internet.
+#  ESTA CARPETA NO SE SIRVE POR INTERNET. NUNCA.
 #  ------------------------------------------------------------------
-#  Normalmente ni siquiera hace falta, porque app/ está fuera de
-#  htdocs y el servidor no la publica. Está igual, como segunda línea
-#  de defensa: si algún día alguien mueve la carpeta por error, o el
-#  hosting cambia la raíz pública, esto la sigue tapando.
+#  LEER ANTES DE TOCAR NADA DE ESTE ARCHIVO.
 #
-#  Acá adentro están los currículums de las personas y las
-#  credenciales de la base de datos.
+#  Acá adentro están los currículums de las personas y las credenciales
+#  de la base de datos.
+#
+#  El diseño original ponía esta carpeta FUERA de htdocs, donde ninguna
+#  dirección web podía llegar. En el hosting real eso no se pudo: PHP
+#  está encerrado en htdocs por open_basedir y no puede leer nada de
+#  afuera (ver decisión D-016 en CLAUDE.md).
+#
+#  Entonces la carpeta tuvo que quedar adentro, y ESTE ARCHIVO pasó de
+#  ser una precaución extra a ser la barrera principal.
+#
+#  Si este archivo se borra o se rompe, los currículums de personas
+#  migrantes quedan descargables por cualquiera que adivine un nombre.
+#  No lo borres, no lo renombres y no lo muevas.
+#
+#  Hay otras dos barreras además de esta:
+#    - htdocs/.htaccess bloquea las rutas /app/ y /vendor/
+#    - app/almacen/.htaccess vuelve a negar el acceso a los archivos
+#    - los nombres de los currículums son 32 caracteres al azar
 # ===================================================================
 
+# Apache 2.4
 <IfModule mod_authz_core.c>
     Require all denied
 </IfModule>
+
+# Apache 2.2 y anteriores
 <IfModule !mod_authz_core.c>
     Order allow,deny
     Deny from all
 </IfModule>
+
+# Por si ninguno de los dos módulos estuviera disponible: se niega
+# el acceso a todo archivo, cualquiera sea su nombre o extensión.
+<FilesMatch ".*">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Que no se pueda listar el contenido de la carpeta.
+Options -Indexes

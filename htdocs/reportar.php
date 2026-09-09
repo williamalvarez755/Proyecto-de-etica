@@ -14,7 +14,7 @@
  * empleadores que sí cumplen.
  */
 
-require __DIR__ . '/../app/nucleo/inicio.php';
+require __DIR__ . '/app/nucleo/inicio.php';
 
 requerir_rol_usuario();
 

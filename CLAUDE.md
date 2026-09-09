@@ -311,15 +311,60 @@ cambió: el historial de por qué algo cambió vale tanto como la decisión actu
 - **Consecuencia:** cambiar la identidad del proyecto es cambiar un bloque de variables, no
   repasar las pantallas una por una.
 
-### D-016 · 2026-09-03 · Sin `open_basedir` confirmado, los CV van fuera de `htdocs` · EN PRUEBA
+### D-016 · 2026-09-03 · Los CV iban fuera de `htdocs` · SUPERADA POR D-044
 
-- **Decisión provisional:** los currículums se guardarán en `app/almacen/cv/`, fuera de la carpeta
-  pública, servidos solo por un script que comprueba sesión y permiso.
-- **Por qué:** es la única forma de que un currículum no se pueda descargar escribiendo su
-  dirección.
-- **Pendiente:** que `htdocs/diagnostico.php` confirme en el servidor real que PHP puede leer y
-  escribir ahí. Si no pudiera, el plan B es `htdocs/_privado/` con `.htaccess` que niegue todo, que
-  es más débil (un error en un `.htaccess` expone los archivos) y solo se usaría sin más remedio.
+- **Decisión provisional que se tomó:** guardar los currículums en `app/almacen/cv/`, fuera de la
+  carpeta pública, servidos solo por un script que comprueba sesión y permiso.
+- **Por qué era lo mejor:** es la única forma de que un currículum no se pueda descargar
+  escribiendo su dirección, sin depender de ninguna configuración de Apache.
+- **Por qué se cayó:** el diagnóstico en el servidor real (2026-09-09) mostró que InfinityFree
+  encierra a PHP dentro de `htdocs` con `open_basedir`. Ver D-044.
+
+### D-044 · 2026-09-09 · `app/` y `vendor/` van DENTRO de `htdocs`, protegidas por `.htaccess` · VIGENTE
+
+- **Qué obligó al cambio:** el `open_basedir` del servidor termina en `/htdocs`. PHP no puede leer
+  ni un archivo fuera de esa carpeta. Con `app/` afuera, **ninguna página del sitio cargaba**:
+  el `require` de `inicio.php` fallaba y todo daba error 500.
+
+  ```
+  open_basedir = ... :/home/vol18_1/infinityfree.com/if0_42870094/htdocs
+  ```
+
+- **Decisión:** `app/` y `vendor/` se mueven dentro de `htdocs`, y la protección pasa a ser el
+  `.htaccess`. Los `require` de las 41 páginas pierden un nivel (`/../app/` → `/app/`).
+
+- **Esto es peor que el diseño original y hay que decirlo claro.** Antes, la protección era
+  estructural: no existía dirección web que llegara a un currículum. Ahora depende de que Apache
+  lea un archivo de configuración. Es la diferencia entre "no se puede" y "está prohibido".
+
+- **Qué se hizo para compensar,** tres barreras independientes:
+  1. `htdocs/.htaccess` corta las rutas `/app/` y `/vendor/` con `[F]`, antes que cualquier otra
+     regla, incluso antes del redirect a HTTPS.
+  2. `app/.htaccess` y `vendor/.htaccess` niegan todo, con `FilesMatch ".*"` por si los módulos
+     de autorización no estuvieran.
+  3. `app/almacen/.htaccess` vuelve a negar todo, redundante a propósito: si alguien borrara el
+     de `app/`, este sigue en pie.
+
+  Más lo que ya existía: los nombres de archivo son 32 caracteres al azar, así que ni sabiendo
+  que la protección falló se puede adivinar un currículum.
+
+- **Cómo se comprueba que sigue funcionando:** abrir `/app/config/config.php` en el navegador.
+  Tiene que dar 403 o 404. `htdocs/diagnostico.php` avisa si falta alguno de los `.htaccess`, pero
+  esa prueba en el navegador es la única que confirma el resultado de verdad. **Hay que repetirla
+  después de cada cambio en los `.htaccess`.**
+
+- **Qué se descartó:**
+  - *Guardar los currículums en la base de datos como BLOB:* los sacaría del sistema de archivos
+    y sería más seguro contra este riesgo, pero el respaldo de la base pasaría a pesar cientos de
+    megas y en este hosting se cortaría a la mitad, dejando al proyecto sin respaldo utilizable.
+    Se cambiaría un riesgo por otro peor.
+  - *Usar `/home/uploads`, que sí está en el `open_basedir`:* es una carpeta del sistema
+    compartida con otras cuentas del hosting. Poner ahí currículums de personas migrantes sería
+    peor que la solución actual.
+
+- **Lo primero que hay que revertir al migrar a servidor propio.** Está anotado en `TRASPASO.md`
+  como prioridad. En un servidor propio, `app/` vuelve afuera y la protección deja de depender de
+  un archivo de configuración.
 
 ### D-017 · 2026-09-03 · Verificar no es un botón: es una lista de comprobaciones · VIGENTE
 

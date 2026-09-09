@@ -15,7 +15,7 @@
  * de reutilizar un permiso que se dio para otra cosa.
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 requerir_rol_usuario();
 

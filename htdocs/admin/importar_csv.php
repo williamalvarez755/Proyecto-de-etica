@@ -22,7 +22,7 @@
  *     Importar 200 filas y decir solo "listo" es como no informar.
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 requerir_permiso('importacion.csv');
 

@@ -14,7 +14,7 @@
  * paso claro y visible.
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 if (es_post()) {
     cerrar_sesion();

@@ -9,7 +9,7 @@
  * aunque la institución deje de usar esa fuente.
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 requerir_permiso('fuentes.gestionar');
 

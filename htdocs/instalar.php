@@ -25,7 +25,7 @@
  * esa dirección todo el tiempo.
  */
 
-require __DIR__ . '/../app/nucleo/inicio.php';
+require __DIR__ . '/app/nucleo/inicio.php';
 
 $ruta_clave = RAIZ_APP . '/config/instalacion.txt';
 

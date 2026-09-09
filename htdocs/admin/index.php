@@ -10,7 +10,7 @@
  * página (regla 5). Esto es solo para no enseñar puertas cerradas.
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 requerir_administrativo();
 

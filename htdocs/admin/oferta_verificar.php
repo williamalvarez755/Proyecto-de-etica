@@ -17,7 +17,7 @@
  * reclutador cuya autorización no está vigente, no se verifica. Punto.
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 requerir_permiso('ofertas.verificar');
 

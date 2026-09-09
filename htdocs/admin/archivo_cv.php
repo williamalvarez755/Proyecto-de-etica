@@ -20,7 +20,7 @@
  * descargó, de quién y para qué oferta.
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 requerir_permiso('cv.descargar');
 

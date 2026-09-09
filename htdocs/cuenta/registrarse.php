@@ -14,7 +14,7 @@
  * que mandó el formulario.
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 if (hay_sesion()) {
     redirigir(es_administrativo() ? '/admin/index.php' : '/cuenta/panel.php');

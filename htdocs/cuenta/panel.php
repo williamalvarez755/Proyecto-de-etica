@@ -10,7 +10,7 @@
  * tiene sobre uno es de las pocas garantías reales que se pueden dar.
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 requerir_rol_usuario();
 

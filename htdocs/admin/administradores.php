@@ -22,7 +22,7 @@
  *    entrar (regla 10), porque a propósito no la hay.
  */
 
-require __DIR__ . '/../../app/nucleo/inicio.php';
+require __DIR__ . '/../app/nucleo/inicio.php';
 
 requerir_superadministrador();
 
