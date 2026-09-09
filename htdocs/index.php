@@ -38,6 +38,19 @@ require RAIZ_APP . '/vistas/cabecera.php';
   </section>
 
   <section class="tarjeta pila">
+    <h2 class="tarjeta__titulo">¿Te contactaron por WhatsApp y no sabés si es real?</h2>
+    <p>
+      Escribí el nombre de la empresa o del reclutador y te decimos si aparece en el registro
+      de reclutadores autorizados del Ministerio de Trabajo. <strong>No necesitás cuenta ni
+      dar ningún dato tuyo.</strong>
+    </p>
+    <div class="acciones">
+      <a class="boton boton--principal" href="/verificador.php">Comprobar quién me contactó</a>
+      <a class="boton boton--secundario" href="/alertas.php">Ver señales de estafa</a>
+    </div>
+  </section>
+
+  <section class="tarjeta pila">
     <h2 class="tarjeta__titulo">Tres cosas que nunca te vamos a pedir</h2>
     <ul class="pila">
       <li>Dinero. Ni acá, ni por ninguna gestión. Un reclutador autorizado tampoco puede cobrarte.</li>
@@ -49,19 +62,19 @@ require RAIZ_APP . '/vistas/cabecera.php';
     </p>
   </section>
 
-  <?php if (!hay_sesion()): ?>
-    <section class="tarjeta pila">
-      <h2 class="tarjeta__titulo">Estamos construyendo la plataforma</h2>
-      <p>
-        Por ahora podés crear tu cuenta. Todavía no hay ofertas cargadas:
-        cuando las haya, se van a poder ver sin necesidad de tener cuenta.
-      </p>
-      <div class="acciones">
-        <a class="boton boton--principal" href="/cuenta/registrarse.php">Crear mi cuenta</a>
-        <a class="boton boton--secundario" href="/cuenta/entrar.php">Ya tengo cuenta</a>
-      </div>
-    </section>
-  <?php endif; ?>
+  <section class="tarjeta pila">
+    <h2 class="tarjeta__titulo">Ver las ofertas</h2>
+    <p>
+      No necesitás cuenta ni dar ningún dato para verlas. Podés buscar por oficio, por país
+      y por fecha.
+    </p>
+    <div class="acciones">
+      <a class="boton boton--principal" href="/ofertas.php">Ver las ofertas</a>
+      <?php if (!hay_sesion()): ?>
+        <a class="boton boton--secundario" href="/cuenta/registrarse.php">Crear mi cuenta</a>
+      <?php endif; ?>
+    </div>
+  </section>
 
 </div>
 

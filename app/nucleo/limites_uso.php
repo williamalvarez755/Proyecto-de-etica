@@ -55,6 +55,23 @@ function contar_fallos(string $tipo, string $identificador, int $minutos): int
 }
 
 
+/**
+ * Cuántos intentos hizo este identificador, hayan salido bien o mal.
+ *
+ * Se cuenta por identificador y no por IP cuando ya sabemos quién es
+ * la persona (por ejemplo, al subir un currículum). En un café
+ * internet o con datos móviles, mucha gente comparte la misma IP:
+ * limitar por IP haría que unos le consuman el cupo a otros.
+ */
+function contar_intentos(string $tipo, string $identificador, int $minutos): int
+{
+    return (int) consultar_valor(
+        'SELECT COUNT(*) FROM intentos_acceso
+         WHERE tipo = ? AND identificador = ? AND creado_en >= ?',
+        [$tipo, mb_strtolower($identificador, 'UTF-8'), ahora_menos_minutos($minutos)]
+    );
+}
+
 /** Cuántos intentos hizo esta dirección IP, hayan salido bien o mal. */
 function contar_intentos_por_ip(string $tipo, int $minutos): int
 {
@@ -115,6 +132,52 @@ function limpiar_fallos(string $tipo, string $identificador): void
          WHERE tipo = ? AND identificador = ? AND exito = 0',
         [$tipo, mb_strtolower($identificador, 'UTF-8')]
     );
+}
+
+
+/**
+ * RITMO DE NAVEGACIÓN
+ * -----------------------------------------------------------------
+ * Frena a quien pide páginas a una velocidad que ninguna persona
+ * podría. Importa doble acá: el hosting tiene tope de 30 000
+ * peticiones diarias, y si alguien se las come, el sitio se cae para
+ * todos — incluida la persona que iba a entrar a comprobar si el
+ * reclutador que la contactó es real.
+ *
+ * Se cuenta DENTRO DE LA SESIÓN, sin tocar la base de datos: agregarle
+ * una consulta a cada visita sería empeorar el problema que queremos
+ * resolver.
+ *
+ * Honestamente: esto frena programas que mantienen la sesión y el
+ * ruido de fondo. A alguien decidido que pida páginas sin cookies no
+ * lo para, y eso no se puede resolver desde PHP en un hosting
+ * compartido. Para eso están los límites por acción, que sí son
+ * infranqueables porque tocan la base.
+ */
+function revisar_ritmo(): void
+{
+    $ahora  = time();
+    $inicio = $_SESSION['ritmo_inicio'] ?? $ahora;
+
+    // La ventana se reinicia cada minuto.
+    if ($ahora - $inicio >= 60) {
+        $_SESSION['ritmo_inicio'] = $ahora;
+        $_SESSION['ritmo_cuenta'] = 1;
+        return;
+    }
+
+    $_SESSION['ritmo_cuenta'] = ($_SESSION['ritmo_cuenta'] ?? 0) + 1;
+
+    if ($_SESSION['ritmo_cuenta'] > PETICIONES_MAX_POR_MINUTO) {
+        http_response_code(429);
+        header('Retry-After: 60');
+        abortar(
+            429,
+            'Esperá un momento',
+            'Se pidieron demasiadas páginas muy rápido desde este navegador. '
+            . 'Esperá un minuto y volvé a intentar.'
+        );
+    }
 }
 
 

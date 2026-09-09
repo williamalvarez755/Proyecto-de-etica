@@ -30,6 +30,16 @@ if (es_post()) {
     $contrasena   = campo_crudo('contrasena');
     $confirmacion = campo_crudo('confirmacion');
 
+    // --- Trampa para programas que llenan formularios solos -------
+    // Si el campo escondido viene lleno, no fue una persona. Se
+    // responde como si todo hubiera salido bien, para no enseñarle al
+    // programa cuál fue el problema, pero no se crea nada.
+    if (cayo_en_trampa()) {
+        registrar_intento('registro', $correo, false);
+        guardar_mensaje('exito', 'Listo, tu cuenta quedó creada.');
+        redirigir('/cuenta/entrar.php');
+    }
+
     // --- Límite de cuentas nuevas por conexión -------------------
     // Sin esto, alguien puede crear miles de cuentas y agotar el tope
     // diario de peticiones del hosting, dejando el sitio caído.
@@ -94,6 +104,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
 
   <form method="post" action="/cuenta/registrarse.php" class="tarjeta">
     <?php campo_csrf(); ?>
+    <?php campo_trampa(); ?>
 
     <div class="campo">
       <label class="etiqueta" for="nombre">¿Cómo querés que te llamemos?</label>

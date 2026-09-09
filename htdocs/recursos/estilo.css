@@ -329,6 +329,42 @@ a:hover { color: var(--azul-oscuro); }
 
 .entrada--error { border-color: var(--rojo); }
 
+/* Campo trampa para programas automáticos: está en el HTML pero fuera
+   de la pantalla. Una persona nunca lo ve ni lo puede llenar; un
+   programa que lee el HTML, sí. No se usa display:none porque algunos
+   programas justamente saltan lo que está oculto así. */
+.trampa {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+textarea.entrada { min-height: 120px; line-height: 1.5; resize: vertical; }
+
+/* Casillas de verificación: el área que se puede tocar es toda la
+   línea, no el cuadrito de 13px. En un teléfono eso es la diferencia
+   entre poder marcarla y no poder. */
+.casilla {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--esp-3);
+  padding: var(--esp-3);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  margin-top: var(--esp-2);
+  cursor: pointer;
+  background: var(--superficie);
+}
+.casilla:hover { background: var(--superficie-2); }
+.casilla input { width: 22px; height: 22px; flex-shrink: 0; margin-top: 2px; }
+
+.casilla--grande { font-size: var(--texto-base); line-height: 1.5; }
+
+fieldset.campo { border: 0; padding: 0; margin-inline: 0; }
+fieldset.campo legend { padding: 0; }
+
 .error-campo {
   display: block;
   margin-top: var(--esp-2);
@@ -433,6 +469,76 @@ a:hover { color: var(--azul-oscuro); }
   white-space: nowrap;
 }
 
+/* ==================================================================
+   Pestañas del panel (filtrar por estado)
+   ================================================================== */
+
+.pestanas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2);
+}
+
+.pestana {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--esp-4);
+  border: 1px solid var(--borde-fuerte);
+  border-radius: 999px;
+  background: var(--superficie);
+  color: var(--tinta-suave);
+  text-decoration: none;
+  font-size: var(--texto-sm);
+  font-weight: 600;
+}
+.pestana:hover { background: var(--superficie-2); color: var(--tinta); }
+
+.pestana--activa {
+  background: var(--azul);
+  border-color: var(--azul);
+  color: #fff;
+}
+.pestana--activa:hover { background: var(--azul-oscuro); color: #fff; }
+
+
+/* Título con algo alineado a la derecha (una insignia, un botón). */
+.fila-titulo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-3);
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Cada botón de cambio de estado es su propio formulario. */
+.accion-estado { display: inline-block; }
+.accion-estado .entrada { min-width: 220px; margin-bottom: var(--esp-2); }
+
+
+/* Los estados de una oferta, con color propio para reconocerlos de un
+   vistazo. Verde SOLO para lo que está verificado o publicado: el
+   color tiene que significar siempre lo mismo en toda la plataforma. */
+.insignia--pendiente   { background: var(--ambar-claro); border-color: var(--ambar); color: var(--ambar); }
+.insignia--verificada  { background: var(--verde-claro); border-color: var(--verde); color: var(--verde); }
+.insignia--publicada   { background: var(--verde);       border-color: var(--verde); color: #fff; }
+.insignia--vencida     { background: var(--superficie-2);border-color: var(--borde-fuerte); color: var(--tinta-suave); }
+.insignia--retirada    { background: var(--rojo-claro);  border-color: var(--rojo);  color: var(--rojo); }
+.insignia--en_revision { background: var(--ambar-claro); border-color: var(--ambar); color: var(--ambar); }
+
+
+/* Texto que hay que copiar tal cual (la lista de columnas del CSV). */
+.codigo {
+  font-family: ui-monospace, Consolas, "Courier New", monospace;
+  font-size: var(--texto-sm);
+  background: var(--superficie-2);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-sm);
+  padding: var(--esp-3);
+  white-space: nowrap;
+}
+
+
 /* Resultado de una comprobación (lo usa la página de diagnóstico). */
 .bien { color: var(--verde); font-weight: 700; }
 .mal  { color: var(--rojo);  font-weight: 700; }
@@ -449,10 +555,191 @@ a:hover { color: var(--azul-oscuro); }
 
 
 /* ==================================================================
+   Bloque de verificación
+   Va siempre completo: sello + los cinco datos. Se ve serio y
+   ordenado a propósito, como un documento, no como una promoción.
+   ================================================================== */
+
+.verificacion {
+  background: var(--verde-claro);
+  border: 1px solid var(--verde);
+  border-radius: var(--radio-lg);
+  padding: var(--esp-5);
+}
+
+.verificacion__aclaracion {
+  margin-top: var(--esp-3);
+  font-size: var(--texto-sm);
+  color: #12402F;
+}
+
+.verificacion__datos {
+  margin-top: var(--esp-5);
+  padding-top: var(--esp-4);
+  border-top: 1px solid var(--verde);
+}
+.verificacion__datos dt {
+  font-size: var(--texto-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #2C5C48;
+  font-weight: 700;
+}
+.verificacion__datos dd {
+  margin: 0 0 var(--esp-4) 0;
+  color: var(--tinta);
+  word-break: break-word;
+}
+.verificacion__datos dd:last-child { margin-bottom: 0; }
+
+.sello--chico { font-size: var(--texto-xs); padding: 2px var(--esp-2); }
+
+
+/* ==================================================================
+   Tarjeta de oferta
+   ================================================================== */
+
+.oferta {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-left: 4px solid var(--verde);
+  border-radius: var(--radio-lg);
+  padding: var(--esp-5);
+  box-shadow: var(--sombra-1);
+}
+.oferta > * + * { margin-top: var(--esp-3); }
+
+.oferta__titulo { font-size: var(--texto-xl); }
+.oferta__titulo a { text-decoration: none; }
+.oferta__titulo a:hover { text-decoration: underline; }
+
+.oferta__empleador { font-weight: 600; }
+
+.oferta__lugar { color: var(--tinta-suave); font-size: var(--texto-sm); }
+
+.oferta__origen {
+  font-size: var(--texto-sm);
+  color: var(--tinta-suave);
+  padding-top: var(--esp-3);
+  border-top: 1px solid var(--borde);
+}
+
+
+/* ==================================================================
+   Por qué te aparece una oferta  (reglas 7 y 8)
+   ------------------------------------------------------------------
+   Acá NO hay porcentajes ni barras de coincidencia a propósito. Y las
+   advertencias se ven igual de claras que las razones: el punto es
+   que la persona pueda juzgar por su cuenta, no que confíe a ciegas.
+   ================================================================== */
+
+.motivos {
+  border-radius: var(--radio);
+  padding: var(--esp-3) var(--esp-4);
+  font-size: var(--texto-sm);
+}
+
+.motivos__titulo { font-weight: 700; margin-bottom: var(--esp-2); }
+
+.motivos ul { margin: 0; padding-left: var(--esp-5); }
+.motivos li + li { margin-top: var(--esp-1); }
+
+.motivos--coincide {
+  background: var(--verde-claro);
+  border-left: 4px solid var(--verde);
+  color: #12402F;
+}
+
+.motivos--ojo {
+  background: var(--ambar-claro);
+  border-left: 4px solid var(--ambar);
+  color: #5A3D00;
+}
+.motivos--ojo .texto-menor { color: #5A3D00; margin-top: var(--esp-2); }
+
+
+/* ==================================================================
+   Pantalla de consentimiento
+   ================================================================== */
+
+.consentimiento > * + * { margin-top: var(--esp-4); }
+.consentimiento .lista-datos { margin-top: var(--esp-4); }
+
+
+/* ==================================================================
+   Filtros del buscador
+   ================================================================== */
+
+.filtros .campo + .campo { margin-top: var(--esp-4); }
+.filtros .rejilla { margin-top: var(--esp-4); }
+
+
+/* ==================================================================
    Cuadrícula simple
    ================================================================== */
 
 .rejilla { display: grid; gap: var(--esp-4); }
+
+
+/* ==================================================================
+   La hoja del currículum armado
+   Se ve como una hoja de papel en pantalla y sale limpia al imprimir.
+   ================================================================== */
+
+.hoja {
+  background: #fff;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: var(--esp-6);
+  color: #000;
+}
+
+.hoja__encabezado {
+  border-bottom: 2px solid var(--azul);
+  padding-bottom: var(--esp-3);
+  margin-bottom: var(--esp-5);
+}
+.hoja__nombre   { font-size: var(--texto-2xl); color: var(--azul); }
+.hoja__contacto { font-size: var(--texto-sm); color: var(--tinta-suave); margin-top: var(--esp-1); }
+
+.hoja__bloque + .hoja__bloque { margin-top: var(--esp-5); }
+
+.hoja__titulo {
+  font-size: var(--texto-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--azul);
+  border-bottom: 1px solid var(--borde);
+  padding-bottom: var(--esp-1);
+  margin-bottom: var(--esp-2);
+}
+
+.hoja ul { margin: 0; padding-left: var(--esp-5); }
+
+.hoja__pie {
+  margin-top: var(--esp-6);
+  padding-top: var(--esp-3);
+  border-top: 1px solid var(--borde);
+  font-size: var(--texto-xs);
+  color: var(--tinta-suave);
+}
+
+
+/* Al imprimir queda solo la hoja: sin barra, sin pie del sitio y sin
+   botones. Lo que sale del papel es el currículum y nada más. */
+@media print {
+  .barra, .pie, .sin-imprimir, .saltar, .aviso { display: none !important; }
+
+  body { background: #fff; font-size: 12pt; }
+  .contenido { padding: 0; }
+  .contenedor { max-width: none; padding: 0; }
+
+  .hoja {
+    border: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+}
 
 
 /* ==================================================================
@@ -485,7 +772,14 @@ a:hover { color: var(--azul-oscuro); }
 @media (min-width: 48rem) {
   .titulo-pagina { font-size: 2.125rem; }
   .contenido { padding: var(--esp-7) 0 var(--esp-8); }
-  .rejilla--dos { grid-template-columns: 1fr 1fr; }
+  .rejilla--dos  { grid-template-columns: 1fr 1fr; }
+  .rejilla--tres { grid-template-columns: 1fr 1fr 1fr; }
+}
+
+/* En pantalla angosta los filtros se apilan, que es lo correcto para
+   un teléfono: tres menús en fila quedarían impracticables. */
+@media (max-width: 47.99rem) {
+  .filtros .rejilla > * + * { margin-top: var(--esp-4); }
 }
 
 

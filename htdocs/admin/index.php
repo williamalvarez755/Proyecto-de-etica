@@ -40,7 +40,48 @@ require RAIZ_APP . '/vistas/cabecera.php';
     </p>
   </section>
 
+  <?php
+  $conteo_ofertas = contar_por_estado();
+  $pendientes     = (int) ($conteo_ofertas['pendiente'] ?? 0);
+  $publicadas     = (int) ($conteo_ofertas['publicada'] ?? 0);
+  $por_vencer     = count(ofertas_publicadas_vencidas());
+  ?>
+
+  <?php if ($pendientes > 0 && tiene_permiso('ofertas.verificar')): ?>
+    <p class="aviso aviso--aviso">
+      Hay <strong><?= $pendientes ?></strong> oferta<?= $pendientes === 1 ? '' : 's' ?>
+      esperando verificación. Mientras tanto no se ven en el sitio público.
+      <a href="/admin/ofertas.php?estado=pendiente">Revisarlas</a>
+    </p>
+  <?php endif; ?>
+
+  <?php $reportes_sin_resolver = tiene_permiso('reportes.revisar') ? reportes_pendientes() : 0; ?>
+  <?php if ($reportes_sin_resolver > 0): ?>
+    <p class="aviso aviso--error">
+      Hay <strong><?= (int) $reportes_sin_resolver ?></strong>
+      reporte<?= $reportes_sin_resolver === 1 ? '' : 's' ?> de usuarios sin resolver.
+      <a href="/admin/reportes.php">Revisarlos</a>
+    </p>
+  <?php endif; ?>
+
+  <?php if ($por_vencer > 0 && tiene_permiso('mantenimiento.ejecutar')): ?>
+    <p class="aviso aviso--aviso">
+      Hay <strong><?= $por_vencer ?></strong> oferta<?= $por_vencer === 1 ? '' : 's' ?>
+      con la fecha vencida que todavía figuran como publicadas. Ya no se ven en el sitio,
+      pero conviene ponerlas al día.
+      <a href="/admin/mantenimiento.php">Ir a mantenimiento</a>
+    </p>
+  <?php endif; ?>
+
   <section class="rejilla rejilla--dos">
+    <div class="tarjeta">
+      <h2 class="tarjeta__titulo">Ofertas publicadas</h2>
+      <p class="texto-guia"><?= $publicadas ?> visibles en el sitio</p>
+    </div>
+    <div class="tarjeta">
+      <h2 class="tarjeta__titulo">Esperando verificación</h2>
+      <p class="texto-guia"><?= $pendientes ?></p>
+    </div>
     <div class="tarjeta">
       <h2 class="tarjeta__titulo">Cuentas de personas</h2>
       <p class="texto-guia"><?= $total_usuarios ?> registrada<?= $total_usuarios === 1 ? '' : 's' ?></p>
@@ -55,6 +96,76 @@ require RAIZ_APP . '/vistas/cabecera.php';
     <h2 class="subtitulo">Secciones</h2>
 
     <div class="rejilla rejilla--dos">
+
+      <?php if (tiene_permiso('ofertas.ver')): ?>
+        <div class="tarjeta pila">
+          <h3 class="tarjeta__titulo">Ofertas</h3>
+          <p>Cargar, verificar, publicar y retirar ofertas.</p>
+          <div class="acciones">
+            <a class="boton boton--principal" href="/admin/ofertas.php">Ver las ofertas</a>
+          </div>
+        </div>
+      <?php endif; ?>
+
+      <?php if (tiene_permiso('fuentes.gestionar')): ?>
+        <div class="tarjeta pila">
+          <h3 class="tarjeta__titulo">Fuentes</h3>
+          <p>De dónde salen las ofertas. Sin fuente no se puede cargar ninguna.</p>
+          <div class="acciones">
+            <a class="boton boton--secundario" href="/admin/fuentes.php">Ver las fuentes</a>
+          </div>
+        </div>
+      <?php endif; ?>
+
+      <?php if (tiene_permiso('reclutadores.gestionar')): ?>
+        <div class="tarjeta pila">
+          <h3 class="tarjeta__titulo">Reclutadores autorizados</h3>
+          <p>El registro del Ministerio de Trabajo, cargado a mano.</p>
+          <div class="acciones">
+            <a class="boton boton--secundario" href="/admin/reclutadores.php">Ver el registro</a>
+          </div>
+        </div>
+      <?php endif; ?>
+
+      <?php if (tiene_permiso('importacion.csv')): ?>
+        <div class="tarjeta pila">
+          <h3 class="tarjeta__titulo">Importar ofertas</h3>
+          <p>Cargar varias ofertas de una vez desde un archivo CSV.</p>
+          <div class="acciones">
+            <a class="boton boton--secundario" href="/admin/importar_csv.php">Importar</a>
+          </div>
+        </div>
+      <?php endif; ?>
+
+      <?php if (tiene_permiso('reportes.revisar')): ?>
+        <div class="tarjeta pila">
+          <h3 class="tarjeta__titulo">Reportes</h3>
+          <p>Lo que la gente avisó sobre las ofertas. Ninguna se retira sola: la decisión es tuya.</p>
+          <div class="acciones">
+            <a class="boton boton--secundario" href="/admin/reportes.php">Ver los reportes</a>
+          </div>
+        </div>
+      <?php endif; ?>
+
+      <?php if (tiene_permiso('usuarios.restablecer')): ?>
+        <div class="tarjeta pila">
+          <h3 class="tarjeta__titulo">Restablecer contraseñas</h3>
+          <p>Darle un código a alguien que olvidó su contraseña, para que ponga una nueva.</p>
+          <div class="acciones">
+            <a class="boton boton--secundario" href="/admin/restablecimientos.php">Abrir</a>
+          </div>
+        </div>
+      <?php endif; ?>
+
+      <?php if (tiene_permiso('mantenimiento.ejecutar')): ?>
+        <div class="tarjeta pila">
+          <h3 class="tarjeta__titulo">Mantenimiento</h3>
+          <p>Poner al día las ofertas vencidas. Conviene entrar una vez por semana.</p>
+          <div class="acciones">
+            <a class="boton boton--secundario" href="/admin/mantenimiento.php">Abrir</a>
+          </div>
+        </div>
+      <?php endif; ?>
 
       <?php if (tiene_permiso('bitacora.ver')): ?>
         <div class="tarjeta pila">
@@ -90,9 +201,9 @@ require RAIZ_APP . '/vistas/cabecera.php';
   <section class="tarjeta">
     <h2 class="tarjeta__titulo">Lo que todavía no está construido</h2>
     <p>
-      La gestión de ofertas, las fuentes, el registro de reclutadores autorizados y los
-      reportes se construyen en las siguientes etapas. Se prefiere no mostrar botones
-      que no hagan nada.
+      El emparejamiento entre perfiles y ofertas, la postulación con consentimiento, los
+      reportes de usuarios y el verificador público de reclutadores se construyen en las
+      siguientes etapas. Se prefiere no mostrar botones que no hagan nada.
     </p>
   </section>
 

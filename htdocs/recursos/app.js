@@ -54,4 +54,17 @@
     });
   });
 
+  /* ----------------------------------------------------------------
+     Imprimir el currículum armado.
+     Si el JavaScript no carga, la persona puede imprimir igual desde
+     el menú del navegador: por eso el botón no es imprescindible.
+     ---------------------------------------------------------------- */
+  var botones = document.querySelectorAll('[data-imprimir]');
+
+  Array.prototype.forEach.call(botones, function (boton) {
+    boton.addEventListener('click', function () {
+      window.print();
+    });
+  });
+
 }());

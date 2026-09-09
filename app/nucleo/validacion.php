@@ -80,6 +80,25 @@ function id_valido(string $valor): ?int
     return entero_en_rango($valor, 1, 4294967295);
 }
 
+/**
+ * ¿Es una dirección web que se puede publicar sin peligro?
+ *
+ * Se exige que empiece con http:// o https://. Sin esta comprobación,
+ * alguien con acceso al panel podría guardar una dirección que empiece
+ * con "javascript:" y convertir un enlace en código que se ejecuta en
+ * el navegador de la persona. Se valida al guardar Y al mostrar.
+ */
+function url_segura(?string $url): bool
+{
+    if ($url === null || $url === '') {
+        return false;
+    }
+    if (!preg_match('#^https?://#i', $url)) {
+        return false;
+    }
+    return filter_var($url, FILTER_VALIDATE_URL) !== false;
+}
+
 /** ¿Tiene forma de fecha AAAA-MM-DD y existe de verdad? */
 function es_fecha_valida(string $fecha): bool
 {
@@ -115,6 +134,43 @@ function revisar_contrasena(string $contrasena): ?string
         return 'Esa contraseña es demasiado fácil de adivinar. Escribí otra.';
     }
     return null;
+}
+
+
+/**
+ * TRAMPA PARA FORMULARIOS AUTOMÁTICOS
+ * -----------------------------------------------------------------
+ * Un campo que está en el formulario pero que la persona no ve. Los
+ * programas que llenan formularios automáticamente lo llenan igual,
+ * porque leen el HTML y no la pantalla. Si viene con algo escrito,
+ * sabemos que no fue una persona.
+ *
+ * Se eligió esto en vez de un captcha por dos razones:
+ *
+ *  1. Un captcha necesita un servicio externo (regla 11: no queremos
+ *     depender de nadie) y carga imágenes pesadas, justo lo que no le
+ *     sirve a alguien con datos contados.
+ *
+ *  2. Los captchas son una barrera real para gente con poca práctica
+ *     usando páginas web, que es exactamente nuestra población. Sería
+ *     ponerle el obstáculo a la persona equivocada.
+ *
+ * No es infalible contra alguien que se tome el trabajo de mirarlo,
+ * pero para eso están los límites de uso. Esto para el ruido de
+ * fondo, que es la mayoría.
+ */
+function campo_trampa(): void
+{
+    echo '<div class="trampa" aria-hidden="true">';
+    echo '<label for="apellido_secundario">No llenes este campo</label>';
+    echo '<input type="text" id="apellido_secundario" name="apellido_secundario" tabindex="-1" autocomplete="off">';
+    echo '</div>';
+}
+
+/** ¿Cayó en la trampa? Entonces no es una persona. */
+function cayo_en_trampa(): bool
+{
+    return trim((string) ($_POST['apellido_secundario'] ?? '')) !== '';
 }
 
 

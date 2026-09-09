@@ -68,6 +68,25 @@ require RAIZ_APP . '/nucleo/limites_uso.php';  // control de abuso
 require RAIZ_APP . '/modelos/usuarios.php';    // consultas de cuentas
 require RAIZ_APP . '/nucleo/autorizacion.php'; // rol y permiso (regla 5)
 
+// Modelos del dominio: todas las consultas SQL, agrupadas por entidad.
+require RAIZ_APP . '/modelos/rubros.php';
+require RAIZ_APP . '/modelos/fuentes.php';
+require RAIZ_APP . '/modelos/reclutadores.php';
+require RAIZ_APP . '/modelos/ofertas.php';
+require RAIZ_APP . '/modelos/perfiles.php';
+require RAIZ_APP . '/modelos/guardadas.php';
+require RAIZ_APP . '/modelos/restablecimientos.php';
+require RAIZ_APP . '/modelos/postulaciones.php';
+require RAIZ_APP . '/modelos/reportes.php';
+require RAIZ_APP . '/modelos/eliminacion.php';
+
+// Manejo de currículums: subida segura y lectura del archivo.
+require RAIZ_APP . '/nucleo/archivos.php';
+require RAIZ_APP . '/nucleo/extraccion.php';
+
+// Emparejamiento explicable entre perfiles y ofertas (reglas 7 y 8).
+require RAIZ_APP . '/nucleo/emparejamiento.php';
+
 
 // -----------------------------------------------------------------
 //  5. Cabeceras de seguridad
@@ -115,6 +134,11 @@ if (!headers_sent()) {
 // -----------------------------------------------------------------
 iniciar_sesion();
 
+// Freno para quien pide páginas más rápido de lo que podría una
+// persona. Va acá, después de la sesión y antes de cualquier consulta
+// pesada, para que corte lo antes posible.
+revisar_ritmo();
+
 
 // -----------------------------------------------------------------
 //  7. Protección CSRF automática
@@ -128,5 +152,19 @@ iniciar_sesion();
 //  formulario es campo_csrf().
 // -----------------------------------------------------------------
 if (es_post()) {
+    // Caso especial: cuando alguien sube un archivo más grande de lo
+    // que PHP acepta, PHP descarta TODO el formulario, incluido el
+    // token. Sin esto, la persona vería "no pudimos completar esa
+    // acción" y no entendería nunca que el problema era el tamaño.
+    $largo = (int) ($_SERVER['CONTENT_LENGTH'] ?? 0);
+    if ($_POST === [] && $largo > 0) {
+        abortar(
+            413,
+            'El archivo pesa demasiado',
+            'El archivo que intentaste subir es más grande de lo que el servidor acepta. '
+            . 'Probá con uno más liviano.'
+        );
+    }
+
     validar_csrf();
 }

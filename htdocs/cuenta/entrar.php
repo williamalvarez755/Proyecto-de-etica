@@ -101,6 +101,9 @@ require RAIZ_APP . '/vistas/cabecera.php';
     <p class="texto-menor">
       Nunca le des tu contraseña a nadie, ni siquiera a alguien que diga trabajar acá.
     </p>
+    <p>
+      <a class="boton boton--secundario" href="/cuenta/restablecer.php">Ya tengo un código</a>
+    </p>
   </div>
 
   <p class="texto-menor">

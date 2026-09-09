@@ -7,6 +7,12 @@
 /app/config/config.php
 /app/config/instalacion.txt
 
+# Credenciales de la API de Adzuna, que se usan solo en la máquina local.
+/herramientas/adzuna_credenciales.php
+
+# Los CSV generados: son borradores de trabajo, no código.
+/herramientas/ofertas_20*.csv
+
 # Datos de personas. Un currículum jamás debe terminar en un repositorio.
 /app/almacen/cv/*
 /app/almacen/logs/*

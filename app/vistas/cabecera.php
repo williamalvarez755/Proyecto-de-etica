@@ -42,6 +42,14 @@ $usuario       = usuario_actual();
     </a>
 
     <nav class="navegacion" aria-label="Navegación principal">
+      <!-- Ofertas y verificador van primero y se ven sin cuenta
+           (regla 4). El verificador es la función más útil para quien
+           llega asustado por un mensaje de WhatsApp, así que tiene que
+           estar a la vista en todas las páginas, no escondida. -->
+      <a class="navegacion__enlace" href="/ofertas.php">Ofertas</a>
+      <a class="navegacion__enlace" href="/verificador.php">Verificar</a>
+      <a class="navegacion__enlace" href="/alertas.php">Alertas</a>
+
       <?php if ($usuario === null): ?>
         <a class="navegacion__enlace" href="/cuenta/entrar.php">Entrar</a>
         <a class="navegacion__enlace navegacion__enlace--destacado" href="/cuenta/registrarse.php">Crear cuenta</a>

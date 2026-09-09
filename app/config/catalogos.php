@@ -104,6 +104,66 @@ const TRANSICIONES_OFERTA = [
 ];
 
 // =================================================================
+//  Estados de una postulación (Fase 4)
+//
+//  Retirar no borra nada: el consentimiento que la persona dio queda
+//  registrado igual, porque es cierto que lo dio y tiene derecho a
+//  poder consultarlo después.
+// =================================================================
+const ESTADOS_POSTULACION = [
+    'enviada'  => 'Enviada',
+    'retirada' => 'Retirada por vos',
+];
+
+// =================================================================
+//  Señales de alerta de una estafa laboral (Fase 5)
+//
+//  Están acá, en un solo lugar, porque se muestran en varias
+//  pantallas y tienen que decir siempre exactamente lo mismo.
+//
+//  Cada una está redactada como algo CONCRETO que le puede estar
+//  pasando a la persona en este momento, no como consejo general.
+//  "Desconfíe de ofertas sospechosas" no le sirve a nadie; "si te
+//  piden dinero por adelantado, es ilegal" sí.
+// =================================================================
+const SENALES_ALERTA = [
+    'dinero' => [
+        'titulo' => 'Te piden dinero por adelantado',
+        'texto'  => 'La ley prohíbe que un reclutador le cobre al trabajador. Ni por el trámite, '
+                  . 'ni por el viaje, ni por "apartar el cupo", ni por la papelería. '
+                  . 'Si te piden dinero, es una estafa. No importa lo convincentes que sean.',
+    ],
+    'documentos' => [
+        'titulo' => 'Te piden fotos de tu DPI o tu pasaporte antes de una entrevista formal',
+        'texto'  => 'Con una foto de tu DPI se pueden sacar préstamos a tu nombre o abrir cuentas. '
+                  . 'Un empleador real pide tus documentos cuando ya hay un proceso formal, '
+                  . 'no en el primer mensaje.',
+    ],
+    'empresa' => [
+        'titulo' => 'No hay una empresa que puedas comprobar',
+        'texto'  => 'Si no te dicen el nombre completo de la empresa, ni dónde queda, ni un '
+                  . 'teléfono que puedas llamar, no hay forma de saber si existe. '
+                  . 'Una oferta real no tiene por qué esconder quién es.',
+    ],
+    'whatsapp' => [
+        'titulo' => 'Solo te hablan por WhatsApp y con apuro',
+        'texto'  => 'Cuando todo pasa por un número de teléfono, sin correo de la empresa ni '
+                  . 'oficina, y encima te apuran diciendo que quedan pocos cupos, esa prisa '
+                  . 'es la herramienta: es para que no te dé tiempo de comprobar nada.',
+    ],
+    'demasiado_bueno' => [
+        'titulo' => 'Ofrecen mucho dinero por un trabajo sencillo',
+        'texto'  => 'Si el sueldo que prometen es muy superior a lo normal para ese trabajo, '
+                  . 'y encima no piden experiencia ni requisitos, conviene desconfiar.',
+    ],
+    'visa' => [
+        'titulo' => 'Te prometen que ellos consiguen la visa',
+        'texto'  => 'Nadie puede garantizarte una visa. Las visas las dan los consulados y no hay '
+                  . 'gestor que las asegure. Quien te lo promete, te está mintiendo.',
+    ],
+];
+
+// =================================================================
 //  Reportes de usuarios (Fase 5)
 // =================================================================
 const MOTIVOS_REPORTE = [
@@ -122,6 +182,19 @@ const ESTADOS_REPORTE = [
     'en_revision' => 'En revisión',
     'resuelto'    => 'Resuelto',
     'descartado'  => 'Descartado',
+];
+
+// =================================================================
+//  Estado de la autorización de un reclutador
+//
+//  Ojo: que el estado diga "vigente" no alcanza. Si la fecha de
+//  vigencia ya pasó, el sistema lo trata como vencido igual. El estado
+//  lo escribe una persona; la fecha no se equivoca.
+// =================================================================
+const ESTADOS_RECLUTADOR = [
+    'vigente'   => 'Autorización vigente',
+    'vencido'   => 'Autorización vencida',
+    'suspendido'=> 'Autorización suspendida',
 ];
 
 // =================================================================
@@ -164,6 +237,30 @@ const ACCIONES_BITACORA = [
     'administrador_desactivado'  => 'Desactivó una cuenta administrativa',
     'administrador_reactivado'   => 'Reactivó una cuenta administrativa',
     'contrasena_cambiada'        => 'Cambió su contraseña',
+    'oferta_creada'              => 'Cargó una oferta',
+    'oferta_editada'             => 'Editó una oferta',
+    'oferta_verificada'          => 'Verificó una oferta',
+    'oferta_publicada'           => 'Publicó una oferta',
+    'oferta_retirada'            => 'Retiró una oferta',
+    'oferta_vencida'             => 'Marcó una oferta como vencida',
+    'oferta_en_revision'         => 'Puso una oferta en revisión',
+    'oferta_estado_cambiado'     => 'Cambió el estado de una oferta',
+    'ofertas_vencidas_en_lote'   => 'Marcó como vencidas las ofertas que ya pasaron su fecha',
+    'importacion_csv'            => 'Importó ofertas desde un archivo CSV',
+    'fuente_creada'              => 'Creó una fuente',
+    'fuente_editada'             => 'Editó una fuente',
+    'fuente_estado_cambiado'     => 'Activó o desactivó una fuente',
+    'reclutador_creado'          => 'Agregó un reclutador al registro',
+    'reclutador_editado'         => 'Editó un reclutador del registro',
+    'reclutador_alias_agregado'  => 'Agregó otro nombre a un reclutador',
+    'reclutador_alias_borrado'   => 'Quitó un nombre de un reclutador',
+    'restablecimiento_generado'  => 'Generó un código de contraseña para alguien',
+    'restablecimiento_usado'     => 'Una persona puso contraseña nueva con su código',
+    'cv_descargado'              => 'Descargó el currículum de una persona que se postuló',
+    'postulaciones_vistas'       => 'Vio quiénes se postularon a una oferta',
+    'reporte_revisado'           => 'Revisó un reporte de un usuario',
+    'limpieza_ejecutada'         => 'Borró registros viejos desde mantenimiento',
+    'respaldo_descargado'        => 'Descargó un respaldo de la base de datos',
 ];
 
 // =================================================================

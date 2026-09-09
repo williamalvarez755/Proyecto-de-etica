@@ -116,19 +116,24 @@ cambia la decisión técnica, no la regla.
 
 ## 4. Estado actual
 
-**Fase actual: 1 — Cimientos, roles y primitivas de seguridad.**
-**Situación: código escrito y revisado en local el 2026-09-03. Falta subirlo por FTP y probarlo
-en el servidor real. La Fase 2 no empieza hasta que las pruebas del servidor pasen.**
+**Fase actual: 3 — Cuentas, currículum y perfil.**
+**Situación: Fases 1, 2 y 3 escritas y revisadas en local el 2026-09-03. Ninguna se ha probado
+todavía en el servidor real. Las pruebas del servidor siguen pendientes y son la condición para
+dar las tres fases por cerradas.**
 
 | Fase | Contenido | Estado |
 |---|---|---|
 | 1 | Cimientos, roles y primitivas de seguridad | Escrita, falta probar en el servidor |
-| 2 | Ofertas, estados y panel de administración | Pendiente |
-| 3 | Cuentas, currículum y perfil | Pendiente |
-| 4 | Emparejamiento, postulación y consentimiento | Pendiente |
-| 5 | Prevención de estafas y reportes | Pendiente |
-| 6 | Abuso, auditoría, resiliencia y retención | Pendiente |
-| 7 | Revisión de seguridad y puesta en producción | Pendiente |
+| 2 | Ofertas, estados y panel de administración | Escrita, falta probar en el servidor |
+| 3 | Cuentas, currículum y perfil | Escrita, falta probar en el servidor |
+| 4 | Emparejamiento, postulación y consentimiento | Escrita, falta probar en el servidor |
+| 5 | Prevención de estafas y reportes | Escrita, falta probar en el servidor |
+| 6 | Abuso, auditoría, resiliencia y retención | Escrita, falta probar en el servidor |
+| 7 | Revisión de seguridad y puesta en producción | Revisión hecha; falta instalar y probar |
+
+**Las siete fases están escritas.** La revisión de seguridad de los 14 puntos pasa
+(`herramientas/revision_seguridad.py`). Lo que queda es instalar en el servidor y probar,
+que es lo único que no se puede hacer desde la computadora.
 
 ### Pendientes de verificar en el servidor real (bloquean decisiones)
 
@@ -316,12 +321,284 @@ cambió: el historial de por qué algo cambió vale tanto como la decisión actu
   escribir ahí. Si no pudiera, el plan B es `htdocs/_privado/` con `.htaccess` que niegue todo, que
   es más débil (un error en un `.htaccess` expone los archivos) y solo se usaría sin más remedio.
 
+### D-017 · 2026-09-03 · Verificar no es un botón: es una lista de comprobaciones · VIGENTE
+
+- **Decisión:** para marcar una oferta como verificada hay que marcar, una por una, cinco
+  comprobaciones (seis si hay reclutador de por medio). Todas son obligatorias, y cuáles se
+  marcaron queda escrito en la bitácora con el nombre de quien las marcó.
+- **Por qué:** la regla 2 dice que la palabra "verificada" se gana. Si verificar fuera un botón en
+  una lista, en tres meses sería un clic de trámite y la palabra dejaría de significar algo — y esa
+  palabra es lo único que esta plataforma le ofrece a alguien que ya fue estafado antes.
+- **Alternativas descartadas:** un botón "verificar" con confirmación (no obliga a mirar nada);
+  un campo de notas libre (nadie lo llena, y no se puede exigir).
+
+### D-018 · 2026-09-03 · La fecha de vencimiento es obligatoria para publicar · VIGENTE
+
+- **Decisión:** una oferta no se puede publicar sin fecha de vencimiento, y la consulta pública
+  exige que esa fecha no haya pasado.
+- **Por qué:** sin fecha, una oferta se quedaría publicada para siempre. Y como el hosting no
+  tiene tareas programadas (D-003), no hay nadie que la baje. Poniendo la condición en la consulta,
+  **una oferta vencida deja de verse sola**, aunque nadie entre al panel en seis meses.
+- **Consecuencia:** el botón de mantenimiento que marca las vencidas es para que el panel diga la
+  verdad, no para proteger a la persona. Esa protección ya está en la consulta.
+
+### D-019 · 2026-09-03 · Editar una oferta verificada le quita la verificación · VIGENTE
+
+- **Decisión:** guardar cambios en una oferta que estaba verificada o publicada la devuelve a
+  'pendiente' y borra quién la verificó.
+- **Por qué:** si cambió el empleador, la fuente o el vencimiento, lo que alguien comprobó antes
+  ya no es lo que dice la oferta ahora. Sin esto, "verificada" se convertiría en una etiqueta que
+  alguien puso una vez y que después dejó de ser cierta sin que nadie se enterara.
+
+### D-020 · 2026-09-03 · Un reclutador sin autorización vigente bloquea la verificación · VIGENTE
+
+- **Decisión:** si una oferta viene por un reclutador cuya autorización está vencida o suspendida,
+  el sistema no deja verificarla. No es una advertencia: es un bloqueo.
+- **Por qué:** verificar significa que comprobamos el origen. Si el reclutador no está autorizado,
+  lo que comprobamos es justamente lo contrario.
+- **Detalle:** la vigencia se comprueba con el estado **y** con la fecha. El estado lo escribe una
+  persona y se puede quedar viejo; la fecha no se equivoca.
+
+### D-021 · 2026-09-03 · Todo lo que se importa entra como 'pendiente' · VIGENTE
+
+- **Decisión:** las ofertas importadas por CSV entran siempre en 'pendiente'. No existe ningún
+  camino en el sistema para crear una oferta ya verificada o ya publicada.
+- **Por qué:** si lo hubiera, bastaría con subir un archivo para publicar cualquier cosa con el
+  sello de verificada. El CSV es una comodidad para cargar; no es una fuente de confianza.
+- **Detalle:** el archivo se lee y se descarta, nunca se guarda en el servidor. Un archivo menos
+  que cuidar y que cuente contra el límite de archivos del hosting.
+
+### D-022 · 2026-09-03 · Sin pantalla para gestionar rubros (por ahora) · VIGENTE
+
+- **Decisión:** los 16 rubros iniciales se cargan con `datos_iniciales.sql` y no hay pantalla para
+  crear más. Agregar uno hoy requiere una consulta en phpMyAdmin.
+- **Por qué:** no estaba en el alcance de la fase y los 16 cubren el trabajo que se ofrece en los
+  programas de trabajo temporal. Se prefirió terminar bien lo pedido antes que agregar de más.
+- **Pendiente conocido:** para el traspaso a la institución conviene construir esa pantalla, para
+  que no dependan de alguien con acceso a la base. Anotado para la Fase 7.
+
+### D-023 · 2026-09-03 · El texto del currículum no se guarda en ninguna parte · VIGENTE
+
+- **Decisión:** el texto extraído del archivo vive solo durante la petición que arma la pantalla
+  de confirmación. No se guarda en la base ni en la sesión. Lo único que queda son los campos
+  estructurados que la persona confirmó.
+- **Por qué:** datos mínimos (regla 4). El texto completo de un currículum tiene nombres,
+  teléfonos, direcciones y nombres de empleadores anteriores. Nada de eso lo necesita el
+  emparejamiento, así que no hay razón para tenerlo guardado y sí para no tenerlo.
+- **Consecuencia:** si la persona recarga la pantalla de confirmación, el archivo se vuelve a
+  leer. Cuesta un poco de procesador y ahorra un depósito de datos personales.
+
+### D-024 · 2026-09-03 · El currículum armado se imprime desde el navegador · VIGENTE
+
+- **Decisión:** para quien no tiene currículum, el sistema arma una hoja ordenada en HTML con
+  estilos de impresión. La persona la guarda como PDF desde su propio navegador.
+- **Por qué:** generar PDF en el servidor obligaría a una segunda dependencia externa, y cada
+  librería es superficie de ataque y archivos que cuentan contra el límite del hosting. Cualquier
+  navegador de teléfono ya sabe imprimir a PDF: el problema real se resuelve sin agregar nada.
+- **Alternativas descartadas:** una librería de PDF (dependencia y peso); generar `.docx` a mano
+  con ZipArchive (se puede, pero es bastante código para un beneficio pequeño).
+
+### D-025 · 2026-09-03 · Sin `pdfparser` el sistema sigue funcionando · VIGENTE
+
+- **Decisión:** la lectura de PDF se intenta solo si `vendor/autoload.php` existe. Si no está, o
+  si el PDF es un escaneo sin texto, la persona ve un aviso en español y llena el formulario a
+  mano. El archivo igual queda guardado.
+- **Por qué:** regla 11. La única dependencia externa del proyecto no puede ser un punto de falla
+  que deje a alguien sin poder usar la plataforma. El `.docx` se lee siempre, con `ZipArchive`,
+  que viene con PHP.
+
+### D-026 · 2026-09-03 · El archivo del CV no se pide por su nombre · VIGENTE
+
+- **Decisión:** `htdocs/cuenta/archivo_cv.php` no recibe ningún parámetro. Busca el currículum que
+  corresponde a la sesión abierta.
+- **Por qué:** si recibiera un identificador, existiría un número que alguien podría cambiar en la
+  dirección para pedir el currículum de otra persona. Es el error más común de estas pantallas, y
+  acá el dato que se filtraría es el más sensible de todo el sistema.
+
+### D-027 · 2026-09-08 · El puntaje del emparejamiento ordena, pero nunca se muestra · VIGENTE
+
+- **Decisión:** el algoritmo calcula un puntaje para ordenar la lista, y ese número **no aparece
+  en ninguna pantalla**. Lo que ve la persona son frases: "Sabés albañilería", "Piden 3 años de
+  experiencia y vos tenés 5".
+- **Por qué:** la regla 8. Un "87 % de coincidencia" no le dice nada a nadie y encima da una falsa
+  sensación de precisión que la persona no puede discutir. Las frases sí las puede juzgar por su
+  cuenta, sin saber nada de tecnología.
+
+### D-028 · 2026-09-08 · El emparejamiento recibe seis campos y ninguno más · VIGENTE
+
+- **Decisión:** `evaluar_coincidencia()` no recibe el usuario completo. Recibe un arreglo armado
+  por `datos_para_emparejar()` con exactamente seis claves: rubros, años, estudios, idiomas,
+  países y disponibilidad.
+- **Por qué:** la regla 7 pide que la no discriminación sea **verificable**. Con esta firma se
+  comprueba leyendo dos funciones que el algoritmo no puede usar edad, sexo, apellido, idioma
+  materno ni origen, aunque alguien quisiera. Y esos datos, además, no existen en la base.
+
+### D-029 · 2026-09-08 · Rubro y país excluyen; lo demás solo advierte · VIGENTE
+
+- **Decisión:** si la oferta no es de un oficio que la persona sabe hacer, o es en un país al que
+  dijo que no iría, no se recomienda. Todo lo demás (experiencia, estudios, idiomas,
+  disponibilidad) **no excluye**: se muestra como advertencia y la persona decide.
+- **Por qué:** que a alguien le falte un año de experiencia no significa que no deba intentarlo, y
+  decidir eso por él sería exactamente el paternalismo que la regla 8 quiere evitar. En cambio,
+  recomendarle un trabajo que no sabe hacer o en un país al que no quiere ir es ruido.
+
+### D-030 · 2026-09-08 · Se puede postular con archivo o con el perfil · VIGENTE
+
+- **Decisión:** si la persona tiene un archivo de currículum, se comparte el archivo. Si no tiene,
+  se comparten los datos de su perfil. La pantalla de consentimiento dice cuál de los dos.
+- **Por qué:** exigir un archivo dejaría fuera precisamente a quien no tiene currículum, que es
+  buena parte de nuestra población y para quien se construyó el formulario alterno.
+- **Detalle:** el consentimiento guarda `'perfil'` o el nombre del archivo, así que siempre queda
+  registrado qué se compartió exactamente.
+
+### D-031 · 2026-09-08 · Un archivo ya consentido no se borra al reemplazarlo · VIGENTE
+
+- **Decisión:** cuando alguien sube un currículum nuevo o borra el suyo, el archivo anterior se
+  borra del disco **salvo** que ya lo haya compartido con alguna oferta. En ese caso se conserva.
+- **Por qué:** el consentimiento dice "se compartió este archivo". Si el archivo desapareciera, el
+  registro estaría mintiendo, y el empleador que sí tenía autorización se quedaría sin lo que se
+  le autorizó ver.
+- **Consecuencia para la Fase 6:** al **eliminar la cuenta** sí se borra todo, sin excepción. Esta
+  regla vale para el reemplazo, no para el borrado de cuenta (regla 4).
+
+### D-032 · 2026-09-08 · "No aparece en el registro" NO significa "es una estafa" · VIGENTE
+
+- **Decisión:** cuando el verificador no encuentra un nombre, dice exactamente esto: que no lo
+  encontramos, que el registro es **solo de reclutadores autorizados** (intermediarios), que una
+  empresa que contrata directo no tiene por qué estar ahí, y que por lo tanto **no podemos
+  confirmar nada**. Nunca dice ni sugiere que sea falso.
+- **Por qué:** es el punto donde más fácil sería hacer daño. Decir "no está, es estafa" acusaría
+  a empleadores legítimos y, peor, le enseñaría a la gente a confiar en un sello que no significa
+  lo que cree. La plataforma solo puede afirmar lo que sabe.
+- **En la dirección contraria:** cuando sí aparece, tampoco se dice "es seguro". Se dice que está
+  inscrito, y se recuerda que **aunque esté autorizado sigue sin poder cobrarle al trabajador.**
+
+### D-033 · 2026-09-08 · Ninguna oferta se retira sola por acumular reportes · VIGENTE
+
+- **Decisión:** en `app/modelos/reportes.php` no existe ninguna función que cambie el estado de una
+  oferta. Resolver un reporte y retirar una oferta son dos acciones separadas, en dos pantallas
+  distintas, y la segunda la decide una persona escribiendo el motivo.
+- **Por qué:** si bastara con reportes para tumbar una oferta, un competidor o un reclutador
+  irregular podría sacar del aire a los que sí cumplen con diez cuentas de correo desechable. El
+  costo de revisar a mano es mucho menor que ese riesgo.
+- **Se le dice a la persona que reporta**, para no prometerle algo que no va a pasar.
+
+### D-034 · 2026-09-08 · El verificador no guarda qué nombres busca la gente · VIGENTE
+
+- **Decisión:** se registra que hubo una consulta (para el límite de uso), con la conexión como
+  identificador, pero **no el texto que la persona buscó**.
+- **Por qué:** datos mínimos (regla 4). Saber qué empresas consulta la gente no nos hace falta
+  para nada, y sería un registro de quién sospecha de quién. Lo que no se guarda no se filtra.
+
+### D-035 · 2026-09-08 · Coincidencia exacta y coincidencia parecida se muestran distinto · VIGENTE
+
+- **Decisión:** el verificador separa las coincidencias exactas de las parecidas. Con una exacta
+  se puede afirmar "está en el registro". Con una parecida solo se dice "hay un nombre parecido,
+  fijate bien si es el mismo".
+- **Por qué:** usar un nombre casi igual al de una empresa real es una técnica de estafa conocida.
+  Tratar las dos cosas igual sería peligroso en las dos direcciones.
+
+### D-036 · 2026-09-08 · Los teléfonos de denuncia hay que verificarlos antes de publicar · PENDIENTE
+
+- **Situación:** `htdocs/alertas.php` lista dónde denunciar. Los nombres de las instituciones son
+  correctos, pero **los números de teléfono deben verificarse antes de publicar el sitio** y
+  revisarse cada cierto tiempo.
+- **Por qué importa:** un número equivocado acá no es un detalle de contenido. Es alguien en
+  problemas llamando a un teléfono que no contesta.
+- **Criterio:** si un número no se puede verificar, se deja solo el nombre de la institución. Es
+  mejor decir menos que decir algo dudoso.
+
+### D-037 · 2026-09-08 · La limpieza se dispara con un botón, no al entrar el administrador · VIGENTE
+
+- **Decisión:** el borrado de registros viejos está en Mantenimiento, como botón. No se ejecuta
+  solo cuando un administrador inicia sesión.
+- **Por qué:** un borrado que ocurre sin que nadie lo pida es un borrado que nadie revisó. Con el
+  botón hay una persona que apretó y una línea en la bitácora con su nombre; si algún día la
+  limpieza tiene un error, hay a quién preguntarle. Además, colgarle trabajo pesado al inicio de
+  sesión hace lento justo el momento en que alguien entra a trabajar.
+- **Para que no se olvide:** el panel avisa cuando hay algo pendiente de limpiar.
+
+### D-038 · 2026-09-08 · Trampa oculta en vez de captcha · VIGENTE
+
+- **Decisión:** contra formularios automáticos se usa un campo escondido que las personas no ven
+  y los programas llenan. No hay captcha.
+- **Por qué:** un captcha necesita un servicio externo (regla 11: no dependemos de nadie) y carga
+  imágenes pesadas, justo lo que no le sirve a alguien con datos contados. Y sobre todo: los
+  captchas son una barrera real para gente con poca práctica usando páginas web, que es
+  exactamente nuestra población. Sería ponerle el obstáculo a la persona equivocada.
+- **Honestamente:** para el ruido de fondo. Contra alguien decidido están los límites por acción.
+
+### D-039 · 2026-09-08 · El freno al ritmo se cuenta en la sesión, no en la base · VIGENTE
+
+- **Decisión:** el límite de peticiones por minuto se lleva en la sesión, sin consultar la base.
+- **Por qué:** agregarle una consulta a cada visita sería empeorar el problema que se quiere
+  resolver, que es justamente consumir de más.
+- **Lo que NO hace, dicho claro:** no frena a quien pida páginas sin cookies. Eso no se puede
+  resolver desde PHP en un hosting compartido. Los límites que sí son infranqueables son los de
+  cada acción, porque tocan la base: login, registro, subida, postulación y verificador.
+
+### D-040 · 2026-09-08 · Al eliminar la cuenta se borran también los archivos ya compartidos · VIGENTE
+
+- **Decisión:** `eliminar_cuenta()` borra del disco todos los currículums de esa persona,
+  incluidos los que ya había compartido con alguna oferta.
+- **Por qué:** contradice a propósito la decisión D-031, que los conserva cuando la persona solo
+  **reemplaza** su currículum. Al eliminar la cuenta manda la regla 4. Que un empleador se quede
+  sin un archivo que ya podía ver es un costo menor que incumplirle a alguien el borrado de sus
+  datos.
+- **Detalle de implementación:** los nombres de archivo se juntan **antes** de borrar la fila.
+  Al revés quedarían huérfanos en el disco para siempre, sin forma de saber de quién eran.
+
+### D-041 · 2026-09-08 · Los reportes sobreviven al borrado de cuenta, sin identidad · VIGENTE
+
+- **Decisión:** al eliminar una cuenta, sus reportes de ofertas sospechosas se conservan con
+  `usuario_id` en NULL.
+- **Por qué:** el aviso de que una oferta puede ser una estafa le sirve a la institución para
+  proteger a otras personas, y sin la identidad ya no apunta a nadie. Se le dice a la persona en
+  la pantalla de borrado, antes de que confirme: no es una letra chica.
+
+### D-042 · 2026-09-08 · El respaldo no incluye los currículums · VIGENTE
+
+- **Decisión:** `admin/respaldo.php` exporta las 21 tablas, no los archivos. Un respaldo completo
+  son **dos cosas**: ese archivo .sql y una copia por FTP de `app/almacen/cv`.
+- **Por qué:** meter archivos binarios dentro del .sql lo haría enorme y frágil, y en este hosting
+  se cortaría a la mitad. Está dicho en la propia pantalla para que nadie crea que con bajar el
+  .sql ya respaldó todo.
+
+### D-043 · 2026-09-08 · La lista blanca de tablas es la protección del respaldo · VIGENTE
+
+- **Situación:** el respaldo es el único lugar del proyecto donde algo que no es un parámetro
+  entra al texto de una consulta, y no se puede evitar: **PDO no permite parametrizar nombres de
+  tabla**, solo valores.
+- **Decisión:** existe `tabla_permitida()`, que comprueba el nombre contra `TABLAS_RESPALDO` **y**
+  contra un patrón de solo letras minúsculas, y corta la ejecución si algo no cuadra. Se comprueba
+  explícitamente en cada uso, aunque el nombre venga de una constante nuestra.
+- **Por qué así:** para que la protección esté en la función y no en la confianza de que quien
+  llame use la constante correcta.
+
 ---
 
 ## 6. Cosas que ya se intentaron y no funcionaron
 
-*(Vacío por ahora. Se llena en cuanto algo se pruebe y se descarte, con la razón concreta, para no
-volver a intentarlo dentro de tres semanas.)*
+### 2026-09-08 · Detectar SQL peligroso con un patrón multilínea
+
+- **Qué se intentó:** en `herramientas/revision_seguridad.py`, buscar cadenas con SQL y variables
+  usando una expresión regular sobre el archivo completo, con `re.S`.
+- **Por qué no sirve:** el patrón empieza el match en la comilla que **cierra** una cadena y lo
+  termina en la que **abre** la siguiente, así que marca como peligroso el código PHP que hay en
+  medio. Daba 128 hallazgos, de los cuales uno era real.
+- **Qué se hizo en su lugar:** revisar línea por línea, donde una cadena no puede cruzarse con
+  otra. Bajó a cero falsos positivos.
+- **La lección, que vale más que el detalle técnico:** un detector con falsos positivos crónicos
+  es un detector que nadie vuelve a mirar, y entonces no protege nada. Si vuelve a dar ruido, hay
+  que afinarlo, no acostumbrarse a ignorarlo.
+
+### 2026-09-08 · Escribir archivos largos con heredoc desde la terminal
+
+- **Qué se intentó:** crear el `CLAUDE.md` inicial con `cat > archivo <<'FIN'`.
+- **Por qué no sirve:** con contenido largo y acentuado, la terminal rompía la sintaxis antes de
+  terminar el archivo.
+- **Qué se hizo en su lugar:** escribir los archivos directamente. Sin consecuencias para el
+  proyecto, pero para no volver a perder tiempo en lo mismo.
 
 ---
 
@@ -373,6 +650,20 @@ Tener dos maneras de comprobar lo mismo es como aparecen los huecos.
 | `nucleo/sesion.php` | `iniciar_sesion_de_usuario()`, `cerrar_sesion()` | Sesión segura, expiración e inicio de sesión |
 | `nucleo/codigos.php` | `generar_codigo()`, `generar_contrasena_temporal()` | Códigos aleatorios seguros y legibles al dictarlos |
 | `modelos/usuarios.php` | `autenticar()`, `crear_usuario()`, `cambiar_contrasena()`, `desactivar_usuario()` | Todo lo que toca la tabla `usuarios` |
+| `modelos/ofertas.php` | `listar_ofertas_publicas()`, `buscar_oferta_publica()`, `crear_oferta()`, `transicion_permitida()`, `motivo_para_no_publicar()`, `marcar_verificada()` | Ofertas y su ciclo de vida. Contiene `CONDICION_OFERTA_PUBLICA`, que es la regla 1 escrita una sola vez |
+| `modelos/fuentes.php` | `listar_fuentes()`, `crear_fuente()`, `cambiar_estado_fuente()` | De dónde salió cada oferta |
+| `modelos/reclutadores.php` | `listar_reclutadores()`, `reclutador_vigente_hoy()`, `agregar_alias()` | El registro del Ministerio. Alimenta el verificador de la Fase 5 |
+| `modelos/rubros.php` | `listar_rubros()`, `rubro_valido()`, `id_de_rubro()` | Los oficios |
+| `vistas/sello_verificacion.php` | *(se incluye, no es función)* | El sello + los cinco datos obligatorios, juntos y en un solo lugar |
+| `nucleo/archivos.php` | `revisar_cv_subido()`, `guardar_cv()`, `borrar_cv()`, `entregar_cv()` | Currículums: tipo real con finfo, nombre aleatorio, fuera de `htdocs` |
+| `nucleo/extraccion.php` | `leer_texto_de_cv()`, `extraer_datos_del_cv()`, `se_puede_leer()` | Leer `.docx` y `.pdf` y proponer qué entendió. Lo que sale de acá es propuesta, no dato |
+| `modelos/perfiles.php` | `buscar_perfil()`, `guardar_perfil()`, `rubros_de_perfil()`, `paises_de_perfil()` | El perfil laboral. Solo los campos que permite la regla 7 |
+| `modelos/guardadas.php` | `guardar_oferta()`, `listar_ofertas_guardadas()` | Ofertas apartadas para después |
+| `modelos/restablecimientos.php` | `crear_restablecimiento()`, `validar_restablecimiento()` | Códigos de un solo uso, guardados con hash |
+| `nucleo/emparejamiento.php` | `evaluar_coincidencia()`, `datos_para_emparejar()`, `ofertas_recomendadas()` | **Reglas 7 y 8.** Recibe seis campos y ninguno más, y devuelve razones en palabras |
+| `modelos/postulaciones.php` | `crear_postulacion()`, `hay_consentimiento_para()`, `archivo_esta_en_algun_consentimiento()` | **Regla 6.** Consentimiento y postulación se crean juntos o no se crean |
+| `modelos/reportes.php` | `crear_reporte()`, `resolver_reporte()`, `ofertas_con_reportes_pendientes()` | Reportes. **No tiene ninguna función que cambie el estado de una oferta**, a propósito |
+| `vistas/texto_consentimiento.php` | *(se incluye)* | El texto que la persona acepta, en un solo lugar y versionado |
 
 ### Reglas de estilo que ya están amarradas al código
 

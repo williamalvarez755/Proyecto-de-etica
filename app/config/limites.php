@@ -81,6 +81,12 @@ define('POSTULACIONES_MAX_POR_DIA', 20);
 // -- Verificador público de reclutadores (Fase 5) --
 define('VERIFICADOR_MAX_CONSULTAS_HORA', 60);
 
+// -- Ritmo general de navegación --
+// Una página por segundo sostenida durante un minuto. Ninguna persona
+// navega así; un programa, sí. Se cuenta dentro de la sesión, sin
+// tocar la base de datos, para no agregar una consulta a cada visita.
+define('PETICIONES_MAX_POR_MINUTO', 60);
+
 
 // =================================================================
 //  Archivos de currículum (Fase 3)
@@ -96,6 +102,14 @@ const CV_TIPOS_PERMITIDOS = [
     'application/pdf' => 'pdf',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
 ];
+
+
+// =================================================================
+//  Importación de ofertas por CSV (decisión D-004)
+//  El archivo se lee y se descarta: nunca se guarda en el servidor.
+// =================================================================
+define('CSV_TAMANO_MAXIMO_BYTES', 1024 * 1024);  // 1 MB
+define('CSV_MAXIMO_FILAS',        500);
 
 
 // =================================================================
