@@ -29,13 +29,73 @@
  *     navegador no lo interprete como página.
  */
 
-/** Se asegura de que exista la carpeta donde van los currículums. */
+/**
+ * El contenido del .htaccess que protege las carpetas internas.
+ *
+ * Está acá, en el código, y no solo como archivo suelto, porque los
+ * programas de FTP no suben los archivos que empiezan con punto salvo
+ * que se les pida expresamente. Si la protección dependiera solo de
+ * que alguien se acuerde de subirlo, tarde o temprano falta — y lo que
+ * queda sin proteger son currículums de personas.
+ */
+const CONTENIDO_HTACCESS_PRIVADO = <<<'HTACCESS'
+# Generado por el sistema. NO BORRAR.
+# Esta carpeta guarda datos de personas y no se sirve por internet.
+# Si este archivo falta, el sistema lo vuelve a crear.
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+</IfModule>
+<FilesMatch ".*">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+Options -Indexes
+HTACCESS;
+
+
+/**
+ * Se asegura de que una carpeta interna exista Y esté protegida.
+ *
+ * Las dos cosas juntas y en este orden, a propósito: una carpeta que
+ * existe sin su .htaccess es peor que una carpeta que no existe,
+ * porque parece que todo está bien.
+ */
+function asegurar_carpeta_privada(string $ruta): bool
+{
+    if (!is_dir($ruta) && !@mkdir($ruta, 0750, true)) {
+        registrar_error('No se pudo crear la carpeta: ' . $ruta, __FILE__, __LINE__);
+        return false;
+    }
+
+    $htaccess = $ruta . '/.htaccess';
+    if (!is_file($htaccess)) {
+        @file_put_contents($htaccess, CONTENIDO_HTACCESS_PRIVADO);
+    }
+
+    return is_dir($ruta);
+}
+
+
+/**
+ * Se asegura de que exista la carpeta donde van los currículums, con
+ * su protección puesta y con la de la carpeta que la contiene.
+ */
 function preparar_carpeta_cv(): bool
 {
-    if (is_dir(RUTA_CV)) {
-        return true;
-    }
-    return @mkdir(RUTA_CV, 0750, true);
+    // Primero la carpeta de arriba: si app/almacen queda sin proteger,
+    // proteger solo la de adentro no alcanza.
+    asegurar_carpeta_privada(RUTA_ALMACEN);
+
+    return asegurar_carpeta_privada(RUTA_CV);
 }
 
 

@@ -25,7 +25,55 @@
 $raiz_app = __DIR__ . '/app';
 
 // -----------------------------------------------------------------
-//  Prueba de escritura fuera de htdocs
+//  Se crean las carpetas internas y su protección, si faltan.
+//
+//  Esta página no solo revisa: arregla. Los programas de FTP no suben
+//  los archivos que empiezan con punto salvo que se les pida, así que
+//  los .htaccess de protección casi nunca llegan en la primera subida,
+//  y lo que queda sin proteger son currículums de personas. Es más
+//  seguro que el sistema los escriba a que dependan de que alguien se
+//  acuerde.
+// -----------------------------------------------------------------
+$htaccess_privado = "# Generado por el sistema. NO BORRAR.\n"
+    . "# Esta carpeta guarda datos de personas y no se sirve por internet.\n"
+    . "<IfModule mod_authz_core.c>\n    Require all denied\n</IfModule>\n"
+    . "<IfModule !mod_authz_core.c>\n    Order allow,deny\n    Deny from all\n</IfModule>\n"
+    . "<FilesMatch \".*\">\n"
+    . "    <IfModule mod_authz_core.c>\n        Require all denied\n    </IfModule>\n"
+    . "    <IfModule !mod_authz_core.c>\n        Order allow,deny\n        Deny from all\n    </IfModule>\n"
+    . "</FilesMatch>\n"
+    . "Options -Indexes\n";
+
+$carpetas_internas = [
+    $raiz_app,
+    $raiz_app . '/almacen',
+    $raiz_app . '/almacen/cv',
+    $raiz_app . '/almacen/logs',
+    $raiz_app . '/almacen/respaldos',
+];
+
+$arreglos = [];
+
+foreach ($carpetas_internas as $carpeta) {
+    if (!is_dir($carpeta)) {
+        if (@mkdir($carpeta, 0750, true)) {
+            $arreglos[] = 'Se creó la carpeta ' . basename($carpeta);
+        }
+    }
+}
+
+// El .htaccess va en app/ y en app/almacen/: las dos que guardan algo
+// que nadie debe poder pedir por dirección web.
+foreach ([$raiz_app, $raiz_app . '/almacen'] as $carpeta) {
+    if (is_dir($carpeta) && !is_file($carpeta . '/.htaccess')) {
+        if (@file_put_contents($carpeta . '/.htaccess', $htaccess_privado) !== false) {
+            $arreglos[] = 'Se escribió la protección .htaccess en ' . basename($carpeta);
+        }
+    }
+}
+
+// -----------------------------------------------------------------
+//  Prueba de escritura
 // -----------------------------------------------------------------
 $carpeta_prueba = $raiz_app . '/almacen/logs';
 $archivo_prueba = $carpeta_prueba . '/prueba-escritura.txt';
@@ -103,6 +151,20 @@ $php_bien = version_compare(PHP_VERSION, '8.0.0', '>=');
     <strong>Borrá este archivo por FTP en cuanto termines de leerlo.</strong>
     No es parte de la plataforma y le cuenta a cualquiera qué versiones corre el servidor.
   </p>
+
+  <?php if ($arreglos !== []): ?>
+    <div class="aviso aviso--exito">
+      <p><strong>Se arreglaron cosas que faltaban:</strong></p>
+      <ul>
+        <?php foreach ($arreglos as $arreglo): ?>
+          <li><?= htmlspecialchars($arreglo) ?></li>
+        <?php endforeach; ?>
+      </ul>
+      <p class="texto-menor">
+        Recargá esta página para comprobar que ahora esté todo en verde.
+      </p>
+    </div>
+  <?php endif; ?>
 
   <div class="tabla-desliza">
   <table class="tabla">

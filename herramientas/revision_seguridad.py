@@ -82,9 +82,12 @@ if not hallazgos:
 # ---------------------------------------------------------------- 2
 titulo(2, "Salida sin escapar (XSS)")
 
-FORMATEADORES = ('escapar(', '(int)', '(float)', 'count(', 'implode', 'array_sum',
-                 'fecha_en_palabras', 'fecha_hora_en_palabras', 'nl2br', 'urlencode',
-                 'http_build_query', 'number_format')
+FORMATEADORES = ('escapar(', 'htmlspecialchars(', '(int)', '(float)', 'count(', 'implode',
+                 'array_sum', 'fecha_en_palabras', 'fecha_hora_en_palabras', 'nl2br',
+                 'urlencode', 'http_build_query', 'number_format')
+# htmlspecialchars() es lo mismo que hace escapar(). Lo usa
+# diagnostico.php, que es autonomo y no puede cargar las funciones
+# del sistema.
 
 # Un ternario cuyas dos ramas son literales de cadena no puede inyectar nada:
 # lo que se imprime es una de esas dos cadenas, escritas por nosotros.
