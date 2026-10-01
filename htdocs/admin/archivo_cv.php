@@ -12,7 +12,10 @@
  *      Este es el que hace valer la regla 6: no alcanza con que la
  *      persona tenga currículum subido ni con que se haya postulado
  *      a otra cosa.
- *   4. Que el archivo que se entrega sea EXACTAMENTE el que dice el
+ *   4. Que la persona NO haya retirado la postulación. Retirarla
+ *      revoca el permiso desde ese momento: lo que ya se descargó no
+ *      se puede deshacer, pero no se vuelve a entregar.
+ *   5. Que el archivo que se entrega sea EXACTAMENTE el que dice el
  *      consentimiento, no el que la persona tenga hoy. Si cambió su
  *      currículum después, lo que se autorizó compartir fue el otro.
  *
@@ -45,6 +48,23 @@ if (!hay_consentimiento_para((int) $postulacion['usuario_id'], (int) $postulacio
         403,
         'No hay autorización para ver ese currículum',
         'Esa persona no autorizó compartir su currículum con esta oferta.'
+    );
+}
+
+// Un consentimiento que la persona retiró ya no autoriza nada nuevo.
+// Antes esto no se miraba: el panel seguía mostrando el botón y el
+// archivo se entregaba igual después de que la persona se retiraba.
+if ($postulacion['estado'] === 'retirada') {
+    registrar_accion(
+        'acceso_denegado',
+        'postulacion',
+        $postulacion_id,
+        'Intento de descargar el currículum de una postulación retirada'
+    );
+    abortar(
+        403,
+        'Esta persona retiró su postulación',
+        'Desde que la retiró, su currículum ya no se puede descargar para esta oferta.'
     );
 }
 

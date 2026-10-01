@@ -122,8 +122,10 @@ require RAIZ_APP . '/vistas/cabecera.php';
           <?php if ($postulacion['estado'] === 'retirada'): ?>
             <p class="texto-menor">
               La retiraste el <?= escapar(fecha_en_palabras($postulacion['actualizado_en'])) ?>.
-              Tené en cuenta que si el empleador ya había visto tu currículum, retirarla no
-              deshace eso. Te lo decimos con claridad para que sepas a qué atenerte.
+              Desde ese momento nadie de la institución puede volver a descargar tu currículum
+              para esta oferta. Pero si ya lo habían descargado o se lo habían pasado al
+              empleador antes, retirarla no deshace eso. Te lo decimos con claridad para que
+              sepas a qué atenerte.
             </p>
           <?php endif; ?>
 

@@ -45,7 +45,7 @@ $seccion_actual = match (true) {
 <!-- Ícono propio: sin él, cada navegador pide /favicon.ico, cae en el
      404 y gasta una petición de PHP del tope diario del hosting. -->
 <link rel="icon" href="/recursos/icono.svg" type="image/svg+xml">
-<link rel="stylesheet" href="/recursos/estilo.css">
+<link rel="stylesheet" href="<?= escapar(recurso('/recursos/estilo.css')) ?>">
 </head>
 <body>
 

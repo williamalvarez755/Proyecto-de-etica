@@ -64,5 +64,10 @@ ErrorDocument 403 /404.php
 <IfModule mod_expires.c>
     ExpiresActive On
     ExpiresByType text/css "access plus 7 days"
+    ExpiresByType application/javascript "access plus 7 days"
+    ExpiresByType text/javascript "access plus 7 days"
     ExpiresByType image/svg+xml "access plus 7 days"
+    # Cuando se sube una versión nueva, la dirección cambia sola
+    # (?v=fecha del archivo, ver recurso() en app/nucleo/salida.php),
+    # así que guardarlos no deja a nadie con el estilo viejo.
 </IfModule>

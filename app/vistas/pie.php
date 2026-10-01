@@ -28,6 +28,6 @@
   </div>
 </footer>
 
-<script src="/recursos/app.js"></script>
+<script src="<?= escapar(recurso('/recursos/app.js')) ?>"></script>
 </body>
 </html>
