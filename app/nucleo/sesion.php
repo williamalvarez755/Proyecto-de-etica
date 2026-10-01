@@ -120,6 +120,44 @@ function iniciar_sesion_de_usuario(int $usuario_id): void
     $_SESSION['sesion_iniciada_en']= time();
     $_SESSION['ultima_actividad']  = time();
     $_SESSION['huella']            = hash('sha256', $_SERVER['HTTP_USER_AGENT'] ?? 'desconocido');
+
+    renovar_sello_de_clave($usuario_id);
+}
+
+
+/**
+ * SELLO DE LA CONTRASEÑA
+ * -----------------------------------------------------------------
+ * Cambiar la contraseña tiene que sacar a TODAS las otras sesiones
+ * abiertas de esa cuenta, no solo renovar la propia. Es justo el caso
+ * de nuestra población: alguien entró desde un café internet o un
+ * teléfono prestado, se olvidó de salir, y después cambia la
+ * contraseña (o pide un restablecimiento) para cortar ese acceso.
+ *
+ * session_regenerate_id() solo cambia el identificador de la sesión
+ * de quien hace el cambio. La sesión olvidada en el café seguía viva
+ * hasta 8 horas más.
+ *
+ * Cómo se resuelve sin agregar columnas: la sesión guarda una huella
+ * del hash de la contraseña con la que se abrió. usuario_actual(), que
+ * ya consulta la base en cada petición (D-014), compara. Si la
+ * contraseña cambió desde cualquier lado, la huella no coincide y la
+ * sesión se cierra.
+ *
+ * Lo que se guarda en la sesión es un SHA-256 del hash, no el hash:
+ * aunque alguien leyera el archivo de sesión, no se lleva nada que
+ * sirva para probar contraseñas.
+ */
+function sello_de_clave(string $contrasena_hash): string
+{
+    return hash('sha256', $contrasena_hash);
+}
+
+/** Guarda en la sesión el sello de la contraseña actual de esa cuenta. */
+function renovar_sello_de_clave(int $usuario_id): void
+{
+    $hash = consultar_valor('SELECT contrasena_hash FROM usuarios WHERE id = ?', [$usuario_id]);
+    $_SESSION['sello_clave'] = $hash === null ? '' : sello_de_clave((string) $hash);
 }
 
 

@@ -11,6 +11,7 @@
  *   2. ¿Están las extensiones que necesitamos?
  *   3. ¿Cuánto pesa el archivo más grande que se puede subir?
  *   4. ¿Puede PHP leer y escribir FUERA de htdocs?  <-- la importante
+ *   5. ¿Con qué dirección IP ve el servidor a cada visita?
  *
  * La cuarta decide dónde se guardan los currículums. Si la respuesta
  * fuera "no", habría que cambiar el manejo de archivos completo, y es
@@ -20,7 +21,7 @@
  */
 
 // app/ vive DENTRO de htdocs porque el hosting no deja a PHP salir de
-// esta carpeta (ver decisión D-016 en CLAUDE.md). Está protegida por
+// esta carpeta (ver decisiones D-016 y D-044 en CLAUDE.md). Está protegida por
 // .htaccess, y esta página comprueba que esa protección funcione.
 $raiz_app = __DIR__ . '/app';
 
@@ -116,9 +117,22 @@ $php_bien = version_compare(PHP_VERSION, '8.0.0', '>=');
       fila('Tiempo máximo de ejecución', ini_get('max_execution_time') . ' s');
       fila('open_basedir', ini_get('open_basedir') ?: 'sin restricción');
       fila('¿PHP ve la conexión como HTTPS?', (!empty($_SERVER['HTTPS']) || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https') ? 'sí' : 'no');
+      fila('IP con la que el servidor te ve (REMOTE_ADDR)', $_SERVER['REMOTE_ADDR'] ?? 'no llegó');
+      fila('Cabecera X-Forwarded-For', $_SERVER['HTTP_X_FORWARDED_FOR'] ?? 'no llegó');
       ?>
     </tbody>
   </table>
+  </div>
+
+  <div class="aviso aviso--aviso pila">
+    <p><strong>Pregunta 5: la IP.</strong> Abrí esta página desde tu teléfono con datos móviles
+    y desde otra conexión (la de tu casa, la universidad). Compará la fila
+    <em>REMOTE_ADDR</em> con lo que te dice un buscador si escribís "cuál es mi IP".</p>
+    <p>Si en las dos conexiones sale <strong>la misma</strong> dirección, o una que empieza con
+    10., 172. o 192.168., el servidor está viendo la IP de un intermediario del hosting y no
+    la de la persona. En ese caso los límites "por conexión" (crear cuentas, verificador)
+    se los reparten <strong>todas las personas del sitio juntas</strong>: tres cuentas nuevas
+    al día y el registro queda cerrado para todos. Hay que avisar antes de abrir el sitio.</p>
   </div>
 
   <h2 class="subtitulo">Extensiones</h2>

@@ -56,7 +56,7 @@ function listar_ofertas_guardadas(int $usuario_id): array
          INNER JOIN ofertas_guardadas g ON g.oferta_id = o.id
          WHERE ' . CONDICION_OFERTA_PUBLICA . ' AND g.usuario_id = :usuario_id
          ORDER BY g.creado_en DESC',
-        [':hoy' => hoy(), ':usuario_id' => $usuario_id]
+        parametros_oferta_publica() + [':usuario_id' => $usuario_id]
     );
 }
 

@@ -98,6 +98,28 @@ function consultar_valor(string $sql, array $parametros = [])
  *       [':estado' => 'publicada'], 10, 0
  *   );
  */
+/**
+ * Los parámetros de una búsqueda de texto que se usa en VARIAS columnas.
+ *
+ * Con consultas preparadas de verdad (EMULATE_PREPARES en false) PDO no
+ * deja usar el mismo parámetro con nombre dos veces en una consulta: si
+ * se escribe "titulo LIKE :texto OR empleador LIKE :texto", la consulta
+ * revienta con "Invalid parameter number". Por eso cada columna lleva
+ * su propio nombre (:texto1, :texto2...) con el mismo valor.
+ *
+ *   '(titulo LIKE :texto1 OR empleador LIKE :texto2)'
+ *   $parametros += parametros_de_texto($texto, 2);
+ */
+function parametros_de_texto(string $texto, int $cuantas): array
+{
+    $parametros = [];
+    for ($i = 1; $i <= $cuantas; $i++) {
+        $parametros[':texto' . $i] = '%' . $texto . '%';
+    }
+    return $parametros;
+}
+
+
 function consultar_paginado(string $sql, array $parametros, int $limite, int $desde = 0): array
 {
     $sentencia = bd()->prepare($sql . ' LIMIT :limite OFFSET :desde');

@@ -120,6 +120,21 @@ function guardar_mensaje(string $tipo, string $texto): void
     $_SESSION['mensaje'] = ['tipo' => $tipo, 'texto' => $texto];
 }
 
+/**
+ * Lo mismo, pero sin pisar un mensaje que ya estaba esperando.
+ *
+ * Lo usan las páginas que exigen sesión: si la sesión se acaba de
+ * cerrar por un motivo concreto ("pasó un rato sin actividad", "la
+ * contraseña cambió"), ese motivo es lo que la persona necesita leer,
+ * no el genérico "necesitás entrar".
+ */
+function guardar_mensaje_si_no_hay(string $tipo, string $texto): void
+{
+    if (!isset($_SESSION['mensaje'])) {
+        guardar_mensaje($tipo, $texto);
+    }
+}
+
 /** Saca el mensaje guardado (y lo borra, para que salga una sola vez). */
 function tomar_mensaje(): ?array
 {

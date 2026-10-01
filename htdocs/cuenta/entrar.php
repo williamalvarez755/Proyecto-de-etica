@@ -27,10 +27,21 @@ if (es_post()) {
     $correo     = normalizar_correo(campo('correo'));
     $contrasena = campo_crudo('contrasena');
 
+    // Las cuentas administrativas también pueden entrar por acá, así
+    // que este formulario tiene que respetar el bloqueo MÁS ESTRICTO
+    // del panel (LOGIN_ADMIN_*). Si no, para adivinarle la contraseña
+    // a un administrador alcanzaba con probar por esta puerta, que
+    // tiene más intentos y no dejaba nada en la bitácora.
+    $bloqueo_usuario = esta_bloqueado('login_usuario', $correo, LOGIN_MAX_INTENTOS, LOGIN_BLOQUEO_MINUTOS);
+    $bloqueo_admin   = esta_bloqueado('login_admin', $correo, LOGIN_ADMIN_MAX_INTENTOS, LOGIN_ADMIN_BLOQUEO_MINUTOS);
+
     if ($correo === '' || $contrasena === '') {
         $error = 'Escribí tu correo y tu contraseña.';
-    } elseif (esta_bloqueado('login_usuario', $correo, LOGIN_MAX_INTENTOS, LOGIN_BLOQUEO_MINUTOS)) {
-        $minutos = minutos_para_reintentar('login_usuario', $correo, LOGIN_BLOQUEO_MINUTOS);
+    } elseif ($bloqueo_usuario || $bloqueo_admin) {
+        $minutos = max(
+            $bloqueo_usuario ? minutos_para_reintentar('login_usuario', $correo, LOGIN_BLOQUEO_MINUTOS) : 0,
+            $bloqueo_admin ? minutos_para_reintentar('login_admin', $correo, LOGIN_ADMIN_BLOQUEO_MINUTOS) : 0
+        );
         $error = 'Hubo varios intentos fallidos con este correo. '
                . 'Esperá ' . $minutos . ' minuto' . ($minutos === 1 ? '' : 's') . ' y volvé a probar.';
     } else {
@@ -38,10 +49,22 @@ if (es_post()) {
 
         if ($usuario === null) {
             registrar_intento('login_usuario', $correo, false);
+
+            // El mensaje en pantalla es el mismo de siempre: no se le
+            // dice a nadie que ese correo es de una cuenta del panel.
+            // Pero el fallo cuenta para el bloqueo del panel y queda
+            // en la bitácora, igual que si hubiera entrado por allá.
+            if (es_correo_administrativo($correo)) {
+                registrar_intento('login_admin', $correo, false);
+                registrar_accion('login_admin_fallido', 'usuario', null,
+                                 'Correo: ' . $correo . ' (desde el formulario público)');
+            }
+
             $error = 'El correo o la contraseña no coinciden.';
         } else {
             registrar_intento('login_usuario', $correo, true);
             limpiar_fallos('login_usuario', $correo);
+            limpiar_fallos('login_admin', $correo);
 
             iniciar_sesion_de_usuario((int) $usuario['id']);
             marcar_ultimo_acceso((int) $usuario['id']);

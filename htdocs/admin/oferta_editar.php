@@ -14,6 +14,13 @@
 
 require __DIR__ . '/../app/nucleo/inicio.php';
 
+// Primero, que sea una cuenta del panel. Antes la oferta se buscaba
+// ANTES de comprobar nada, y un visitante sin cuenta veía "Esa oferta
+// no existe" o la pantalla de ingreso según el número: con eso podía
+// averiguar qué ofertas había, incluidas las que todavía no se
+// publicaron. El permiso concreto (crear o editar) se exige abajo.
+requerir_administrativo();
+
 $id     = id_valido(parametro('id'));
 $oferta = $id === null ? null : buscar_oferta($id);
 
@@ -62,6 +69,22 @@ if (es_post()) {
     }
     if (!largo_valido($datos['empleador'], 2, 150)) {
         $errores['empleador'] = 'Escribí quién ofrece el trabajo.';
+    }
+
+    // Los largos tienen que coincidir con las columnas de la base. Sin
+    // esto, un texto de más hacía que MySQL (en modo estricto) rechazara
+    // la oferta entera y la persona veía "Algo salió mal".
+    if (!largo_valido($datos['ciudad'], 0, 100)) {
+        $errores['ciudad'] = 'La ciudad puede tener hasta 100 caracteres.';
+    }
+    if (!largo_valido($datos['salario_texto'], 0, 120)) {
+        $errores['salario_texto'] = 'El pago puede tener hasta 120 caracteres.';
+    }
+    if (!largo_valido($datos['requisitos'], 0, 5000)) {
+        $errores['requisitos'] = 'Los requisitos pueden tener hasta 5000 caracteres.';
+    }
+    if (!largo_valido($datos['url_original'], 0, 255)) {
+        $errores['url_original'] = 'La dirección puede tener hasta 255 caracteres.';
     }
 
     $fuente_id = id_valido($datos['fuente_id']);
@@ -241,6 +264,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
       <div class="campo">
         <label class="etiqueta" for="ciudad">Ciudad o región (opcional)</label>
         <input class="entrada" type="text" id="ciudad" name="ciudad" maxlength="100" value="<?= escapar($datos['ciudad']) ?>">
+        <?php if (isset($errores['ciudad'])): ?><span class="error-campo"><?= escapar($errores['ciudad']) ?></span><?php endif; ?>
       </div>
 
       <div class="campo">
@@ -297,7 +321,8 @@ require RAIZ_APP . '/vistas/cabecera.php';
 
       <div class="campo">
         <label class="etiqueta" for="requisitos">Otros requisitos (opcional)</label>
-        <textarea class="entrada" id="requisitos" name="requisitos" rows="3"><?= escapar($datos['requisitos']) ?></textarea>
+        <textarea class="entrada" id="requisitos" name="requisitos" rows="3" maxlength="5000"><?= escapar($datos['requisitos']) ?></textarea>
+        <?php if (isset($errores['requisitos'])): ?><span class="error-campo"><?= escapar($errores['requisitos']) ?></span><?php endif; ?>
       </div>
 
       <div class="campo">
@@ -305,6 +330,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
         <span class="ayuda" id="ayuda-salario">Tal como lo dice la oferta original. No inventar ni redondear.</span>
         <input class="entrada" type="text" id="salario_texto" name="salario_texto" maxlength="120"
                aria-describedby="ayuda-salario" value="<?= escapar($datos['salario_texto']) ?>">
+        <?php if (isset($errores['salario_texto'])): ?><span class="error-campo"><?= escapar($errores['salario_texto']) ?></span><?php endif; ?>
       </div>
 
       <div class="campo">

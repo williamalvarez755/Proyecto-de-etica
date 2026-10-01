@@ -64,6 +64,28 @@ require RAIZ_APP . '/vistas/cabecera.php';
     </p>
   <?php endif; ?>
 
+  <?php $sin_reclutador_vigente = tiene_permiso('ofertas.ver') ? ofertas_publicadas_con_reclutador_no_vigente() : []; ?>
+  <?php if ($sin_reclutador_vigente !== []): ?>
+    <div class="aviso aviso--error pila">
+      <p>
+        <strong><?= count($sin_reclutador_vigente) ?></strong>
+        oferta<?= count($sin_reclutador_vigente) === 1 ? '' : 's' ?> publicada<?= count($sin_reclutador_vigente) === 1 ? '' : 's' ?>
+        dejó de verse en el sitio porque su reclutador ya no tiene la autorización vigente.
+        Revisá cada una y ponela en revisión o retirala.
+      </p>
+      <ul>
+        <?php foreach ($sin_reclutador_vigente as $fila): ?>
+          <li>
+            <a href="/admin/oferta_editar.php?id=<?= (int) $fila['id'] ?>"><?= escapar($fila['titulo']) ?></a>
+            · <?= escapar($fila['reclutador_nombre']) ?>
+            (<?= escapar(ESTADOS_RECLUTADOR[$fila['reclutador_estado']] ?? $fila['reclutador_estado']) ?><?php
+            if ($fila['reclutador_vigencia'] !== null): ?>, hasta el <?= escapar(fecha_en_palabras($fila['reclutador_vigencia'])) ?><?php endif; ?>)
+          </li>
+        <?php endforeach; ?>
+      </ul>
+    </div>
+  <?php endif; ?>
+
   <?php if ($por_vencer > 0 && tiene_permiso('mantenimiento.ejecutar')): ?>
     <p class="aviso aviso--aviso">
       Hay <strong><?= $por_vencer ?></strong> oferta<?= $por_vencer === 1 ? '' : 's' ?>

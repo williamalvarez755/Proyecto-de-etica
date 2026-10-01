@@ -9,7 +9,7 @@
 #  El diseño original ponía esta carpeta FUERA de htdocs, donde ninguna
 #  dirección web podía llegar. En el hosting real eso no se pudo: PHP
 #  está encerrado en htdocs por open_basedir y no puede leer nada de
-#  afuera (ver decisión D-016 en CLAUDE.md).
+#  afuera (ver decisiones D-016 y D-044 en CLAUDE.md).
 #
 #  Entonces la carpeta tuvo que quedar adentro, y ESTE ARCHIVO pasó de
 #  ser una precaución extra a ser la barrera principal.

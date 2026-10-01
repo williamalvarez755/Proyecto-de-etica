@@ -37,7 +37,7 @@ function usuario_actual(): ?array
 
     $usuario = consultar_una(
         'SELECT u.id, u.correo, u.nombre, u.activo, u.debe_cambiar_contrasena,
-                u.creado_en, u.ultimo_acceso_en,
+                u.creado_en, u.ultimo_acceso_en, u.contrasena_hash,
                 r.codigo AS rol, r.id AS rol_id, r.nombre AS rol_nombre
          FROM usuarios u
          INNER JOIN roles r ON r.id = u.rol_id
@@ -48,8 +48,21 @@ function usuario_actual(): ?array
     // La cuenta se borró o se desactivó mientras la sesión seguía viva.
     if ($usuario === null || (int) $usuario['activo'] !== 1) {
         cerrar_sesion();
-        $usuario = null;
+        return $usuario = null;
     }
+
+    // La contraseña cambió desde que se abrió esta sesión (la cambió la
+    // persona en otro dispositivo, o usó un código de restablecimiento).
+    // Ver sello_de_clave() en sesion.php.
+    $sello = (string) ($_SESSION['sello_clave'] ?? '');
+    if (!hash_equals(sello_de_clave($usuario['contrasena_hash']), $sello)) {
+        cerrar_sesion();
+        guardar_mensaje('aviso', 'La contraseña de esta cuenta cambió. Volvé a entrar con la nueva.');
+        return $usuario = null;
+    }
+
+    // El hash no sale de esta función: ninguna pantalla lo necesita.
+    unset($usuario['contrasena_hash']);
 
     return $usuario;
 }
@@ -137,7 +150,7 @@ function tiene_permiso(string $codigo): bool
 function requerir_sesion(): void
 {
     if (!hay_sesion()) {
-        guardar_mensaje('aviso', 'Necesitás entrar a tu cuenta para ver esa página.');
+        guardar_mensaje_si_no_hay('aviso', 'Necesitás entrar a tu cuenta para ver esa página.');
         redirigir('/cuenta/entrar.php');
     }
 
@@ -188,7 +201,7 @@ function exigir_cambio_de_contrasena(): void
 function requerir_administrativo(): void
 {
     if (!hay_sesion()) {
-        guardar_mensaje('aviso', 'Ingresá con tu cuenta administrativa.');
+        guardar_mensaje_si_no_hay('aviso', 'Ingresá con tu cuenta administrativa.');
         redirigir('/admin/entrar.php');
     }
 

@@ -4,10 +4,9 @@
  * -----------------------------------------------------------------
  * Lo más delicado del lado de la persona.
  *
- * El archivo se guarda FUERA de la carpeta pública, con un nombre
+ * El archivo se guarda en app/almacen/cv (cerrada por .htaccess, D-044), con un nombre
  * aleatorio, y solo se puede descargar por un script que comprueba
- * que quien lo pide sea su dueño. No hay ninguna dirección web que
- * llegue al archivo.
+ * que quien lo pide sea su dueño.
  *
  * Se comprueba el contenido real con finfo: un archivo con la
  * extensión cambiada se rechaza acá.

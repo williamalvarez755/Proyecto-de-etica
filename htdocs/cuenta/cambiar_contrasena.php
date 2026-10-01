@@ -45,9 +45,13 @@ if (es_post()) {
     if ($errores === []) {
         cambiar_contrasena((int) $usuario['id'], $nueva);
 
-        // Sesión nueva: si alguien más se había quedado con la
-        // anterior, deja de servirle.
+        // Identificador de sesión nuevo para esta, y sello nuevo para
+        // que siga valiendo. Las OTRAS sesiones abiertas de esta cuenta
+        // (un café internet, un teléfono prestado) se cierran solas en
+        // su próxima página, porque su sello ya no coincide con la
+        // contraseña nueva (ver sello_de_clave() en sesion.php).
         session_regenerate_id(true);
+        renovar_sello_de_clave((int) $usuario['id']);
 
         if (es_administrativo()) {
             registrar_accion('contrasena_cambiada', 'usuario', (int) $usuario['id'],

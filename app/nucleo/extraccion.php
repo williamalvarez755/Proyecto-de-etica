@@ -83,10 +83,23 @@ function leer_docx(string $ruta): ?string
         return null;
     }
 
-    $xml = $zip->getFromName('word/document.xml');
+    // Defensa contra la "bomba ZIP": un archivo chico que adentro se
+    // descomprime en cientos de megas y agota la memoria. Sin esto, un
+    // .docx de 600 KB tumbaba la página, y como la pantalla de
+    // confirmación vuelve a leer el archivo cada vez (D-023), la
+    // cuenta quedaba trabada en un error. Dos capas, porque el tamaño
+    // que declara el ZIP lo escribe quien armó el archivo y puede
+    // mentir: se mira lo declarado y además se corta la lectura.
+    $datos = $zip->statName('word/document.xml');
+    if ($datos === false || $datos['size'] > CV_TEXTO_MAXIMO_BYTES) {
+        $zip->close();
+        return null;
+    }
+
+    $xml = $zip->getFromName('word/document.xml', CV_TEXTO_MAXIMO_BYTES + 1);
     $zip->close();
 
-    if ($xml === false) {
+    if ($xml === false || strlen($xml) > CV_TEXTO_MAXIMO_BYTES) {
         return null;
     }
 
@@ -183,6 +196,22 @@ const PISTAS_IDIOMA = [
 
 
 /**
+ * ¿Aparece esa palabra suelta en el texto? (también en plural)
+ *
+ * Antes se buscaba como pedazo de texto, y eso proponía oficios
+ * absurdos: "bar" aparecía en el apellido Barrios, "obra" en
+ * "cobranza", "motor" en "promotor". La persona igual lo corrige
+ * (regla 9), pero cada error de más es una razón más para que
+ * desconfíe de la pantalla. Ahora tiene que ser la palabra entera.
+ */
+function contiene_palabra(string $texto, string $palabra): bool
+{
+    $patron = '/(?<![a-z0-9])' . preg_quote(trim($palabra), '/') . '(?:s|es)?(?![a-z0-9])/u';
+    return preg_match($patron, $texto) === 1;
+}
+
+
+/**
  * Lee el texto y propone qué entendió.
  *
  * Nada de esto se guarda: se muestra en la pantalla de confirmación
@@ -200,7 +229,7 @@ function extraer_datos_del_cv(string $texto): array
     $rubros = [];
     foreach (PISTAS_RUBRO as $codigo => $palabras) {
         foreach ($palabras as $palabra) {
-            if (str_contains($t, $palabra)) {
+            if (contiene_palabra($t, $palabra)) {
                 $rubros[] = $codigo;
                 break;
             }
@@ -210,10 +239,21 @@ function extraer_datos_del_cv(string $texto): array
     // --- Años de experiencia --------------------------------------
     // Se busca "N años" y se toma el número más alto que aparezca,
     // que suele ser el total de la trayectoria.
+    //
+    // Menos los que son la EDAD. Muchos currículums de acá dicen
+    // "Edad: 32 años", y sin este filtro el sistema le proponía a la
+    // persona "32 años de experiencia". Peor que el error: era leer la
+    // edad, un dato que la regla 7 dice que ni siquiera se recolecta.
     $anios = 0;
-    if (preg_match_all('/(\d{1,2})\s*(?:anos|ano)\b/', $t, $coincidencias)) {
-        foreach ($coincidencias[1] as $numero) {
-            $numero = (int) $numero;
+    if (preg_match_all('/(\d{1,2})\s*(?:anos|ano)\b/', $t, $coincidencias, PREG_OFFSET_CAPTURE)) {
+        foreach ($coincidencias[0] as $i => [$completo, $posicion]) {
+            $antes   = substr($t, max(0, $posicion - 20), min(20, $posicion));
+            $despues = substr($t, $posicion + strlen($completo), 12);
+            // "edad: 32 años" o "32 años de edad", pegado al número.
+            if (preg_match('/edad[\s:.,-]*$/', $antes) === 1 || str_starts_with(ltrim($despues), 'de edad')) {
+                continue;
+            }
+            $numero = (int) $coincidencias[1][$i][0];
             if ($numero <= 50 && $numero > $anios) {
                 $anios = $numero;
             }
@@ -226,7 +266,7 @@ function extraer_datos_del_cv(string $texto): array
     $estudios = null;
     foreach (PISTAS_ESTUDIOS as $codigo => $palabras) {
         foreach ($palabras as $palabra) {
-            if (str_contains($t, $palabra)) {
+            if (contiene_palabra($t, $palabra)) {
                 $estudios = $codigo;
                 break 2;
             }
@@ -237,7 +277,7 @@ function extraer_datos_del_cv(string $texto): array
     $idiomas = [];
     foreach (PISTAS_IDIOMA as $codigo => $palabras) {
         foreach ($palabras as $palabra) {
-            if (str_contains($t, $palabra)) {
+            if (contiene_palabra($t, $palabra)) {
                 $idiomas[] = $codigo;
                 break;
             }

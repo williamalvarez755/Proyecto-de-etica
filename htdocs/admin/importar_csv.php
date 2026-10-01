@@ -136,6 +136,14 @@ if (es_post()) {
                     $motivo = 'El vencimiento es anterior a la publicación.';
                 } elseif ($d['url_original'] !== '' && !url_segura($d['url_original'])) {
                     $motivo = 'La dirección no empieza con http:// o https://';
+                } elseif (!largo_valido($d['ciudad'], 0, 100)) {
+                    $motivo = 'La ciudad tiene más de 100 caracteres.';
+                } elseif (!largo_valido($d['salario_texto'], 0, 120)) {
+                    $motivo = 'El pago tiene más de 120 caracteres.';
+                } elseif (!largo_valido($d['requisitos'], 0, 5000)) {
+                    $motivo = 'Los requisitos tienen más de 5000 caracteres.';
+                } elseif (!largo_valido($d['url_original'], 0, 255)) {
+                    $motivo = 'La dirección tiene más de 255 caracteres.';
                 }
 
                 if ($motivo !== null) {

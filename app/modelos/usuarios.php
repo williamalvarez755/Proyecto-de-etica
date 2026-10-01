@@ -40,6 +40,21 @@ function buscar_usuario_por_id(int $id): ?array
     );
 }
 
+/**
+ * ¿Ese correo es de una cuenta administrativa?
+ * Solo para el control de abuso del formulario público de entrada.
+ * La respuesta NUNCA se le muestra a quien está intentando entrar.
+ */
+function es_correo_administrativo(string $correo): bool
+{
+    return consultar_valor(
+        'SELECT 1 FROM usuarios u
+         INNER JOIN roles r ON r.id = u.rol_id
+         WHERE u.correo = ? AND r.codigo IN (?, ?)',
+        [normalizar_correo($correo), ROL_ADMINISTRADOR, ROL_SUPERADMINISTRADOR]
+    ) !== null;
+}
+
 function existe_correo(string $correo): bool
 {
     return consultar_valor('SELECT 1 FROM usuarios WHERE correo = ?', [normalizar_correo($correo)]) !== null;
@@ -104,8 +119,13 @@ function autenticar(string $correo, string $contrasena): ?array
     $usuario = buscar_usuario_por_correo($correo);
 
     if ($usuario === null) {
-        // Hash falso, solo para gastar el mismo tiempo que un usuario real.
-        password_verify($contrasena, '$2y$10$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012');
+        // Hash de relleno, solo para gastar el mismo tiempo que un
+        // usuario real. Tiene que tener el MISMO costo que los hashes
+        // de verdad: el anterior estaba fijo en costo 10, y desde PHP
+        // 8.4 password_hash() usa costo 12. Ahí un correo inexistente
+        // respondía cuatro veces más rápido (67 ms contra 265 ms) y se
+        // podía averiguar quién tiene cuenta midiendo el tiempo.
+        password_verify($contrasena, hash_de_relleno());
         return null;
     }
 
@@ -122,6 +142,18 @@ function autenticar(string $correo, string $contrasena): ?array
     }
 
     return $usuario;
+}
+
+
+/**
+ * Un hash bcrypt bien formado, con el costo que usa password_hash() en
+ * este servidor, que no corresponde a ninguna contraseña.
+ * PASSWORD_BCRYPT_DEFAULT_COST cambia solo con la versión de PHP, así
+ * que el relleno sigue empatado con los hashes reales sin tocar nada.
+ */
+function hash_de_relleno(): string
+{
+    return sprintf('$2y$%02d$', PASSWORD_BCRYPT_DEFAULT_COST) . str_repeat('A', 53);
 }
 
 

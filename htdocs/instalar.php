@@ -41,7 +41,7 @@ if (existe_alguna_cuenta_administrativa()) {
 }
 
 // -----------------------------------------------------------------
-//  2. La clave de instalación, que vive fuera de htdocs
+//  2. La clave de instalación, en app/config (protegida por .htaccess, D-044)
 // -----------------------------------------------------------------
 $clave_guardada = is_file($ruta_clave) ? trim((string) file_get_contents($ruta_clave)) : '';
 $hay_clave      = mb_strlen($clave_guardada) >= 12;

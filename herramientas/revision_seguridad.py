@@ -314,10 +314,34 @@ for cumple, texto in [
 ]:
     ok(texto) if cumple else mal("FALTA: " + texto)
 
-if re.search(r'ON DELETE CASCADE', esquema):
+# Cada llave, una por una, y en su propia linea. La version anterior
+# buscaba "ON DELETE CASCADE" en cualquier parte del esquema: daba [ok]
+# aunque fk_post_cons no tuviera cascada, y por eso nadie vio que quien
+# se habia postulado NO podia borrar su cuenta (ver sql/migracion_001.sql).
+# Y si algo faltaba no decia nada: un control que solo sabe decir "ok"
+# no controla.
+LLAVES_EN_CASCADA = [
+    'fk_perfiles_usuario', 'fk_pr_usuario', 'fk_pi_usuario', 'fk_pp_usuario',
+    'fk_og_usuario', 'fk_cons_usuario', 'fk_post_usuario', 'fk_post_cons',
+    'fk_restablecimientos_usuario',
+]
+sin_cascada = [
+    llave for llave in LLAVES_EN_CASCADA
+    if not re.search(r'CONSTRAINT\s+' + llave + r'\b[^\n]*ON DELETE CASCADE', esquema)
+]
+if not sin_cascada:
     ok("perfil, postulaciones, consentimientos y guardadas se borran en cascada")
-if re.search(r'fk_reportes_usuario.*ON DELETE SET NULL', esquema, flags=re.S):
+else:
+    mal("FALTA ON DELETE CASCADE en: " + ", ".join(sin_cascada)
+        + " (borrar la cuenta va a fallar)")
+
+if re.search(r'CONSTRAINT\s+fk_reportes_usuario\b[^\n]*ON DELETE SET NULL', esquema):
     ok("los reportes se conservan sin identidad, para seguir protegiendo a otros")
+else:
+    mal("fk_reportes_usuario no queda en NULL al borrar la cuenta")
+
+print("  [!]  esto revisa el TEXTO del esquema. Que el borrado funcione de verdad")
+print("       solo se sabe probandolo: crear una cuenta, postularse y borrarla.")
 
 
 # ---------------------------------------------------------------- 8

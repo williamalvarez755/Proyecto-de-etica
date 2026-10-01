@@ -49,6 +49,16 @@ if (es_post() && campo('accion') === 'cambiar_estado') {
     } elseif (!en_catalogo($nuevo_estado, ESTADOS_OFERTA)) {
         guardar_mensaje('error', 'Ese estado no existe.');
 
+    } elseif ($nuevo_estado === 'verificada') {
+        // Verificar NO se hace desde acá, aunque la transición esté
+        // permitida: se hace en oferta_verificar.php, marcando la lista
+        // de comprobaciones (D-017) y con el bloqueo del reclutador
+        // (D-020). La pantalla ya escondía este botón, pero la regla 5
+        // dice que esconder un botón no es control de acceso: sin esta
+        // línea, un envío armado a mano dejaba la oferta "verificada"
+        // sin comprobaciones y sin nadie que respondiera por ella.
+        guardar_mensaje('error', 'Para verificar una oferta hay que pasar por la lista de comprobaciones.');
+
     } elseif (!transicion_permitida($oferta['estado'], $nuevo_estado)) {
         guardar_mensaje(
             'error',

@@ -16,7 +16,7 @@ Options -Indexes
     #  Bloqueo de app/ y vendor/
     # -----------------------------------------------------------
     #  Estas dos carpetas tuvieron que quedar dentro de htdocs porque
-    #  este hosting no deja a PHP salir de acá (decisión D-016).
+    #  este hosting no deja a PHP salir de acá (decisión D-044).
     #  Adentro están los currículums de las personas y las credenciales
     #  de la base de datos: NADA de ahí se sirve por internet.
     #
