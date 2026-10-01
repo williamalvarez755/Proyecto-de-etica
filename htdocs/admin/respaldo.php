@@ -182,7 +182,9 @@ require RAIZ_APP . '/vistas/cabecera.php';
       </table>
     </div>
 
-    <form method="post" action="/admin/respaldo.php">
+    <!-- data-descarga: la página no cambia al descargar, así que app.js
+         no deja el botón "trabajando" para siempre. -->
+    <form method="post" action="/admin/respaldo.php" data-descarga>
       <?php campo_csrf(); ?>
       <input type="hidden" name="accion" value="descargar">
       <button class="boton boton--principal" type="submit">Descargar el respaldo</button>

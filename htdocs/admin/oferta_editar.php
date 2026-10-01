@@ -217,7 +217,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
       <div class="campo">
         <label class="etiqueta" for="descripcion">En qué consiste el trabajo</label>
         <textarea class="entrada <?= isset($errores['descripcion']) ? 'entrada--error' : '' ?>"
-                  id="descripcion" name="descripcion" rows="6" required><?= escapar($datos['descripcion']) ?></textarea>
+                  id="descripcion" name="descripcion" rows="6" maxlength="5000" required><?= escapar($datos['descripcion']) ?></textarea>
         <?php if (isset($errores['descripcion'])): ?><span class="error-campo"><?= escapar($errores['descripcion']) ?></span><?php endif; ?>
       </div>
 

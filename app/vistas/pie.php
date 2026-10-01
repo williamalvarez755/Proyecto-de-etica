@@ -10,6 +10,10 @@
 ?>
 </main>
 
+<!-- Para lectores de pantalla: cuando los resultados cambian sin
+     recargar la página, app.js escribe acá cuántos hay. -->
+<div id="anuncio" class="solo-lector" aria-live="polite"></div>
+
 <footer class="pie">
   <div class="contenedor">
     <p class="pie__aclaracion">

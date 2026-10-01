@@ -11,6 +11,10 @@
  * Aun así, acá también se ve la fuente y la fecha: la persona tiene
  * que poder distinguir una oferta de otra sin abrir seis pestañas,
  * que en un celular con datos limitados no es un detalle menor.
+ *
+ * Toda la tarjeta se puede tocar: el enlace del título se estira
+ * sobre ella con CSS (.oferta__titulo a::after). Por eso abajo ya no
+ * hay un segundo enlace a lo mismo, solo la indicación "Ver la oferta".
  */
 ?>
 <article class="oferta">
@@ -43,10 +47,8 @@
     disponible hasta el <?= escapar(fecha_en_palabras($oferta['fecha_vencimiento'])) ?>
   </p>
 
-  <p>
-    <a class="boton boton--secundario" href="/oferta.php?id=<?= (int) $oferta['id'] ?>">
-      Ver la oferta completa
-    </a>
+  <p class="oferta__pie">
+    <span class="oferta__ir" aria-hidden="true">Ver la oferta completa</span>
   </p>
 
 </article>

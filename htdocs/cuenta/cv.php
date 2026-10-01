@@ -148,14 +148,23 @@ require RAIZ_APP . '/vistas/cabecera.php';
       <?php campo_csrf(); ?>
       <input type="hidden" name="accion" value="subir">
 
+      <!-- El campo de archivo de siempre, dentro de una zona más grande
+           y fácil de tocar. Sin JavaScript funciona igual; con él,
+           app.js muestra el archivo elegido y avisa ANTES de subir si
+           pesa de más (data-max-bytes), para no gastar datos en vano. -->
       <div class="campo">
-        <label class="etiqueta" for="cv">El archivo</label>
-        <span class="ayuda" id="ayuda-cv">
-          En PDF o en Word (.docx). Hasta <?= round(CV_TAMANO_MAXIMO_BYTES / 1024 / 1024, 1) ?> MB.
-        </span>
-        <input class="entrada" type="file" id="cv" name="cv"
-               accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-               aria-describedby="ayuda-cv" required>
+        <label class="zona-archivo" for="cv">
+          <svg class="zona-archivo__icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path><path d="M12 18v-6"></path><path d="m9 14 3-3 3 3"></path></svg>
+          <span class="zona-archivo__principal">Tocá acá para elegir el archivo</span>
+          <span class="ayuda" id="ayuda-cv">
+            En PDF o en Word (.docx). Hasta <?= round(CV_TAMANO_MAXIMO_BYTES / 1024 / 1024, 1) ?> MB.
+          </span>
+          <span class="zona-archivo__elegido" aria-live="polite"></span>
+          <input type="file" id="cv" name="cv"
+                 accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                 data-max-bytes="<?= (int) CV_TAMANO_MAXIMO_BYTES ?>"
+                 aria-describedby="ayuda-cv" required>
+        </label>
       </div>
 
       <div class="acciones separado">
@@ -182,7 +191,11 @@ require RAIZ_APP . '/vistas/cabecera.php';
       <li>Se guarda en un lugar del servidor al que no se llega escribiendo una dirección web.</li>
       <li>Le ponemos un nombre al azar, así nadie puede adivinarlo.</li>
       <li>Solo vos podés descargarlo mientras no lo compartas con una oferta.</li>
-      <li>Si lo borrás, el archivo se borra del disco de verdad, no solo de la lista.</li>
+      <li>
+        Si lo borrás, el archivo se borra del disco de verdad, no solo de la lista. La única
+        excepción: si ya lo compartiste con una oferta, esa copia se guarda para esa oferta
+        (es lo que autorizaste) hasta que borres tu cuenta.
+      </li>
     </ul>
   </section>
 

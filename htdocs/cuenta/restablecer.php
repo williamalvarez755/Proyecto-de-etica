@@ -132,13 +132,13 @@ require RAIZ_APP . '/vistas/cabecera.php';
       <div class="campo">
         <label class="etiqueta" for="nueva">Tu contraseña nueva</label>
         <span class="ayuda" id="ayuda-nueva">Al menos <?= (int) CONTRASENA_LARGO_MINIMO ?> letras o números.</span>
-        <input class="entrada" type="password" id="nueva" name="nueva" data-ver
+        <input class="entrada" type="password" id="nueva" name="nueva" data-ver minlength="<?= (int) CONTRASENA_LARGO_MINIMO ?>" data-medir
                autocomplete="new-password" aria-describedby="ayuda-nueva" required>
       </div>
 
       <div class="campo">
         <label class="etiqueta" for="confirmacion">Escribila otra vez</label>
-        <input class="entrada" type="password" id="confirmacion" name="confirmacion"
+        <input class="entrada" type="password" id="confirmacion" name="confirmacion" data-igual-a="nueva"
                autocomplete="new-password" required>
       </div>
 

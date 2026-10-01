@@ -59,6 +59,23 @@ if ($busqueda !== '') {
 $total_registro = contar_reclutadores();
 $actualizado    = fecha_actualizacion_registro();
 
+// Un resumen en una línea, para que el lector de pantalla lo diga
+// cuando el resultado aparece sin recargar la página (app.js).
+$resumen = '';
+if ($demasiadas) {
+    $resumen = 'Demasiadas consultas desde esta conexión. Esperá un rato.';
+} elseif ($resultado !== null) {
+    if ($resultado['exactas'] !== []) {
+        $resumen = reclutador_vigente_hoy($resultado['exactas'][0])
+            ? 'Sí aparece en el registro.'
+            : 'Aparece en el registro, pero su autorización no está vigente.';
+    } elseif ($resultado['parecidas'] !== []) {
+        $resumen = 'No aparece con ese nombre exacto, pero hay nombres parecidos.';
+    } else {
+        $resumen = 'No lo encontramos en el registro.';
+    }
+}
+
 $titulo_pagina = 'Verificar un reclutador';
 require RAIZ_APP . '/vistas/cabecera.php';
 ?>
@@ -74,7 +91,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
     </p>
   </section>
 
-  <form method="get" action="/verificador.php" class="tarjeta">
+  <form method="get" action="/verificador.php" class="tarjeta" data-en-vivo="#resultado-verificador" role="search">
     <div class="campo">
       <label class="etiqueta" for="nombre">Nombre de la empresa o del reclutador</label>
       <span class="ayuda" id="ayuda-nombre">
@@ -87,6 +104,13 @@ require RAIZ_APP . '/vistas/cabecera.php';
       <button class="boton boton--principal boton--ancho" type="submit">Buscar en el registro</button>
     </div>
   </form>
+
+  <!-- Lo que app.js reemplaza cuando la búsqueda se hace sin recargar. -->
+  <div id="resultado-verificador" class="pila-grande">
+
+  <?php if ($resumen !== ''): ?>
+    <p class="solo-lector" data-anuncio><?= escapar($resumen) ?></p>
+  <?php endif; ?>
 
   <?php if ($demasiadas): ?>
 
@@ -213,6 +237,8 @@ require RAIZ_APP . '/vistas/cabecera.php';
     </section>
 
   <?php endif; ?>
+
+  </div>
 
   <section class="tarjeta pila">
     <h2 class="tarjeta__titulo">De dónde salen estos datos</h2>

@@ -97,7 +97,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
         Al menos <?= (int) CONTRASENA_LARGO_MINIMO ?> letras o números.
       </span>
       <input class="entrada <?= isset($errores['nueva']) ? 'entrada--error' : '' ?>"
-             type="password" id="nueva" name="nueva" data-ver
+             type="password" id="nueva" name="nueva" data-ver minlength="<?= (int) CONTRASENA_LARGO_MINIMO ?>" data-medir
              autocomplete="new-password" aria-describedby="ayuda-nueva" required>
       <?php if (isset($errores['nueva'])): ?>
         <span class="error-campo"><?= escapar($errores['nueva']) ?></span>
@@ -107,7 +107,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
     <div class="campo">
       <label class="etiqueta" for="confirmacion">Escribí otra vez la contraseña nueva</label>
       <input class="entrada <?= isset($errores['confirmacion']) ? 'entrada--error' : '' ?>"
-             type="password" id="confirmacion" name="confirmacion"
+             type="password" id="confirmacion" name="confirmacion" data-igual-a="nueva"
              autocomplete="new-password" required>
       <?php if (isset($errores['confirmacion'])): ?>
         <span class="error-campo"><?= escapar($errores['confirmacion']) ?></span>

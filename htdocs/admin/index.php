@@ -43,7 +43,11 @@ require RAIZ_APP . '/vistas/cabecera.php';
   <?php
   $conteo_ofertas = contar_por_estado();
   $pendientes     = (int) ($conteo_ofertas['pendiente'] ?? 0);
-  $publicadas     = (int) ($conteo_ofertas['publicada'] ?? 0);
+  // "Visibles" se cuenta con la MISMA condición que usa el sitio
+  // público. Contar estado = 'publicada' incluía las vencidas y las de
+  // reclutadores sin autorización, y el panel decía que se veían ofertas
+  // que la persona no podía encontrar.
+  $publicadas     = contar_ofertas_publicas([]);
   $por_vencer     = count(ofertas_publicadas_vencidas());
   ?>
 
@@ -89,7 +93,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
   <?php if ($por_vencer > 0 && tiene_permiso('mantenimiento.ejecutar')): ?>
     <p class="aviso aviso--aviso">
       Hay <strong><?= $por_vencer ?></strong> oferta<?= $por_vencer === 1 ? '' : 's' ?>
-      con la fecha vencida que todavía figuran como publicadas. Ya no se ven en el sitio,
+      con la fecha vencida que todavía figura<?= $por_vencer === 1 ? '' : 'n' ?> como publicada<?= $por_vencer === 1 ? '' : 's' ?>. Ya no se ve<?= $por_vencer === 1 ? '' : 'n' ?> en el sitio,
       pero conviene ponerlas al día.
       <a href="/admin/mantenimiento.php">Ir a mantenimiento</a>
     </p>
@@ -218,15 +222,6 @@ require RAIZ_APP . '/vistas/cabecera.php';
       </div>
 
     </div>
-  </section>
-
-  <section class="tarjeta">
-    <h2 class="tarjeta__titulo">Lo que todavía no está construido</h2>
-    <p>
-      El emparejamiento entre perfiles y ofertas, la postulación con consentimiento, los
-      reportes de usuarios y el verificador público de reclutadores se construyen en las
-      siguientes etapas. Se prefiere no mostrar botones que no hagan nada.
-    </p>
   </section>
 
 </div>

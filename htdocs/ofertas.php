@@ -70,6 +70,32 @@ function enlace_con_filtros(array $filtros, int $pagina): string
     return '/ofertas.php' . ($partes === [] ? '' : '?' . http_build_query($partes));
 }
 
+/** El mismo enlace, sin uno de los filtros (para las fichas de "quitar"). */
+function enlace_sin_filtro(array $filtros, string $clave): string
+{
+    $filtros[$clave] = $clave === 'rubro_id' ? null : '';
+    return enlace_con_filtros($filtros, 1);
+}
+
+// Las fichas de los filtros que están puestos, con el nombre legible.
+$fichas = [];
+if ($texto !== '') {
+    $fichas[] = ['«' . $texto . '»', enlace_sin_filtro($filtros, 'texto')];
+}
+if ($rubro_id !== null) {
+    $fichas[] = [nombre_de_rubro($rubro_id), enlace_sin_filtro($filtros, 'rubro_id')];
+}
+if ($pais !== '') {
+    $fichas[] = [PAISES[$pais], enlace_sin_filtro($filtros, 'pais')];
+}
+if ($dias !== '') {
+    $fichas[] = [$dias_permitidos[$dias], enlace_sin_filtro($filtros, 'dias')];
+}
+
+// Cuántos de los filtros plegables están puestos: si hay alguno, el
+// grupo viene abierto, para que la persona vea lo que eligió.
+$filtros_plegados = ($rubro_id !== null ? 1 : 0) + ($pais !== '' ? 1 : 0) + ($dias !== '' ? 1 : 0);
+
 $titulo_pagina = 'Ofertas de trabajo';
 require RAIZ_APP . '/vistas/cabecera.php';
 ?>
@@ -85,106 +111,135 @@ require RAIZ_APP . '/vistas/cabecera.php';
   </section>
 
   <!-- Los filtros van por GET a propósito: así la persona puede
-       guardar el enlace de su búsqueda o mandárselo a alguien. -->
-  <form method="get" action="/ofertas.php" class="tarjeta filtros">
+       guardar el enlace de su búsqueda o mandárselo a alguien.
+       data-en-vivo: con JavaScript, los resultados cambian en el lugar
+       sin recargar la página (ver app.js). Sin JavaScript, el
+       formulario se envía como siempre. -->
+  <form method="get" action="/ofertas.php" class="tarjeta filtros" data-en-vivo="#resultados" role="search">
     <div class="campo">
       <label class="etiqueta" for="texto">Buscar por oficio o empresa</label>
-      <input class="entrada" type="search" id="texto" name="texto" maxlength="80"
-             value="<?= escapar($texto) ?>" placeholder="albañil, cosecha, hotel...">
-    </div>
-
-    <div class="rejilla rejilla--tres">
-      <div class="campo">
-        <label class="etiqueta" for="rubro">Oficio</label>
-        <select class="entrada" id="rubro" name="rubro">
-          <option value="">Todos los oficios</option>
-          <?php foreach (listar_rubros() as $rubro): ?>
-            <option value="<?= (int) $rubro['id'] ?>" <?= $rubro_id === (int) $rubro['id'] ? 'selected' : '' ?>>
-              <?= escapar($rubro['nombre']) ?>
-            </option>
-          <?php endforeach; ?>
-        </select>
-      </div>
-
-      <div class="campo">
-        <label class="etiqueta" for="pais">País</label>
-        <select class="entrada" id="pais" name="pais">
-          <option value="">Todos los países</option>
-          <?php foreach (PAISES as $codigo => $nombre): ?>
-            <option value="<?= escapar($codigo) ?>" <?= $pais === $codigo ? 'selected' : '' ?>>
-              <?= escapar($nombre) ?>
-            </option>
-          <?php endforeach; ?>
-        </select>
-      </div>
-
-      <div class="campo">
-        <label class="etiqueta" for="dias">Cuándo se publicó</label>
-        <select class="entrada" id="dias" name="dias">
-          <option value="">Cualquier fecha</option>
-          <?php foreach ($dias_permitidos as $valor => $nombre): ?>
-            <option value="<?= escapar($valor) ?>" <?= $dias === $valor ? 'selected' : '' ?>>
-              <?= escapar($nombre) ?>
-            </option>
-          <?php endforeach; ?>
-        </select>
+      <div class="buscador-grande">
+        <input class="entrada" type="search" id="texto" name="texto" maxlength="80"
+               value="<?= escapar($texto) ?>" placeholder="albañil, cosecha, hotel...">
+        <button class="boton boton--principal" type="submit">Buscar</button>
       </div>
     </div>
 
-    <div class="acciones separado">
-      <button class="boton boton--principal" type="submit">Buscar</button>
-      <?php if ($hay_filtros): ?>
-        <a class="boton boton--secundario" href="/ofertas.php">Quitar los filtros</a>
-      <?php endif; ?>
-    </div>
+    <details class="filtros__mas"<?= $filtros_plegados > 0 ? ' open' : '' ?>>
+      <summary>
+        Filtrar por oficio, país o fecha
+        <?php if ($filtros_plegados > 0): ?>
+          <span class="filtros__cuantos" aria-label="<?= (int) $filtros_plegados ?> puestos"><?= (int) $filtros_plegados ?></span>
+        <?php endif; ?>
+      </summary>
+
+      <div class="rejilla rejilla--tres">
+        <div class="campo">
+          <label class="etiqueta" for="rubro">Oficio</label>
+          <select class="entrada" id="rubro" name="rubro">
+            <option value="">Todos los oficios</option>
+            <?php foreach (listar_rubros() as $rubro): ?>
+              <option value="<?= (int) $rubro['id'] ?>" <?= $rubro_id === (int) $rubro['id'] ? 'selected' : '' ?>>
+                <?= escapar($rubro['nombre']) ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label class="etiqueta" for="pais">País</label>
+          <select class="entrada" id="pais" name="pais">
+            <option value="">Todos los países</option>
+            <?php foreach (PAISES as $codigo => $nombre): ?>
+              <option value="<?= escapar($codigo) ?>" <?= $pais === $codigo ? 'selected' : '' ?>>
+                <?= escapar($nombre) ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label class="etiqueta" for="dias">Cuándo se publicó</label>
+          <select class="entrada" id="dias" name="dias">
+            <option value="">Cualquier fecha</option>
+            <?php foreach ($dias_permitidos as $valor => $nombre): ?>
+              <option value="<?= escapar($valor) ?>" <?= $dias === $valor ? 'selected' : '' ?>>
+                <?= escapar($nombre) ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+      </div>
+    </details>
   </form>
 
-  <?php if ($ofertas === []): ?>
+  <!-- Todo lo que cambia con la búsqueda vive acá adentro: es lo único
+       que app.js reemplaza cuando se actualiza en el lugar. -->
+  <div id="resultados" class="resultados pila">
 
-    <?php if (!$hay_ofertas_publicadas): ?>
-      <div class="vacio pila">
-        <p><strong>Todavía no hay ofertas publicadas.</strong></p>
-        <p>
-          Las ofertas aparecen acá después de que alguien de la institución comprueba de dónde
-          salieron. Preferimos no mostrar nada antes que mostrar algo sin verificar.
-        </p>
-      </div>
-    <?php else: ?>
-      <div class="vacio pila">
-        <p><strong>No encontramos ofertas con esa búsqueda.</strong></p>
-        <p>Probá con menos filtros o con otra palabra.</p>
-        <p><a class="boton boton--secundario" href="/ofertas.php">Ver todas las ofertas</a></p>
+    <?php if ($fichas !== []): ?>
+      <div class="fichas" aria-label="Filtros puestos">
+        <?php foreach ($fichas as [$nombre_ficha, $enlace_ficha]): ?>
+          <a class="ficha" href="<?= escapar($enlace_ficha) ?>" data-en-vivo-enlace="#resultados">
+            <?= escapar($nombre_ficha) ?>
+            <span class="ficha__x" aria-hidden="true">×</span>
+            <span class="solo-lector">(quitar este filtro)</span>
+          </a>
+        <?php endforeach; ?>
+        <?php if (count($fichas) > 1): ?>
+          <a class="texto-menor" href="/ofertas.php" data-en-vivo-enlace="#resultados">Quitar todos</a>
+        <?php endif; ?>
       </div>
     <?php endif; ?>
 
-  <?php else: ?>
+    <?php if ($ofertas === []): ?>
 
-    <section class="pila">
-      <p class="texto-menor">
+      <?php if (!$hay_ofertas_publicadas): ?>
+        <div class="vacio pila">
+          <p data-anuncio><strong>Todavía no hay ofertas publicadas.</strong></p>
+          <p>
+            Las ofertas aparecen acá después de que alguien de la institución comprueba de dónde
+            salieron. Preferimos no mostrar nada antes que mostrar algo sin verificar.
+          </p>
+        </div>
+      <?php else: ?>
+        <div class="vacio pila">
+          <p data-anuncio><strong>No encontramos ofertas con esa búsqueda.</strong></p>
+          <p>Probá con menos filtros o con otra palabra.</p>
+          <p><a class="boton boton--secundario" href="/ofertas.php" data-en-vivo-enlace="#resultados">Ver todas las ofertas</a></p>
+        </div>
+      <?php endif; ?>
+
+    <?php else: ?>
+
+      <p class="texto-menor" data-anuncio>
         <?= $total ?> oferta<?= $total === 1 ? '' : 's' ?>
         <?= $hay_filtros ? 'con esta búsqueda' : 'disponibles' ?>.
       </p>
 
-      <div class="rejilla">
+      <div class="rejilla rejilla--ofertas">
         <?php foreach ($ofertas as $oferta): ?>
           <?php require RAIZ_APP . '/vistas/tarjeta_oferta.php'; ?>
         <?php endforeach; ?>
       </div>
-    </section>
 
-    <?php if ($paginas > 1): ?>
-      <nav class="acciones" aria-label="Páginas de resultados">
-        <?php if ($pagina > 1): ?>
-          <a class="boton boton--secundario" href="<?= escapar(enlace_con_filtros($filtros, $pagina - 1)) ?>">Anterior</a>
-        <?php endif; ?>
-        <span class="insignia">Página <?= $pagina ?> de <?= $paginas ?></span>
-        <?php if ($pagina < $paginas): ?>
-          <a class="boton boton--secundario" href="<?= escapar(enlace_con_filtros($filtros, $pagina + 1)) ?>">Siguiente</a>
-        <?php endif; ?>
-      </nav>
+      <?php if ($paginas > 1): ?>
+        <nav class="paginacion" aria-label="Páginas de resultados">
+          <?php if ($pagina > 1): ?>
+            <a class="boton boton--secundario" href="<?= escapar(enlace_con_filtros($filtros, $pagina - 1)) ?>"
+               data-en-vivo-enlace="#resultados">← Anterior</a>
+          <?php endif; ?>
+          <span class="insignia">Página <?= $pagina ?> de <?= $paginas ?></span>
+          <?php if ($pagina < $paginas): ?>
+            <a class="boton boton--secundario" href="<?= escapar(enlace_con_filtros($filtros, $pagina + 1)) ?>"
+               data-en-vivo-enlace="#resultados">Siguiente →</a>
+          <?php endif; ?>
+        </nav>
+      <?php endif; ?>
+
     <?php endif; ?>
 
-  <?php endif; ?>
+  </div>
 
 </div>
 

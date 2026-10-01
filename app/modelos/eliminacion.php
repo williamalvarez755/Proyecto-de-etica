@@ -273,10 +273,9 @@ function revisar_estado_del_sistema(): array
             . 'es la función más importante de la plataforma.',
     ];
 
-    // ¿Hay ofertas publicadas?
-    $publicadas = (int) consultar_valor(
-        'SELECT COUNT(*) FROM ofertas WHERE estado = ?', ['publicada']
-    );
+    // ¿Hay ofertas que el público pueda ver? Con la misma condición del
+    // sitio: una "publicada" vencida no la ve nadie.
+    $publicadas = contar_ofertas_publicas([]);
     $revisiones[] = [
         'nombre' => 'Ofertas publicadas',
         'bien'   => $publicadas > 0,

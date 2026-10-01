@@ -68,8 +68,8 @@
     disponible hasta el <?= escapar(fecha_en_palabras($oferta['fecha_vencimiento'])) ?>
   </p>
 
-  <div class="acciones">
-    <a class="boton boton--secundario" href="/oferta.php?id=<?= (int) $oferta['id'] ?>">Ver la oferta completa</a>
-  </div>
+  <p class="oferta__pie">
+    <span class="oferta__ir" aria-hidden="true">Ver la oferta completa</span>
+  </p>
 
 </article>

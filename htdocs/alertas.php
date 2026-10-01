@@ -34,14 +34,18 @@ require RAIZ_APP . '/vistas/cabecera.php';
     </p>
   </section>
 
-  <div class="pila">
+  <!-- Numeradas y en ámbar, no en rojo: son señales para frenar y
+       averiguar. Una pared de cajas rojas asusta y se deja de leer. -->
+  <ol class="senales">
     <?php foreach (SENALES_ALERTA as $senal): ?>
-      <section class="aviso aviso--error">
-        <p><strong><?= escapar($senal['titulo']) ?></strong></p>
-        <p><?= escapar($senal['texto']) ?></p>
-      </section>
+      <li class="senal">
+        <div>
+          <p class="senal__titulo"><?= escapar($senal['titulo']) ?></p>
+          <p class="senal__texto"><?= escapar($senal['texto']) ?></p>
+        </div>
+      </li>
     <?php endforeach; ?>
-  </div>
+  </ol>
 
   <section class="tarjeta pila">
     <h2 class="tarjeta__titulo">Lo más importante de todo</h2>
@@ -85,12 +89,12 @@ require RAIZ_APP . '/vistas/cabecera.php';
 
     <dl class="lista-datos">
       <dt>Si hay alguien en peligro ahora mismo</dt>
-      <dd>Policía Nacional Civil: <strong>110</strong></dd>
+      <dd>Policía Nacional Civil: <a class="telefono" href="tel:110">110</a></dd>
 
       <dt>Si sospechás que es un caso de trata de personas</dt>
       <dd>
         Secretaría contra la Violencia Sexual, Explotación y Trata de Personas (SVET)<br>
-        Línea de denuncia: <strong>1546</strong>
+        Línea de denuncia: <a class="telefono" href="tel:1546">1546</a>
       </dd>
 
       <dt>Para denunciar el delito</dt>
