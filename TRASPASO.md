@@ -26,6 +26,9 @@ se pueden revisar, y están todas anotadas con su razón.
    - `sql/esquema.sql` — las 21 tablas
    - `sql/datos_iniciales.sql` — roles, permisos y rubros
    - `sql/datos_prueba.sql` — **opcional**, solo para demostrar. Trae instrucciones para borrarlo.
+3. **Si la base ya existía antes del 2026-10-01:** correr también `sql/migracion_001.sql`. Sin
+   ella, borrar una oferta con postulaciones falla. (Borrar una cuenta funciona igual: el código
+   ya no depende de la migración.)
 
 ### 2.2. Configuración
 
@@ -59,7 +62,8 @@ Copiar `app/config/config.ejemplo.php` como `app/config/config.php` y llenar:
 >
 > Después de cualquier cambio en los `.htaccess`, comprobá en el navegador que
 > `/app/config/config.php` devuelva 403 o 404. Es la única prueba que confirma que la protección
-> sigue en pie.
+> sigue en pie. **`herramientas/prueba_de_humo.py` la hace sola** junto con otras seis rutas
+> privadas (sección 3.1): corrélo después de cada subida por FTP.
 >
 > **En un servidor propio esto se revierte:** `app/` y `vendor/` vuelven afuera de la carpeta
 > pública, los `require` recuperan su `../`, y la protección deja de depender de un archivo de
@@ -137,6 +141,21 @@ python herramientas/revisar_php.py "C:/proyecto etica"
 
 Comprueba que los bloques `{}`, `()` y `[]` estén balanceados en todos los archivos. Útil cuando
 no hay PHP instalado para correr `php -l`.
+
+```bash
+python herramientas/prueba_de_humo.py https://tusitio.infinityfreeapp.com
+```
+
+La única que mira **el sitio publicado** en lugar del código. Es de solo lectura: no crea cuentas
+ni cambia nada. Comprueba que las carpetas privadas (`app/`, `vendor/`, los currículums) no se
+puedan abrir, que las páginas públicas respondan (incluida una búsqueda con texto), que lleguen las
+cabeceras de seguridad y que `instalar.php` y `diagnostico.php` ya no estén. **Corrélo después de
+cada subida por FTP.** Si el hosting contesta con su página anti-robots, el propio archivo explica
+cómo pasarle la cookie `__test` del navegador.
+
+Las otras dos herramientas leen el código, y leer no alcanza: las dos fallas críticas de la
+auditoría del 2026-10-01 pasaban la revisión de los 14 puntos (ver D-049 en `CLAUDE.md` y
+`AUDITORIA.md`).
 
 **Cuando haya PHP en la máquina, además:**
 
@@ -279,7 +298,12 @@ reciba debería cambiarlas.
 - [ ] Comprobar que `instalar.php` y `diagnostico.php` no están en el servidor.
 - [ ] Comprobar que `ENTORNO` dice `produccion` en `config.php`.
 - [ ] Cargar el registro real de reclutadores del Ministerio de Trabajo.
-- [ ] Verificar los teléfonos de denuncia de `htdocs/alertas.php`.
+- [ ] Verificar los teléfonos de denuncia de `htdocs/alertas.php`. Ahora se pueden tocar para
+      llamar: uno equivocado es alguien en problemas llamando a un número que no contesta.
+- [ ] Mirar la pregunta 5 de `diagnostico.php` (la IP) y decidir los límites por conexión
+      (D1 en `AUDITORIA.md`).
+- [ ] `python herramientas/prueba_de_humo.py https://...` termina en "todo en orden".
+- [ ] Resolver o descartar con razón los seis puntos de la sección 4 de `AUDITORIA.md`.
 - [ ] Crear la cuenta de superadministrador de la institución y desactivar las de prueba.
 - [ ] Hacer un respaldo y **probar restaurarlo**.
 - [ ] Entregar `MANUAL.md` impreso o en PDF a quien vaya a cargar ofertas.

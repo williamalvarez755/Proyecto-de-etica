@@ -135,6 +135,13 @@ dar las tres fases por cerradas.**
 (`herramientas/revision_seguridad.py`). Lo que queda es instalar en el servidor y probar,
 que es lo único que no se puede hacer desde la computadora.
 
+**Auditoría del 2026-10-01** (detalle en [AUDITORIA.md](AUDITORIA.md)): se ejecutó todo el sitio
+contra MariaDB, PHP 8.3 y Apache. Aparecieron dos fallas críticas que la revisión de los 14
+puntos no veía (el buscador daba error 500 al escribir, y quien se había postulado no podía
+borrar su cuenta), cinco altas y varias medias. Todas corregidas. La interfaz se volvió más
+dinámica sin tocar la CSP ni el funcionamiento sin JavaScript (D-048). Quedan seis puntos que
+necesitan una decisión del equipo: sección 4 de `AUDITORIA.md`.
+
 ### Pendientes de verificar en el servidor real (bloquean decisiones)
 
 - [ ] Versión de **MySQL / MariaDB** que reporta el panel de InfinityFree.
@@ -148,7 +155,15 @@ que es lo único que no se puede hacer desde la computadora.
       página queda dando vueltas o sale en blanco, es esto: se resuelve ajustando la línea de la
       CSP en `app/nucleo/inicio.php`. **No cambiar nada antes de comprobarlo.**
 
-Las cuatro primeras las contesta `htdocs/diagnostico.php`, que se sube, se lee una vez y se borra.
+- [ ] **Qué IP ve PHP de cada visita** (pregunta 5 de `diagnostico.php`). Si es la del proxy del
+      hosting, los límites "por conexión" son para todo el sitio junto: con
+      `REGISTRO_MAX_POR_IP = 3` se cierra el registro para todos a la cuarta cuenta del día.
+      En la auditoría se comprobó que la cuarta se rechaza. Ver D1 en `AUDITORIA.md`.
+- [ ] Correr `sql/migracion_001.sql` si la base del servidor es anterior al 2026-10-01.
+- [ ] `python herramientas/prueba_de_humo.py https://...` termina en "todo en orden".
+
+Las cuatro primeras y la de la IP las contesta `htdocs/diagnostico.php`, que se sube, se lee una
+vez y se borra. La prueba de humo se repite después de cada subida por FTP.
 
 ### Lo que no se va a poder cumplir en InfinityFree
 
@@ -620,6 +635,68 @@ cambió: el historial de por qué algo cambió vale tanto como la decisión actu
 - **Por qué así:** para que la protección esté en la función y no en la confianza de que quien
   llame use la constante correcta.
 
+### D-045 · 2026-10-01 · Una oferta con reclutador sin autorización vigente deja de verse sola · VIGENTE
+
+- **Decisión:** `CONDICION_OFERTA_PUBLICA` exige que, si la oferta vino por un reclutador, su
+  autorización esté vigente hoy (estado `vigente` **y** fecha). `motivo_para_no_publicar()` lo
+  comprueba también, y el panel avisa qué ofertas dejaron de verse por esto.
+- **Por qué:** D-020 bloqueaba *verificar*, pero nada lo volvía a mirar después. Si la
+  autorización se vencía o se suspendía con la oferta publicada, seguía apareciendo con el sello
+  y el número de registro del Ministerio: justo la señal en la que le pedimos a la gente confiar.
+  Es el mismo razonamiento de D-018: la condición pública protege aunque nadie entre al panel.
+- **Detalle:** la condición usa dos parámetros (`:hoy` y `:hoy_reclutador`) porque PDO no deja
+  repetir uno con nombre. Los arma `parametros_oferta_publica()`; no se escriben a mano.
+- **Alternativa descartada:** mostrar la oferta con una advertencia. Sería un sello de
+  "verificada" acompañado de un "pero ya no": confunde más de lo que informa.
+
+### D-046 · 2026-10-01 · Retirar la postulación revoca el permiso desde ese momento · VIGENTE
+
+- **Decisión:** si la postulación está `retirada`, `admin/archivo_cv.php` se niega a entregar el
+  currículum (y lo deja en la bitácora), y el panel no muestra sus datos.
+- **Por qué:** consentir incluye poder retirar el consentimiento. Antes se comprobaba solo que
+  *existiera* un consentimiento, así que retirarse no cambiaba nada del lado del panel.
+- **Lo que no se puede prometer, y se dice:** lo que ya se descargó o se le pasó al empleador no
+  vuelve. La pantalla de la persona lo explica con esas palabras.
+
+### D-047 · 2026-10-01 · La sesión se ata a la contraseña con la que se abrió · VIGENTE
+
+- **Decisión:** al iniciar sesión se guarda `sello_de_clave()` (un SHA-256 del hash de la
+  contraseña). `usuario_actual()` lo compara en cada petición: si la contraseña cambió desde
+  cualquier lado, la sesión se cierra.
+- **Por qué:** cambiar la contraseña o pedir un restablecimiento es lo que hace alguien que dejó
+  la sesión abierta en un café internet. `session_regenerate_id()` solo renovaba la propia.
+- **Por qué así y no con una columna nueva:** no hace falta tocar la base, y la consulta ya se
+  hacía en cada petición (D-014). Costo conocido: si PHP re-cifra la contraseña al entrar
+  (`password_needs_rehash`), las otras sesiones de esa cuenta se cierran. Pasa una vez por versión.
+
+### D-048 · 2026-10-01 · Interfaz dinámica por mejora progresiva · VIGENTE
+
+- **Decisión:** todo lo dinámico es una capa de `app.js` encima de páginas que funcionan sin
+  JavaScript. Los formularios con `data-en-vivo="#zona"` piden **la misma página** por detrás y
+  reemplazan solo esa zona; la dirección del navegador se actualiza.
+- **Por qué no una API:** la misma página trae los mismos controles de seguridad y de límites; no
+  hay un segundo camino al dato que haya que proteger.
+- **Por qué no buscar mientras se escribe:** multiplicaría las peticiones contra el tope de
+  30 000 diarias. Se busca al apretar Enter o cambiar un menú: igual que antes.
+- **Otras reglas:** JavaScript sin sintaxis nueva (un teléfono viejo con un error de sintaxis se
+  queda sin nada); nada de `style=` en el HTML; movimiento corto y ninguno con
+  `prefers-reduced-motion`; lo que aparece al bajar por la página se revela solo a los 2,5 s pase
+  lo que pase (nada puede quedar invisible). En el teléfono, pestañas abajo con ícono y palabra,
+  no menú escondido: el verificador tiene que estar a la vista.
+- **D-015 aplicado de nuevo:** los avisos de éxito y "te aparece porque" usaban verde; pasaron a
+  azul. El verde significa solo "origen verificado".
+
+### D-049 · 2026-10-01 · Probar ejecutando, no solo leyendo · VIGENTE
+
+- **Decisión:** además de `revision_seguridad.py` (que lee el código), existe
+  `herramientas/prueba_de_humo.py`, que pide el sitio publicado y comprueba carpetas privadas,
+  páginas, búsqueda con texto y cabeceras. Se corre después de cada subida por FTP. Es de solo
+  lectura.
+- **Por qué:** las dos fallas críticas de la auditoría pasaban la revisión de los 14 puntos. No
+  se ven leyendo; solo al ejecutar. Y la prueba de D-044 ("abrí `/app/config/config.php` en el
+  navegador") dependía de que alguien se acordara.
+- **Lo siguiente:** pruebas de flujo completas en GitHub Actions (idea 3 de `AUDITORIA.md`).
+
 ---
 
 ## 6. Cosas que ya se intentaron y no funcionaron
@@ -636,6 +713,25 @@ cambió: el historial de por qué algo cambió vale tanto como la decisión actu
 - **La lección, que vale más que el detalle técnico:** un detector con falsos positivos crónicos
   es un detector que nadie vuelve a mirar, y entonces no protege nada. Si vuelve a dar ruido, hay
   que afinarlo, no acostumbrarse a ignorarlo.
+
+### 2026-10-01 · Repetir un parámetro con nombre en la misma consulta
+
+- **Qué se intentó:** `titulo LIKE :texto OR empleador LIKE :texto`, con el mismo `:texto`.
+- **Por qué no sirve:** con `EMULATE_PREPARES` en `false` (que es lo correcto, ver `bd.php`),
+  PDO no lo permite y la consulta revienta con `Invalid parameter number`. El buscador entero daba
+  error 500 en cuanto alguien escribía algo, y nadie lo vio porque sin texto andaba.
+- **Qué se hace:** un nombre por aparición (`:texto1`, `:texto2`), armados por
+  `parametros_de_texto()`. Lo mismo con la fecha: `parametros_oferta_publica()`.
+
+### 2026-10-01 · Comprobar el esquema buscando un texto en cualquier parte
+
+- **Qué se intentó:** en `revision_seguridad.py`, dar por buena la cascada si `ON DELETE CASCADE`
+  aparecía en algún lugar de `esquema.sql`.
+- **Por qué no sirve:** aparecía en muchas llaves, no en `fk_post_cons`, y el detector decía
+  `[ok]`. Encima, si faltaba no decía nada. Resultado: quien se había postulado no podía borrar su
+  cuenta, con la revisión en verde.
+- **Qué se hace:** revisar cada llave por su nombre, y que todo control sepa decir `[X]`. Y la
+  lección de fondo: leer el código no reemplaza ejecutarlo (D-049).
 
 ### 2026-09-08 · Escribir archivos largos con heredoc desde la terminal
 
@@ -674,7 +770,8 @@ app/modelos/    consultas SQL por entidad      htdocs/        lo único público
 CSRF validado y las funciones de permisos:
 
 ```php
-require __DIR__ . '/../app/nucleo/inicio.php';   // una carpeta menos desde htdocs/
+require __DIR__ . '/app/nucleo/inicio.php';      // desde htdocs/
+require __DIR__ . '/../app/nucleo/inicio.php';   // desde htdocs/cuenta/ o htdocs/admin/
 ```
 
 ### Funciones compartidas: qué existe y para qué
@@ -686,22 +783,22 @@ Tener dos maneras de comprobar lo mismo es como aparecen los huecos.
 |---|---|---|
 | `nucleo/autorizacion.php` | `requerir_sesion()`, `requerir_administrativo()`, `requerir_permiso()`, `requerir_superadministrador()`, `tiene_permiso()`, `usuario_actual()` | **Regla 5.** Único lugar donde se decide quién puede hacer qué |
 | `nucleo/csrf.php` | `campo_csrf()`, `validar_csrf()` | Token de formularios. La validación es automática (D-011); en el formulario solo hay que poner `campo_csrf()` |
-| `nucleo/salida.php` | `escapar()`, `ahora()`, `fecha_en_palabras()`, `guardar_mensaje()` | Imprimir sin XSS, fechas del sistema, avisos después de redirigir |
-| `nucleo/bd.php` | `consultar()`, `consultar_una()`, `consultar_todas()`, `consultar_valor()`, `consultar_paginado()` | Todas las consultas, siempre preparadas. Ni una concatenación de SQL |
+| `nucleo/salida.php` | `escapar()`, `ahora()`, `fecha_en_palabras()`, `guardar_mensaje()`, `guardar_mensaje_si_no_hay()`, `recurso()` | Imprimir sin XSS, fechas del sistema, avisos después de redirigir, CSS y JS con versión |
+| `nucleo/bd.php` | `consultar()`, `consultar_una()`, `consultar_todas()`, `consultar_valor()`, `consultar_paginado()`, `parametros_de_texto()` | Todas las consultas, siempre preparadas. Ni una concatenación de SQL. **Nunca repetir un parámetro con nombre** |
 | `nucleo/validacion.php` | `es_correo_valido()`, `en_catalogo()`, `id_valido()`, `revisar_contrasena()`, `normalizar_nombre()` | Validar en el servidor lo que llega del usuario |
 | `nucleo/peticion.php` | `es_post()`, `campo()`, `campo_crudo()`, `ip_cliente()`, `redirigir()`, `abortar()` | Lo que viene del navegador y a dónde se manda después |
 | `nucleo/bitacora.php` | `registrar_accion()`, `leer_bitacora()` | Auditoría. Nunca contraseñas, códigos ni datos personales de más |
 | `nucleo/limites_uso.php` | `registrar_intento()`, `esta_bloqueado()`, `limpiar_fallos()` | Control de abuso, con los números de `config/limites.php` |
-| `nucleo/sesion.php` | `iniciar_sesion_de_usuario()`, `cerrar_sesion()` | Sesión segura, expiración e inicio de sesión |
+| `nucleo/sesion.php` | `iniciar_sesion_de_usuario()`, `cerrar_sesion()`, `renovar_sello_de_clave()` | Sesión segura, expiración, inicio de sesión, y cierre de las otras sesiones al cambiar la contraseña (D-047) |
 | `nucleo/codigos.php` | `generar_codigo()`, `generar_contrasena_temporal()` | Códigos aleatorios seguros y legibles al dictarlos |
-| `modelos/usuarios.php` | `autenticar()`, `crear_usuario()`, `cambiar_contrasena()`, `desactivar_usuario()` | Todo lo que toca la tabla `usuarios` |
-| `modelos/ofertas.php` | `listar_ofertas_publicas()`, `buscar_oferta_publica()`, `crear_oferta()`, `transicion_permitida()`, `motivo_para_no_publicar()`, `marcar_verificada()` | Ofertas y su ciclo de vida. Contiene `CONDICION_OFERTA_PUBLICA`, que es la regla 1 escrita una sola vez |
+| `modelos/usuarios.php` | `autenticar()`, `crear_usuario()`, `cambiar_contrasena()`, `desactivar_usuario()`, `es_correo_administrativo()`, `hash_de_relleno()` | Todo lo que toca la tabla `usuarios` |
+| `modelos/ofertas.php` | `listar_ofertas_publicas()`, `buscar_oferta_publica()`, `crear_oferta()`, `transicion_permitida()`, `motivo_para_no_publicar()`, `marcar_verificada()`, `parametros_oferta_publica()`, `ofertas_publicadas_con_reclutador_no_vigente()` | Ofertas y su ciclo de vida. Contiene `CONDICION_OFERTA_PUBLICA`, que es la regla 1 escrita una sola vez. Toda consulta que la use pasa `parametros_oferta_publica()` |
 | `modelos/fuentes.php` | `listar_fuentes()`, `crear_fuente()`, `cambiar_estado_fuente()` | De dónde salió cada oferta |
 | `modelos/reclutadores.php` | `listar_reclutadores()`, `reclutador_vigente_hoy()`, `agregar_alias()` | El registro del Ministerio. Alimenta el verificador de la Fase 5 |
 | `modelos/rubros.php` | `listar_rubros()`, `rubro_valido()`, `id_de_rubro()` | Los oficios |
 | `vistas/sello_verificacion.php` | *(se incluye, no es función)* | El sello + los cinco datos obligatorios, juntos y en un solo lugar |
-| `nucleo/archivos.php` | `revisar_cv_subido()`, `guardar_cv()`, `borrar_cv()`, `entregar_cv()` | Currículums: tipo real con finfo, nombre aleatorio, fuera de `htdocs` |
-| `nucleo/extraccion.php` | `leer_texto_de_cv()`, `extraer_datos_del_cv()`, `se_puede_leer()` | Leer `.docx` y `.pdf` y proponer qué entendió. Lo que sale de acá es propuesta, no dato |
+| `nucleo/archivos.php` | `revisar_cv_subido()`, `guardar_cv()`, `borrar_cv()`, `entregar_cv()` | Currículums: tipo real con finfo, nombre aleatorio, en `app/almacen/cv` cerrada por `.htaccess` (D-044) |
+| `nucleo/extraccion.php` | `leer_texto_de_cv()`, `extraer_datos_del_cv()`, `se_puede_leer()`, `contiene_palabra()` | Leer `.docx` y `.pdf` y proponer qué entendió. Lo que sale de acá es propuesta, no dato. Con tope contra la bomba ZIP |
 | `modelos/perfiles.php` | `buscar_perfil()`, `guardar_perfil()`, `rubros_de_perfil()`, `paises_de_perfil()` | El perfil laboral. Solo los campos que permite la regla 7 |
 | `modelos/guardadas.php` | `guardar_oferta()`, `listar_ofertas_guardadas()` | Ofertas apartadas para después |
 | `modelos/restablecimientos.php` | `crear_restablecimiento()`, `validar_restablecimiento()` | Códigos de un solo uso, guardados con hash |
@@ -718,6 +815,20 @@ Tener dos maneras de comprobar lo mismo es como aparecen los huecos.
   (ver la contraseña, confirmar antes de borrar); ninguna comprobación de seguridad depende de él.
 - **Cada pantalla resuelve sus estados**: qué se ve cuando no hay datos (`.vacio`), cuando algo
   falla (`.aviso--error`) y cuando salió bien (`.aviso--exito`).
+- **Los ganchos de `app.js` son atributos, no código en el HTML** (D-048):
+
+  | Atributo | Qué hace |
+  |---|---|
+  | `data-confirmar="pregunta"` en un `<form>` | Pregunta antes de enviar |
+  | `data-descarga` en un `<form>` | El formulario baja un archivo: el botón no queda "trabajando" |
+  | `data-en-vivo="#zona"` en un `<form method="get">` | Actualiza solo `#zona` sin recargar. La página tiene que tener `#zona` |
+  | `data-en-vivo-enlace="#zona"` en un `<a>` | Lo mismo para un enlace (páginas, quitar un filtro) |
+  | `data-anuncio` dentro de la zona | Ese texto se le lee al lector de pantalla al actualizar |
+  | `data-ver` en un campo de contraseña | Botón "Mostrar la contraseña" |
+  | `data-medir` + `minlength` en la contraseña nueva | Cuántos caracteres faltan |
+  | `data-igual-a="id"` en la confirmación | Si coincide con el campo `id` |
+  | `data-max-bytes` en el `<input type="file">` de `.zona-archivo` | Avisa antes de subir si pesa de más |
+  | `data-compartir-url` en `.compartir` | Agrega "Copiar el enlace" y el menú de compartir del teléfono |
 
 ---
 
