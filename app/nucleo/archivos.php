@@ -19,8 +19,10 @@
  *     rutas ("../../"), y además un nombre adivinable es un archivo
  *     que se puede pedir a ciegas.
  *
- *  3. Se guarda FUERA de htdocs. No existe ninguna dirección web que
- *     llegue al archivo.
+ *  3. Se guarda en app/almacen/cv, que en este hosting queda DENTRO de
+ *     htdocs (D-044) y la cierran tres .htaccess redundantes. No es lo
+ *     mismo que "fuera": depende de que Apache lea esos archivos. Por
+ *     eso la defensa 2 (nombre al azar) importa tanto como esta.
  *
  *  4. Solo se sirve por un script que comprueba la sesión y que quien
  *     pide el archivo sea su dueño, o alguien con permiso.

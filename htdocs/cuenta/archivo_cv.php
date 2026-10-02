@@ -3,7 +3,7 @@
  * DESCARGAR MI PROPIO CURRÍCULUM
  * -----------------------------------------------------------------
  * Este es el ÚNICO camino que existe hacia un archivo de currículum.
- * No hay dirección web que llegue a la carpeta donde están guardados.
+ * La carpeta donde están guardados la cierran tres .htaccess (D-044).
  *
  * Fijate que el archivo no se pide por su nombre: se busca el que
  * corresponde a la sesión que está abierta. Así no hay ningún número

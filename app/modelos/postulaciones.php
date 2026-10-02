@@ -152,7 +152,7 @@ function retirar_postulacion(int $postulacion_id, int $usuario_id): bool
 function listar_postulaciones_de_oferta(int $oferta_id): array
 {
     return consultar_todas(
-        'SELECT p.id, p.estado, p.creado_en,
+        'SELECT p.id, p.estado, p.creado_en, p.actualizado_en,
                 c.otorgado_en, c.cv_archivo,
                 u.id AS usuario_id, u.nombre, u.correo,
                 pe.anios_experiencia, pe.nivel_estudios, pe.disponibilidad, pe.cv_extension

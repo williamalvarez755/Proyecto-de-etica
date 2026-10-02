@@ -71,11 +71,31 @@ function eliminar_cuenta(int $usuario_id): int
     // 1. Se anotan los archivos ANTES de borrar nada de la base.
     $archivos = archivos_de_cv_de($usuario_id);
 
-    // 2. Se borra la fila de usuarios. Las llaves foráneas del esquema
-    //    hacen el resto: perfil, oficios, idiomas, países, guardadas,
-    //    postulaciones, consentimientos y restablecimientos se van en
-    //    cascada; reportes y bitácora quedan sin identidad.
-    consultar('DELETE FROM usuarios WHERE id = ?', [$usuario_id]);
+    // 2. Se borra la base, todo junto o nada.
+    //
+    //    Las postulaciones se borran PRIMERO y a mano. En el esquema
+    //    original, postulaciones.consentimiento_id no tenía ON DELETE
+    //    CASCADE: al borrar la cuenta, MySQL intentaba borrar los
+    //    consentimientos con la postulación todavía apuntándolos, y
+    //    rechazaba todo. Resultado: quien se había postulado a algo NO
+    //    podía borrar su cuenta (regla 4). Se corrigió también el
+    //    esquema (sql/migracion_001.sql), pero esto no depende de que
+    //    la migración se haya corrido en el servidor.
+    //
+    //    Después, la fila de usuarios. Las llaves foráneas hacen el
+    //    resto: perfil, oficios, idiomas, países, guardadas,
+    //    consentimientos y restablecimientos se van en cascada;
+    //    reportes y bitácora quedan sin identidad.
+    $conexion = bd();
+    $conexion->beginTransaction();
+    try {
+        consultar('DELETE FROM postulaciones WHERE usuario_id = ?', [$usuario_id]);
+        consultar('DELETE FROM usuarios WHERE id = ?', [$usuario_id]);
+        $conexion->commit();
+    } catch (Throwable $e) {
+        $conexion->rollBack();
+        throw $e;
+    }
 
     // 3. Recién ahora, los archivos del disco.
     $borrados = 0;
@@ -253,10 +273,9 @@ function revisar_estado_del_sistema(): array
             . 'es la función más importante de la plataforma.',
     ];
 
-    // ¿Hay ofertas publicadas?
-    $publicadas = (int) consultar_valor(
-        'SELECT COUNT(*) FROM ofertas WHERE estado = ?', ['publicada']
-    );
+    // ¿Hay ofertas que el público pueda ver? Con la misma condición del
+    // sitio: una "publicada" vencida no la ve nadie.
+    $publicadas = contar_ofertas_publicas([]);
     $revisiones[] = [
         'nombre' => 'Ofertas publicadas',
         'bien'   => $publicadas > 0,

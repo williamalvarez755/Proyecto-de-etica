@@ -96,6 +96,12 @@ define('PETICIONES_MAX_POR_MINUTO', 60);
 // el límite de 30 000 archivos de la cuenta de hosting.
 define('CV_TAMANO_MAXIMO_BYTES', 3 * 1024 * 1024);
 
+// Cuánto texto se acepta sacar de ADENTRO de un .docx. Un .docx es un
+// ZIP: uno de 600 KB puede descomprimirse en 600 MB y agotar la memoria
+// de PHP (una "bomba ZIP"). El document.xml de un currículum real pesa
+// unos cientos de KB; 5 MB es un margen más que holgado.
+define('CV_TEXTO_MAXIMO_BYTES', 5 * 1024 * 1024);
+
 // Solo estos dos formatos. El tipo real se comprueba con finfo,
 // nunca por la extensión ni por lo que diga el navegador.
 const CV_TIPOS_PERMITIDOS = [

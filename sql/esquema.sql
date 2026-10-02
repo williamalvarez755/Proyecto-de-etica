@@ -340,6 +340,10 @@ CREATE TABLE ofertas_guardadas (
 -- El consentimiento se crea PRIMERO y la postulación apunta a él.
 -- Como postulaciones.consentimiento_id es NOT NULL, no existe forma de
 -- crear una postulación sin su propio consentimiento (regla 6).
+-- Y al revés: si el consentimiento se borra (porque se borró la cuenta
+-- o la oferta), la postulación se va con él. Sin ese ON DELETE CASCADE,
+-- MySQL se negaba a borrar la cuenta de cualquiera que se hubiera
+-- postulado (ver sql/migracion_001.sql).
 -- texto_version guarda qué texto exacto aceptó la persona, para que
 -- cambiar el texto después no reescriba la historia.
 CREATE TABLE consentimientos (
@@ -371,7 +375,7 @@ CREATE TABLE postulaciones (
     KEY idx_postulaciones_consentimiento (consentimiento_id),
     CONSTRAINT fk_post_usuario FOREIGN KEY (usuario_id)        REFERENCES usuarios (id)        ON DELETE CASCADE,
     CONSTRAINT fk_post_oferta  FOREIGN KEY (oferta_id)         REFERENCES ofertas (id)         ON DELETE CASCADE,
-    CONSTRAINT fk_post_cons    FOREIGN KEY (consentimiento_id) REFERENCES consentimientos (id)
+    CONSTRAINT fk_post_cons    FOREIGN KEY (consentimiento_id) REFERENCES consentimientos (id)  ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 

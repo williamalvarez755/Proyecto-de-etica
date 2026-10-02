@@ -43,7 +43,11 @@ require RAIZ_APP . '/vistas/cabecera.php';
   <?php
   $conteo_ofertas = contar_por_estado();
   $pendientes     = (int) ($conteo_ofertas['pendiente'] ?? 0);
-  $publicadas     = (int) ($conteo_ofertas['publicada'] ?? 0);
+  // "Visibles" se cuenta con la MISMA condición que usa el sitio
+  // público. Contar estado = 'publicada' incluía las vencidas y las de
+  // reclutadores sin autorización, y el panel decía que se veían ofertas
+  // que la persona no podía encontrar.
+  $publicadas     = contar_ofertas_publicas([]);
   $por_vencer     = count(ofertas_publicadas_vencidas());
   ?>
 
@@ -64,10 +68,32 @@ require RAIZ_APP . '/vistas/cabecera.php';
     </p>
   <?php endif; ?>
 
+  <?php $sin_reclutador_vigente = tiene_permiso('ofertas.ver') ? ofertas_publicadas_con_reclutador_no_vigente() : []; ?>
+  <?php if ($sin_reclutador_vigente !== []): ?>
+    <div class="aviso aviso--error pila">
+      <p>
+        <strong><?= count($sin_reclutador_vigente) ?></strong>
+        oferta<?= count($sin_reclutador_vigente) === 1 ? '' : 's' ?> publicada<?= count($sin_reclutador_vigente) === 1 ? '' : 's' ?>
+        dejó de verse en el sitio porque su reclutador ya no tiene la autorización vigente.
+        Revisá cada una y ponela en revisión o retirala.
+      </p>
+      <ul>
+        <?php foreach ($sin_reclutador_vigente as $fila): ?>
+          <li>
+            <a href="/admin/oferta_editar.php?id=<?= (int) $fila['id'] ?>"><?= escapar($fila['titulo']) ?></a>
+            · <?= escapar($fila['reclutador_nombre']) ?>
+            (<?= escapar(ESTADOS_RECLUTADOR[$fila['reclutador_estado']] ?? $fila['reclutador_estado']) ?><?php
+            if ($fila['reclutador_vigencia'] !== null): ?>, hasta el <?= escapar(fecha_en_palabras($fila['reclutador_vigencia'])) ?><?php endif; ?>)
+          </li>
+        <?php endforeach; ?>
+      </ul>
+    </div>
+  <?php endif; ?>
+
   <?php if ($por_vencer > 0 && tiene_permiso('mantenimiento.ejecutar')): ?>
     <p class="aviso aviso--aviso">
       Hay <strong><?= $por_vencer ?></strong> oferta<?= $por_vencer === 1 ? '' : 's' ?>
-      con la fecha vencida que todavía figuran como publicadas. Ya no se ven en el sitio,
+      con la fecha vencida que todavía figura<?= $por_vencer === 1 ? '' : 'n' ?> como publicada<?= $por_vencer === 1 ? '' : 's' ?>. Ya no se ve<?= $por_vencer === 1 ? '' : 'n' ?> en el sitio,
       pero conviene ponerlas al día.
       <a href="/admin/mantenimiento.php">Ir a mantenimiento</a>
     </p>
@@ -196,15 +222,6 @@ require RAIZ_APP . '/vistas/cabecera.php';
       </div>
 
     </div>
-  </section>
-
-  <section class="tarjeta">
-    <h2 class="tarjeta__titulo">Lo que todavía no está construido</h2>
-    <p>
-      El emparejamiento entre perfiles y ofertas, la postulación con consentimiento, los
-      reportes de usuarios y el verificador público de reclutadores se construyen en las
-      siguientes etapas. Se prefiere no mostrar botones que no hagan nada.
-    </p>
   </section>
 
 </div>

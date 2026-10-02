@@ -4,7 +4,8 @@
  * -----------------------------------------------------------------
  * TODA página del sitio empieza con una sola línea:
  *
- *     require __DIR__ . '/../app/nucleo/inicio.php';
+ *     require __DIR__ . '/app/nucleo/inicio.php';      (desde htdocs/)
+ *     require __DIR__ . '/../app/nucleo/inicio.php';   (desde htdocs/cuenta/ o htdocs/admin/)
  *
  * Desde ese momento ya están puestas la configuración, la sesión
  * segura, las cabeceras de seguridad, el manejo de errores, la
@@ -16,7 +17,9 @@
  * ese es el agujero clásico.
  */
 
-// La carpeta app/, que está FUERA de htdocs y no es accesible por web.
+// La carpeta app/. En InfinityFree vive DENTRO de htdocs (el hosting no
+// deja a PHP salir de ahí) y la protegen tres .htaccess: ver D-044 en
+// CLAUDE.md. Al migrar a un servidor propio vuelve afuera.
 define('RAIZ_APP', dirname(__DIR__));
 
 

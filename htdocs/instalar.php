@@ -41,7 +41,7 @@ if (existe_alguna_cuenta_administrativa()) {
 }
 
 // -----------------------------------------------------------------
-//  2. La clave de instalación, que vive fuera de htdocs
+//  2. La clave de instalación, en app/config (protegida por .htaccess, D-044)
 // -----------------------------------------------------------------
 $clave_guardada = is_file($ruta_clave) ? trim((string) file_get_contents($ruta_clave)) : '';
 $hay_clave      = mb_strlen($clave_guardada) >= 12;
@@ -166,7 +166,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
           Esta es la cuenta más importante del sistema: que sea larga.
         </span>
         <input class="entrada <?= isset($errores['contrasena']) ? 'entrada--error' : '' ?>"
-               type="password" id="contrasena" name="contrasena" data-ver
+               type="password" id="contrasena" name="contrasena" data-ver minlength="<?= (int) CONTRASENA_LARGO_MINIMO ?>" data-medir
                autocomplete="new-password" aria-describedby="ayuda-contrasena" required>
         <?php if (isset($errores['contrasena'])): ?>
           <span class="error-campo"><?= escapar($errores['contrasena']) ?></span>
@@ -176,7 +176,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
       <div class="campo">
         <label class="etiqueta" for="confirmacion">Escribí otra vez la contraseña</label>
         <input class="entrada <?= isset($errores['confirmacion']) ? 'entrada--error' : '' ?>"
-               type="password" id="confirmacion" name="confirmacion"
+               type="password" id="confirmacion" name="confirmacion" data-igual-a="contrasena"
                autocomplete="new-password" required>
         <?php if (isset($errores['confirmacion'])): ?>
           <span class="error-campo"><?= escapar($errores['confirmacion']) ?></span>

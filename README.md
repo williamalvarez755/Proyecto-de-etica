@@ -45,7 +45,7 @@ salientes confiables, y tiene tope de 30 000 archivos y 30 000 peticiones diaria
 escrito de forma portable para poder migrar a un servidor propio sin reescribirlo.
 
 ```
-app/            fuera de la carpeta pública: nada de esto se sirve por web
+app/            en el hosting va DENTRO de htdocs, cerrada por .htaccess (D-044)
   config/       configuración única y catálogos
   nucleo/       primitivas compartidas (permisos, CSRF, escape, bitácora, límites)
   modelos/      consultas SQL por entidad
@@ -65,8 +65,8 @@ estos currículums: el cuidado depende enteramente de cómo esté diseñado el s
 - Autorización comprobada siempre en el servidor. Ocultar un botón no es control de acceso.
 - Contraseñas con `password_hash()`; cookies de sesión `httponly`, `secure` y `samesite`.
 - Cabeceras de seguridad (CSP incluida) enviadas desde PHP y desde `.htaccess`.
-- Los currículums se guardan fuera de la carpeta pública y se sirven solo por un script que
-  comprueba sesión y permiso.
+- Los currículums se guardan en una carpeta cerrada por tres `.htaccess`, con nombres al azar,
+  y se sirven solo por un script que comprueba sesión y permiso.
 - Sin puertas traseras: no hay contraseñas maestras, ni usuarios ocultos, ni credenciales en el
   código, ni accesos "solo para pruebas".
 

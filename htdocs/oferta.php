@@ -177,6 +177,34 @@ require RAIZ_APP . '/vistas/cabecera.php';
     </ul>
   </section>
 
+  <?php
+  // Compartir: esta población se pasa las ofertas por WhatsApp. Si la
+  // oferta circula CON el enlace a esta página, quien la recibe puede
+  // abrirla y ver de dónde salió, que es lo contrario a la cadena sin
+  // origen de la que estamos protegiendo a la gente.
+  $url_oferta     = SITIO_URL . '/oferta.php?id=' . (int) $oferta['id'];
+  $dominio_sitio  = (string) parse_url(SITIO_URL, PHP_URL_HOST);
+  $texto_whatsapp = 'Mirá esta oferta de trabajo con origen verificado: '
+                  . $oferta['titulo'] . ' — ' . $url_oferta;
+  ?>
+  <section class="tarjeta pila">
+    <h2 class="tarjeta__titulo">¿Le puede servir a alguien más?</h2>
+    <div class="compartir" data-compartir-url="<?= escapar($url_oferta) ?>"
+         data-compartir-titulo="<?= escapar($oferta['titulo']) ?>">
+      <a class="boton boton--secundario" href="https://wa.me/?text=<?= escapar(rawurlencode($texto_whatsapp)) ?>"
+         target="_blank" rel="noopener noreferrer">
+        <svg class="icono-boton" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8.5 8.5 0 0 1-12.6 7.4L3 21l1.6-5.2A8.5 8.5 0 1 1 21 12z"></path></svg>
+        Mandar por WhatsApp
+      </a>
+      <span class="compartir__estado" aria-live="polite"></span>
+    </div>
+    <p class="texto-menor">
+      Si alguien te manda una oferta diciendo que es de esta plataforma, abrí el enlace y fijate
+      que la dirección empiece con <strong><?= escapar($dominio_sitio) ?></strong>.
+      Si no, no es nuestra.
+    </p>
+  </section>
+
   <section class="tarjeta pila">
     <h2 class="tarjeta__titulo">¿Viste algo raro en esta oferta?</h2>
     <p>

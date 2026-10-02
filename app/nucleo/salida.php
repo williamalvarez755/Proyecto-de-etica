@@ -24,6 +24,25 @@ function escapar(?string $texto): string
 
 
 /**
+ * La dirección de un archivo de /recursos con su versión pegada:
+ * "/recursos/estilo.css?v=1727800000".
+ *
+ * El navegador guarda el CSS y el JavaScript varios días (.htaccess),
+ * para que quien tiene datos contados no los vuelva a bajar en cada
+ * página. El problema es el día que se sube una versión nueva: sin
+ * esto, la gente vería el HTML nuevo con el estilo viejo hasta una
+ * semana. La versión es la fecha del archivo, así que cambia sola con
+ * cada subida por FTP y no hay que acordarse de nada.
+ */
+function recurso(string $ruta): string
+{
+    $archivo = rtrim((string) ($_SERVER['DOCUMENT_ROOT'] ?? ''), '/') . $ruta;
+    $fecha   = is_file($archivo) ? (int) filemtime($archivo) : 0;
+    return $fecha > 0 ? $ruta . '?v=' . $fecha : $ruta;
+}
+
+
+/**
  * La fecha y hora de AHORA, lista para guardar en la base.
  *
  * Todas las fechas del sistema salen de acá y de ningún otro lado.
@@ -118,6 +137,21 @@ function fecha_hora_en_palabras(?string $fecha): string
 function guardar_mensaje(string $tipo, string $texto): void
 {
     $_SESSION['mensaje'] = ['tipo' => $tipo, 'texto' => $texto];
+}
+
+/**
+ * Lo mismo, pero sin pisar un mensaje que ya estaba esperando.
+ *
+ * Lo usan las páginas que exigen sesión: si la sesión se acaba de
+ * cerrar por un motivo concreto ("pasó un rato sin actividad", "la
+ * contraseña cambió"), ese motivo es lo que la persona necesita leer,
+ * no el genérico "necesitás entrar".
+ */
+function guardar_mensaje_si_no_hay(string $tipo, string $texto): void
+{
+    if (!isset($_SESSION['mensaje'])) {
+        guardar_mensaje($tipo, $texto);
+    }
 }
 
 /** Saca el mensaje guardado (y lo borra, para que salga una sola vez). */

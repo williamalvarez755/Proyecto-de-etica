@@ -115,7 +115,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
           No hace falta que pongas tus datos personales.
         </span>
         <textarea class="entrada <?= isset($errores['descripcion']) ? 'entrada--error' : '' ?>"
-                  id="descripcion" name="descripcion" rows="5"
+                  id="descripcion" name="descripcion" rows="5" maxlength="2000"
                   aria-describedby="ayuda-descripcion"><?= escapar($descripcion) ?></textarea>
         <?php if (isset($errores['descripcion'])): ?>
           <span class="error-campo"><?= escapar($errores['descripcion']) ?></span>

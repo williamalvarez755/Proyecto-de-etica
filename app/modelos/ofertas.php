@@ -12,15 +12,28 @@
 
 /**
  * Lo que tiene que cumplir una oferta para que el público la vea.
- * Las cuatro condiciones son necesarias:
+ * Las cinco condiciones son necesarias:
  *
  *   estado = publicada       -> alguien decidió publicarla
  *   verificada_por no vacío  -> alguien la verificó y quedó su nombre
  *   fecha_publicacion existe -> hay una fecha que mostrar (regla 1)
  *   fecha_vencimiento >= hoy -> no permanece publicada después de vencer
+ *   reclutador vigente hoy   -> si vino por un reclutador, su
+ *                               autorización sigue en pie (D-045)
+ *
+ * La última existe porque D-020 bloquea VERIFICAR una oferta de un
+ * reclutador no autorizado, pero nada volvía a mirarlo después: si la
+ * autorización se vencía o la suspendían con la oferta ya publicada,
+ * seguía apareciendo con el sello y el número de registro. Ahora deja
+ * de verse sola, igual que una oferta vencida (D-018). Se mira el
+ * estado Y la fecha, como en reclutador_vigente_hoy().
  *
  * Está escrito para fallar del lado seguro: si un dato falta o queda
  * mal escrito, la oferta NO se muestra. Nunca al revés.
+ *
+ * Los dos parámetros (:hoy y :hoy_reclutador) los arma
+ * parametros_oferta_publica(). Son dos nombres para el mismo valor
+ * porque PDO no deja repetir un parámetro con nombre.
  */
 const CONDICION_OFERTA_PUBLICA = "
     o.estado = 'publicada'
@@ -28,7 +41,22 @@ const CONDICION_OFERTA_PUBLICA = "
     AND o.fecha_publicacion IS NOT NULL
     AND o.fecha_vencimiento IS NOT NULL
     AND o.fecha_vencimiento >= :hoy
+    AND (
+        o.reclutador_id IS NULL
+        OR EXISTS (
+            SELECT 1 FROM reclutadores_autorizados rv
+            WHERE rv.id = o.reclutador_id
+              AND rv.estado = 'vigente'
+              AND (rv.vigencia_hasta IS NULL OR rv.vigencia_hasta >= :hoy_reclutador)
+        )
+    )
 ";
+
+/** Los parámetros que necesita CONDICION_OFERTA_PUBLICA. */
+function parametros_oferta_publica(): array
+{
+    return [':hoy' => hoy(), ':hoy_reclutador' => hoy()];
+}
 
 /** Las columnas que se muestran, con el nombre de la fuente y el rubro. */
 const SELECCION_OFERTA = "
@@ -61,7 +89,7 @@ const SELECCION_OFERTA = "
 function filtros_de_busqueda(array $filtros): array
 {
     $condiciones = [];
-    $parametros  = [':hoy' => hoy()];
+    $parametros  = parametros_oferta_publica();
 
     if (!empty($filtros['rubro_id'])) {
         $condiciones[] = 'o.rubro_id = :rubro_id';
@@ -79,8 +107,13 @@ function filtros_de_busqueda(array $filtros): array
     }
 
     if (!empty($filtros['texto'])) {
-        $condiciones[] = '(o.titulo LIKE :texto OR o.empleador LIKE :texto OR o.descripcion LIKE :texto)';
-        $parametros[':texto'] = '%' . $filtros['texto'] . '%';
+        // Un nombre distinto para cada aparición, aunque el valor sea
+        // el mismo: con las consultas preparadas de verdad
+        // (EMULATE_PREPARES en false, ver bd.php) PDO NO deja repetir un
+        // parámetro con nombre. Si se repite, la consulta revienta con
+        // "Invalid parameter number" y el buscador entero da error.
+        $condiciones[] = '(o.titulo LIKE :texto1 OR o.empleador LIKE :texto2 OR o.descripcion LIKE :texto3)';
+        $parametros += parametros_de_texto($filtros['texto'], 3);
     }
 
     $sql = $condiciones === [] ? '' : ' AND ' . implode(' AND ', $condiciones);
@@ -125,7 +158,7 @@ function buscar_oferta_publica(int $id): ?array
 {
     return consultar_una(
         SELECCION_OFERTA . ' WHERE ' . CONDICION_OFERTA_PUBLICA . ' AND o.id = :id',
-        [':hoy' => hoy(), ':id' => $id]
+        parametros_oferta_publica() + [':id' => $id]
     );
 }
 
@@ -144,8 +177,8 @@ function listar_ofertas_admin(array $filtros, int $limite, int $desde): array
         $parametros[':estado'] = $filtros['estado'];
     }
     if (!empty($filtros['texto'])) {
-        $condiciones[] = '(o.titulo LIKE :texto OR o.empleador LIKE :texto)';
-        $parametros[':texto'] = '%' . $filtros['texto'] . '%';
+        $condiciones[] = '(o.titulo LIKE :texto1 OR o.empleador LIKE :texto2)';
+        $parametros += parametros_de_texto($filtros['texto'], 2);
     }
 
     $donde = $condiciones === [] ? '' : ' WHERE ' . implode(' AND ', $condiciones);
@@ -168,8 +201,8 @@ function contar_ofertas_admin(array $filtros): int
         $parametros[':estado'] = $filtros['estado'];
     }
     if (!empty($filtros['texto'])) {
-        $condiciones[] = '(titulo LIKE :texto OR empleador LIKE :texto)';
-        $parametros[':texto'] = '%' . $filtros['texto'] . '%';
+        $condiciones[] = '(titulo LIKE :texto1 OR empleador LIKE :texto2)';
+        $parametros += parametros_de_texto($filtros['texto'], 2);
     }
 
     $donde = $condiciones === [] ? '' : ' WHERE ' . implode(' AND ', $condiciones);
@@ -371,6 +404,15 @@ function motivo_para_no_publicar(array $oferta): ?string
     if (empty($oferta['fuente_id'])) {
         return 'Le falta la fuente, y toda oferta tiene que mostrar de dónde salió.';
     }
+    // D-020 y D-045: el reclutador pudo perder la autorización entre
+    // que se verificó la oferta y ahora.
+    if (!empty($oferta['reclutador_id'])) {
+        $reclutador = buscar_reclutador((int) $oferta['reclutador_id']);
+        if ($reclutador === null || !reclutador_vigente_hoy($reclutador)) {
+            return 'El reclutador de esta oferta ya no tiene la autorización vigente. '
+                 . 'Aunque se publicara, no se mostraría en el sitio.';
+        }
+    }
     return null;
 }
 
@@ -425,6 +467,28 @@ function ofertas_publicadas_vencidas(): array
     );
 }
 
+/**
+ * Las que figuran como publicadas pero vienen por un reclutador que ya
+ * no tiene la autorización vigente (por estado o por fecha).
+ *
+ * Ya no se ven en el sitio (CONDICION_OFERTA_PUBLICA lo impide), pero
+ * el panel tiene que avisarlo: si no, alguien ve "publicada" en la
+ * lista y no entiende por qué la persona no la encuentra.
+ */
+function ofertas_publicadas_con_reclutador_no_vigente(): array
+{
+    return consultar_todas(
+        'SELECT o.id, o.titulo, r.nombre AS reclutador_nombre, r.estado AS reclutador_estado,
+                r.vigencia_hasta AS reclutador_vigencia
+         FROM ofertas o
+         INNER JOIN reclutadores_autorizados r ON r.id = o.reclutador_id
+         WHERE o.estado = ?
+           AND (r.estado <> ? OR (r.vigencia_hasta IS NOT NULL AND r.vigencia_hasta < ?))
+         ORDER BY o.id DESC',
+        ['publicada', 'vigente', hoy()]
+    );
+}
+
 /** Las marca como vencidas. Devuelve cuántas cambió. */
 function vencer_ofertas_publicadas(): int
 {
@@ -455,7 +519,7 @@ function ofertas_para_perfil(array $rubro_ids, array $paises): array
         return [];
     }
 
-    $parametros = [':hoy' => hoy()];
+    $parametros = parametros_oferta_publica();
 
     $marcas_rubro = [];
     foreach (array_values($rubro_ids) as $i => $id) {

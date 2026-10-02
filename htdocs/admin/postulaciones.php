@@ -75,6 +75,20 @@ require RAIZ_APP . '/vistas/cabecera.php';
             </span>
           </div>
 
+          <?php if ($postulante['estado'] === 'retirada'): ?>
+
+            <!-- Retirar la postulación revoca el permiso desde ese momento:
+                 ya no se muestran sus datos ni se descarga su currículum
+                 (la descarga también lo comprueba, en archivo_cv.php). -->
+            <p class="aviso aviso--aviso">
+              Esta persona retiró su postulación el
+              <?= escapar(fecha_en_palabras($postulante['actualizado_en'])) ?>.
+              Desde ese momento sus datos y su currículum ya no se muestran ni se pueden
+              descargar. Si ya se le había pasado al empleador, avisale que la persona se retiró.
+            </p>
+
+          <?php else: ?>
+
           <dl class="lista-datos">
             <dt>Contacto</dt>
             <dd><?= escapar($postulante['correo']) ?></dd>
@@ -117,6 +131,8 @@ require RAIZ_APP . '/vistas/cabecera.php';
                 <span class="texto-menor">Tu cuenta no tiene permiso para descargar currículums.</span>
               <?php endif; ?>
             </div>
+          <?php endif; ?>
+
           <?php endif; ?>
 
         </article>

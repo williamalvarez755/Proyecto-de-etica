@@ -137,7 +137,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
         Mejor una frase que te acordés, como <em>mibicicletaazul</em>.
       </span>
       <input class="entrada <?= isset($errores['contrasena']) ? 'entrada--error' : '' ?>"
-             type="password" id="contrasena" name="contrasena" data-ver
+             type="password" id="contrasena" name="contrasena" data-ver minlength="<?= (int) CONTRASENA_LARGO_MINIMO ?>" data-medir
              autocomplete="new-password" aria-describedby="ayuda-contrasena" required>
       <?php if (isset($errores['contrasena'])): ?>
         <span class="error-campo"><?= escapar($errores['contrasena']) ?></span>
@@ -150,7 +150,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
         Es para estar seguros de que no se fue un dedazo.
       </span>
       <input class="entrada <?= isset($errores['confirmacion']) ? 'entrada--error' : '' ?>"
-             type="password" id="confirmacion" name="confirmacion"
+             type="password" id="confirmacion" name="confirmacion" data-igual-a="contrasena"
              autocomplete="new-password" aria-describedby="ayuda-confirmacion" required>
       <?php if (isset($errores['confirmacion'])): ?>
         <span class="error-campo"><?= escapar($errores['confirmacion']) ?></span>
