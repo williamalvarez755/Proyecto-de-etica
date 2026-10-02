@@ -231,6 +231,102 @@ $php_bien = version_compare(PHP_VERSION, '8.0.0', '>=');
   </table>
   </div>
 
+  <h2 class="subtitulo">¿Puede arrancar el sitio?</h2>
+  <p class="texto-guia">
+    Esto revisa por qué las páginas dan error 500.
+  </p>
+
+  <?php
+  // Los tres archivos sin los cuales ninguna página puede cargar.
+  $archivos_clave = [
+      'app/nucleo/inicio.php'  => $raiz_app . '/nucleo/inicio.php',
+      'app/config/config.php'  => $raiz_app . '/config/config.php',
+      'app/config/limites.php' => $raiz_app . '/config/limites.php',
+  ];
+
+  // La ruta que index.php usa para buscar el sistema. Si el archivo no
+  // se sobrescribió al subirlo, va a seguir buscando una carpeta arriba
+  // y ninguna página va a cargar.
+  $ruta_en_index = 'no se pudo leer index.php';
+  $index = __DIR__ . '/index.php';
+  if (is_file($index)) {
+      $contenido = (string) file_get_contents($index);
+      if (preg_match("/require\s+__DIR__\s*\.\s*'([^']+)'/", $contenido, $coincidencia)) {
+          $ruta_en_index = $coincidencia[1];
+      }
+  }
+  $index_correcto = $ruta_en_index === '/app/nucleo/inicio.php';
+  ?>
+
+  <div class="tabla-desliza">
+  <table class="tabla">
+    <tbody>
+      <?php foreach ($archivos_clave as $nombre => $ruta): ?>
+        <?php fila($nombre, is_file($ruta) ? 'está' : 'FALTA', is_file($ruta)); ?>
+      <?php endforeach; ?>
+      <?php fila('index.php busca el sistema en', $ruta_en_index, $index_correcto); ?>
+    </tbody>
+  </table>
+  </div>
+
+  <h3 class="subtitulo">Qué hay realmente en las carpetas</h3>
+  <p class="texto-guia">
+    Esto es lo que ve PHP en el servidor, sin intermediarios.
+  </p>
+
+  <?php
+  /** Lista el contenido de una carpeta, o dice por qué no puede. */
+  function listar_carpeta(string $ruta, string $etiqueta): void
+  {
+      echo '<p><strong>' . htmlspecialchars($etiqueta) . '</strong><br>';
+      echo '<span class="texto-menor">' . htmlspecialchars($ruta) . '</span></p>';
+
+      if (!is_dir($ruta)) {
+          echo '<p class="aviso aviso--error">Esta carpeta NO EXISTE.</p>';
+          return;
+      }
+
+      $cosas = @scandir($ruta);
+      if ($cosas === false) {
+          echo '<p class="aviso aviso--error">No se puede leer el contenido.</p>';
+          return;
+      }
+
+      $cosas = array_diff($cosas, ['.', '..']);
+      if ($cosas === []) {
+          echo '<p class="aviso aviso--error">Está VACÍA.</p>';
+          return;
+      }
+
+      echo '<ul>';
+      foreach ($cosas as $cosa) {
+          $tipo = is_dir($ruta . '/' . $cosa) ? 'carpeta' : 'archivo';
+          echo '<li>' . htmlspecialchars($cosa) . ' <span class="texto-menor">(' . $tipo . ')</span></li>';
+      }
+      echo '</ul>';
+  }
+
+  listar_carpeta(__DIR__, 'La carpeta pública (htdocs)');
+  listar_carpeta($raiz_app, 'La carpeta app');
+  listar_carpeta($raiz_app . '/nucleo', 'La carpeta app/nucleo');
+  listar_carpeta($raiz_app . '/config', 'La carpeta app/config');
+  ?>
+
+  <?php if (!$index_correcto): ?>
+    <p class="aviso aviso--error">
+      <strong>index.php quedó con la ruta vieja.</strong>
+      Tendría que decir <em>/app/nucleo/inicio.php</em> y dice <em><?= htmlspecialchars($ruta_en_index) ?></em>.
+      Los archivos de htdocs no se sobrescribieron al subirlos: volvé a subirlos eligiendo
+      «Sobrescribir».
+    </p>
+  <?php elseif (!is_file($raiz_app . '/config/config.php')): ?>
+    <p class="aviso aviso--error">
+      <strong>Falta app/config/config.php.</strong>
+      Ese archivo no viaja con el resto porque tiene las credenciales de la base.
+      Subilo a mano desde tu computadora, a la carpeta app/config del servidor.
+    </p>
+  <?php endif; ?>
+
   <?php if ($prueba['escribe'] && $prueba['lee'] && $prueba['borra'] && $htaccess_app && $htaccess_almacen): ?>
     <p class="aviso aviso--exito">
       Todo bien: los currículums se pueden guardar y la carpeta está protegida.
