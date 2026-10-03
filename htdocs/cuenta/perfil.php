@@ -84,7 +84,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
           ?>
         </dd>
 
-        <dt>Estaría dispuesto a ir a</dt>
+        <dt>Podría trabajar en</dt>
         <dd>
           <?php
           $nombres = [];
@@ -95,7 +95,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
           ?>
         </dd>
 
-        <dt>Podría viajar</dt>
+        <dt>Podría empezar</dt>
         <dd>
           <?= escapar(DISPONIBILIDAD[$perfil['disponibilidad']] ?? 'Sin especificar') ?>
           <?php if (!empty($perfil['disponible_desde'])): ?>

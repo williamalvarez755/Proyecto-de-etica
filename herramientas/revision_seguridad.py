@@ -84,10 +84,14 @@ titulo(2, "Salida sin escapar (XSS)")
 
 FORMATEADORES = ('escapar(', 'htmlspecialchars(', '(int)', '(float)', 'count(', 'implode',
                  'array_sum', 'fecha_en_palabras', 'fecha_hora_en_palabras', 'nl2br',
-                 'urlencode', 'http_build_query', 'number_format')
+                 'urlencode', 'http_build_query', 'number_format', 'icono(')
 # htmlspecialchars() es lo mismo que hace escapar(). Lo usa
 # diagnostico.php, que es autonomo y no puede cargar las funciones
 # del sistema.
+# icono() (app/nucleo/iconos.php) nunca imprime lo que recibe: busca el
+# nombre en la lista fija ICONOS y devuelve ese dibujo, o nada si no
+# existe; la clase la pasa por escapar(). Por eso es segura aunque el
+# nombre venga en una variable.
 
 # Un ternario cuyas dos ramas son literales de cadena no puede inyectar nada:
 # lo que se imprime es una de esas dos cadenas, escritas por nosotros.

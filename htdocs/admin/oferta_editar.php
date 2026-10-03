@@ -40,7 +40,8 @@ $datos = [
     'empleador'                => $oferta['empleador'] ?? '',
     'reclutador_id'            => (string) ($oferta['reclutador_id'] ?? ''),
     'fuente_id'                => (string) ($oferta['fuente_id'] ?? ''),
-    'pais_codigo'              => $oferta['pais_codigo'] ?? '',
+    'pais_codigo'              => $oferta['pais_codigo'] ?? 'gt',
+    'departamento_codigo'      => $oferta['departamento_codigo'] ?? '',
     'ciudad'                   => $oferta['ciudad'] ?? '',
     'rubro_id'                 => (string) ($oferta['rubro_id'] ?? ''),
     'requisitos'               => $oferta['requisitos'] ?? '',
@@ -49,6 +50,7 @@ $datos = [
     'disponibilidad_requerida' => $oferta['disponibilidad_requerida'] ?? 'a_convenir',
     'salario_texto'            => $oferta['salario_texto'] ?? '',
     'url_original'             => $oferta['url_original'] ?? '',
+    'forma_postulacion'        => $oferta['forma_postulacion'] ?? 'plataforma',
     'fecha_publicacion'        => $oferta['fecha_publicacion'] ?? hoy(),
     'fecha_vencimiento'        => $oferta['fecha_vencimiento'] ?? '',
 ];
@@ -99,6 +101,23 @@ if (es_post()) {
 
     if (!en_catalogo($datos['pais_codigo'], PAISES)) {
         $errores['pais_codigo'] = 'Elegí el país.';
+    }
+
+    // El departamento es de Guatemala: obligatorio si el trabajo es acá
+    // (sin él no se puede buscar por departamento), y vacío si es afuera.
+    if ($datos['pais_codigo'] === 'gt') {
+        if (!en_catalogo($datos['departamento_codigo'], DEPARTAMENTOS)) {
+            $errores['departamento_codigo'] = 'Elegí en qué departamento es el trabajo.';
+        }
+    } else {
+        $datos['departamento_codigo'] = '';
+    }
+
+    if (!en_catalogo($datos['forma_postulacion'], FORMAS_POSTULACION)) {
+        $errores['forma_postulacion'] = 'Elegí cómo se postula la persona.';
+    } elseif ($datos['forma_postulacion'] === 'externa' && !url_segura($datos['url_original'])) {
+        $errores['url_original'] = 'Si la persona se postula en la página de la empresa, '
+                                 . 'hace falta la dirección de esa página (http:// o https://).';
     }
     if (!en_catalogo($datos['estudios_min'], NIVELES_ESTUDIO)) {
         $errores['estudios_min'] = 'Elegí el nivel de estudios.';
@@ -262,6 +281,21 @@ require RAIZ_APP . '/vistas/cabecera.php';
       </div>
 
       <div class="campo">
+        <label class="etiqueta" for="departamento_codigo">Departamento (si es en Guatemala)</label>
+        <span class="ayuda" id="ayuda-departamento">
+          Dónde es el trabajo. Obligatorio si el país es Guatemala; si es afuera, se ignora.
+        </span>
+        <select class="entrada <?= isset($errores['departamento_codigo']) ? 'entrada--error' : '' ?>"
+                id="departamento_codigo" name="departamento_codigo" aria-describedby="ayuda-departamento">
+          <option value="">Elegí el departamento</option>
+          <?php foreach (DEPARTAMENTOS as $codigo => $nombre): ?>
+            <option value="<?= escapar($codigo) ?>" <?= $datos['departamento_codigo'] === $codigo ? 'selected' : '' ?>><?= escapar($nombre) ?></option>
+          <?php endforeach; ?>
+        </select>
+        <?php if (isset($errores['departamento_codigo'])): ?><span class="error-campo"><?= escapar($errores['departamento_codigo']) ?></span><?php endif; ?>
+      </div>
+
+      <div class="campo">
         <label class="etiqueta" for="ciudad">Ciudad o región (opcional)</label>
         <input class="entrada" type="text" id="ciudad" name="ciudad" maxlength="100" value="<?= escapar($datos['ciudad']) ?>">
         <?php if (isset($errores['ciudad'])): ?><span class="error-campo"><?= escapar($errores['ciudad']) ?></span><?php endif; ?>
@@ -352,11 +386,27 @@ require RAIZ_APP . '/vistas/cabecera.php';
       </div>
 
       <div class="campo">
-        <label class="etiqueta" for="url_original">Dirección de la publicación original (opcional)</label>
+        <label class="etiqueta" for="url_original">Dirección de la publicación original (obligatoria si la persona se postula en la página de la empresa)</label>
         <input class="entrada <?= isset($errores['url_original']) ? 'entrada--error' : '' ?>" type="url"
                id="url_original" name="url_original" maxlength="255" value="<?= escapar($datos['url_original']) ?>">
         <?php if (isset($errores['url_original'])): ?><span class="error-campo"><?= escapar($errores['url_original']) ?></span><?php endif; ?>
       </div>
+
+      <fieldset class="campo">
+        <legend class="etiqueta">Cómo se postula la persona</legend>
+        <span class="ayuda">
+          Si la oferta la tomaste de la página de una empresa, elegí la segunda: así el botón lleva
+          a esa página y la plataforma no guarda currículums que nadie le va a mandar a la empresa.
+        </span>
+        <?php foreach (FORMAS_POSTULACION as $codigo => $nombre): ?>
+          <label class="casilla">
+            <input type="radio" name="forma_postulacion" value="<?= escapar($codigo) ?>"
+                   <?= $datos['forma_postulacion'] === $codigo ? 'checked' : '' ?>>
+            <?= escapar($nombre) ?>
+          </label>
+        <?php endforeach; ?>
+        <?php if (isset($errores['forma_postulacion'])): ?><span class="error-campo"><?= escapar($errores['forma_postulacion']) ?></span><?php endif; ?>
+      </fieldset>
 
       <div class="acciones separado">
         <button class="boton boton--principal" type="submit">Guardar</button>

@@ -37,7 +37,7 @@ const PESO_ESTUDIOS       = 10;
 const PESO_IDIOMAS        = 10;
 const PESO_DISPONIBILIDAD = 10;
 
-/** Qué tan pronto puede viajar cada opción. Menor es más pronto. */
+/** Qué tan pronto puede empezar cada opción. Menor es más pronto. */
 const ORDEN_DISPONIBILIDAD = [
     'inmediata'  => 0,
     'un_mes'     => 1,
@@ -80,13 +80,16 @@ function evaluar_coincidencia(array $perfil, array $oferta, array $idiomas_ofert
     $razones[] = 'Sabés ' . mb_strtolower(nombre_de_rubro((int) $oferta['rubro_id']), 'UTF-8');
 
     // -------------------------------------------------------------
-    //  2. Ubicación: a dónde está dispuesta a ir
+    //  2. Ubicación: dónde dijo que podría trabajar
+    //     (el país del trabajo; de la persona no se guarda de dónde es)
     // -------------------------------------------------------------
     if (!in_array($oferta['pais_codigo'], $perfil['paises'], true)) {
         return ['sirve' => false, 'puntaje' => 0, 'razones' => [], 'advertencias' => []];
     }
 
-    $razones[] = 'Dijiste que irías a ' . (PAISES[$oferta['pais_codigo']] ?? $oferta['pais_codigo']);
+    $razones[] = $oferta['pais_codigo'] === 'gt'
+        ? 'Es en Guatemala, donde dijiste que podés trabajar'
+        : 'Dijiste que irías a ' . (PAISES[$oferta['pais_codigo']] ?? $oferta['pais_codigo']);
 
     // -------------------------------------------------------------
     //  3. Experiencia
@@ -161,9 +164,9 @@ function evaluar_coincidencia(array $perfil, array $oferta, array $idiomas_ofert
 
     if ($puede_cuando <= $pide_cuando) {
         $puntaje  += PESO_DISPONIBILIDAD;
-        $razones[] = 'Podrías viajar cuando lo necesitan';
+        $razones[] = 'Podrías empezar cuando lo necesitan';
     } else {
-        $advertencias[] = 'Necesitan a alguien que pueda viajar '
+        $advertencias[] = 'Necesitan a alguien que pueda empezar '
                         . mb_strtolower(DISPONIBILIDAD[$oferta['disponibilidad_requerida']] ?? '', 'UTF-8')
                         . ', y vos dijiste "'
                         . mb_strtolower(DISPONIBILIDAD[$perfil['disponibilidad']] ?? '', 'UTF-8') . '"';

@@ -71,9 +71,12 @@ require RAIZ_APP . '/vistas/cabecera.php';
     <a href="/oferta.php?id=<?= (int) $oferta['id'] ?>">← Volver a la oferta</a>
   </p>
 
-  <section class="pila">
-    <h1 class="titulo-pagina">Reportar esta oferta</h1>
-    <p class="texto-guia"><?= escapar($oferta['titulo']) ?> · <?= escapar($oferta['empleador']) ?></p>
+  <section class="cabeza">
+    <span class="cabeza__icono"><?= icono('bandera') ?></span>
+    <div>
+      <h1 class="titulo-pagina">Reportar esta oferta</h1>
+      <p class="texto-guia"><?= escapar($oferta['titulo']) ?> · <?= escapar($oferta['empleador']) ?></p>
+    </div>
   </section>
 
   <?php if ($ya_reportada): ?>

@@ -30,8 +30,10 @@ define('BD_CLAVE',    'la-contrasena-de-la-base');
 // Dirección pública, sin barra al final. Se usa para las redirecciones.
 define('SITIO_URL', 'https://tudominio.infinityfreeapp.com');
 
-// Nombre visible de la plataforma.
-define('SITIO_NOMBRE', 'Trabajo Verificado');
+// Nombre visible de la plataforma, y el lema que va debajo del logo.
+// La primera letra del nombre sale en el azul del logo (estilo.css).
+define('SITIO_NOMBRE', 'Mjob for all');
+define('SITIO_LEMA',   'Trabajo sin fronteras');
 
 // En 'produccion' los errores se guardan en el archivo de bitácora y el
 // usuario ve una página de disculpa. En 'desarrollo' se muestran en

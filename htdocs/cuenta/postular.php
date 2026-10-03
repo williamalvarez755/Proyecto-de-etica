@@ -32,6 +32,19 @@ if ($oferta === null) {
     );
 }
 
+// D-058: a las ofertas tomadas de la página de una empresa se postula
+// ahí, no acá. Esconder el botón no alcanza (regla 5): si alguien llega
+// a esta dirección a mano, tampoco se guarda nada, porque ese
+// currículum no se lo iba a mandar nadie a la empresa (regla 12).
+if ($oferta['forma_postulacion'] === 'externa') {
+    guardar_mensaje(
+        'aviso',
+        'A esta oferta te postulás en la página oficial de la empresa. Usá el botón '
+        . '"Postularme en la página de la empresa".'
+    );
+    redirigir('/oferta.php?id=' . (int) $oferta['id']);
+}
+
 // --- Todo lo que tiene que estar en orden antes de poder postularse ---
 $perfil = buscar_perfil($usuario_id);
 $listo  = $perfil !== null && $perfil['confirmado_en'] !== null;

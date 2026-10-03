@@ -186,7 +186,8 @@ $columnas = [
 ];
 
 $archivo = fopen($salida, 'w');
-fputcsv($archivo, $columnas);
+// Los parámetros de fputcsv() van escritos (PHP 8.4 avisa si falta $escape).
+fputcsv($archivo, $columnas, ',', '"', '\\');
 
 $escritas  = 0;
 $saltadas  = 0;
@@ -229,7 +230,7 @@ foreach ($datos['results'] as $oferta) {
         $publicada,
         $vence,
         '',
-    ]);
+    ], ',', '"', '\\');
 
     $escritas++;
 }

@@ -26,12 +26,15 @@ require RAIZ_APP . '/vistas/cabecera.php';
 
 <div class="contenedor pila-grande">
 
-  <section class="pila">
-    <h1 class="titulo-pagina">Cómo reconocer una oferta falsa</h1>
-    <p class="texto-guia">
-      Estas son las señales que más se repiten en las estafas con ofertas de trabajo en el
-      extranjero. Si ves una sola de estas, pará y averiguá antes de seguir.
-    </p>
+  <section class="cabeza">
+    <span class="cabeza__icono cabeza__icono--ambar"><?= icono('alerta') ?></span>
+    <div>
+      <h1 class="titulo-pagina">Cómo reconocer una oferta falsa</h1>
+      <p class="texto-guia">
+        Estas son las señales que más se repiten en las estafas con ofertas de trabajo en el
+        extranjero. Si ves una sola de estas, pará y averiguá antes de seguir.
+      </p>
+    </div>
   </section>
 
   <!-- Numeradas y en ámbar, no en rojo: son señales para frenar y
@@ -66,7 +69,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
       registro de reclutadores autorizados del Ministerio de Trabajo. No hace falta cuenta.
     </p>
     <div class="acciones">
-      <a class="boton boton--principal" href="/verificador.php">Comprobar un reclutador</a>
+      <a class="boton boton--principal" href="/verificador.php"><?= icono('verificar') ?> Comprobar un reclutador</a>
     </div>
   </section>
 
@@ -89,12 +92,12 @@ require RAIZ_APP . '/vistas/cabecera.php';
 
     <dl class="lista-datos">
       <dt>Si hay alguien en peligro ahora mismo</dt>
-      <dd>Policía Nacional Civil: <a class="telefono" href="tel:110">110</a></dd>
+      <dd>Policía Nacional Civil: <a class="telefono" href="tel:110"><?= icono('telefono') ?> 110</a></dd>
 
       <dt>Si sospechás que es un caso de trata de personas</dt>
       <dd>
         Secretaría contra la Violencia Sexual, Explotación y Trata de Personas (SVET)<br>
-        Línea de denuncia: <a class="telefono" href="tel:1546">1546</a>
+        Línea de denuncia: <a class="telefono" href="tel:1546"><?= icono('telefono') ?> 1546</a>
       </dd>
 
       <dt>Para denunciar el delito</dt>

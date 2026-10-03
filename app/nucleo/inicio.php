@@ -42,6 +42,13 @@ require $ruta_config;                       // credenciales y entorno
 require RAIZ_APP . '/config/limites.php';   // todos los números del sistema
 require RAIZ_APP . '/config/catalogos.php'; // listas de valores válidos
 
+// El lema que acompaña al nombre ("Trabajo sin fronteras"). Se agregó
+// después de que el sitio ya estaba instalado: si el config.php del
+// servidor todavía no lo tiene, el sitio arranca igual, sin lema.
+if (!defined('SITIO_LEMA')) {
+    define('SITIO_LEMA', '');
+}
+
 
 // -----------------------------------------------------------------
 //  2. Un solo reloj para todo el sistema
@@ -61,6 +68,7 @@ require RAIZ_APP . '/nucleo/errores.php';
 // -----------------------------------------------------------------
 require RAIZ_APP . '/nucleo/peticion.php';     // ip_cliente, redirigir, abortar
 require RAIZ_APP . '/nucleo/salida.php';       // escapar, fechas, mensajes
+require RAIZ_APP . '/nucleo/iconos.php';       // íconos SVG de la interfaz
 require RAIZ_APP . '/nucleo/validacion.php';   // validación de entrada
 require RAIZ_APP . '/nucleo/bd.php';           // conexión PDO
 require RAIZ_APP . '/nucleo/sesion.php';       // sesión segura

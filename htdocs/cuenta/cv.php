@@ -101,12 +101,15 @@ require RAIZ_APP . '/vistas/cabecera.php';
 
 <div class="contenedor contenedor--angosto pila-grande">
 
-  <section class="pila">
-    <h1 class="titulo-pagina">Mi currículum</h1>
-    <p class="texto-guia">
-      Lo usamos para entender qué sabés hacer y mostrarte ofertas que coincidan.
-      Solo se comparte con una oferta si vos lo autorizás, una por una.
-    </p>
+  <section class="cabeza">
+    <span class="cabeza__icono"><?= icono('documento') ?></span>
+    <div>
+      <h1 class="titulo-pagina">Mi currículum</h1>
+      <p class="texto-guia">
+        Lo usamos para entender qué sabés hacer y mostrarte ofertas que coincidan.
+        Solo se comparte con una oferta si vos lo autorizás, una por una.
+      </p>
+    </div>
   </section>
 
   <?php if ($error !== null): ?>

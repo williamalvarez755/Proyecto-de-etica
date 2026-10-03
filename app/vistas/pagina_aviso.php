@@ -15,17 +15,22 @@
 require RAIZ_APP . '/vistas/cabecera.php';
 ?>
 
-<div class="contenedor contenedor--angosto pila">
-  <h1 class="titulo-pagina"><?= escapar($titulo_pagina) ?></h1>
-  <p class="texto-guia"><?= escapar($texto) ?></p>
+<div class="contenedor contenedor--angosto">
+  <div class="vacio pila">
+    <p><span class="vacio__icono"><?= icono('info') ?></span></p>
+    <h1 class="titulo-pagina"><?= escapar($titulo_pagina) ?></h1>
+    <p class="texto-guia"><?= escapar($texto) ?></p>
 
-  <div class="acciones">
-    <a class="boton boton--principal" href="/">Ir al inicio</a>
-    <?php if (hay_sesion() && es_administrativo()): ?>
-      <a class="boton boton--secundario" href="/admin/index.php">Volver al panel</a>
-    <?php elseif (hay_sesion()): ?>
-      <a class="boton boton--secundario" href="/cuenta/panel.php">Ir a mi cuenta</a>
-    <?php endif; ?>
+    <div class="acciones">
+      <a class="boton boton--principal" href="/"><?= icono('inicio') ?> Ir al inicio</a>
+      <?php if (hay_sesion() && es_administrativo()): ?>
+        <a class="boton boton--secundario" href="/admin/index.php">Volver al panel</a>
+      <?php elseif (hay_sesion()): ?>
+        <a class="boton boton--secundario" href="/cuenta/panel.php">Ir a mi cuenta</a>
+      <?php else: ?>
+        <a class="boton boton--secundario" href="/ofertas.php">Ver las ofertas</a>
+      <?php endif; ?>
+    </div>
   </div>
 </div>
 

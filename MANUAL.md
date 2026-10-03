@@ -49,6 +49,21 @@ Dos campos son obligatorios y conviene entender por qué:
 - **Disponible hasta (fecha de vencimiento).** Cuando llega esa fecha, la oferta **desaparece
   sola** del sitio. Sin esa fecha se quedaría publicada para siempre.
 
+Desde octubre de 2026 las ofertas son de **empleo en Guatemala** para personas retornadas, y hay
+dos datos más:
+
+- **Departamento.** Obligatorio si el trabajo es en Guatemala: la gente busca por departamento.
+- **Cómo se postula la persona.** Si la oferta la tomó de la **página oficial de una empresa**,
+  elija *"En la página oficial de la empresa"* y ponga la dirección de esa publicación: el botón
+  va a llevar ahí. Si la elige *"Por esta plataforma"*, la persona se postula acá y **la
+  institución se compromete a pasarle el currículum al empleador**. No la use si nadie va a hacer
+  eso.
+
+**De dónde sacar ofertas.** Solo de fuentes oficiales: la página de empleos de la propia empresa,
+el Ministerio de Trabajo o la OIM. Nunca de Facebook, de grupos de WhatsApp ni de bolsas como
+Computrabajo (sus términos lo prohíben). Antes de cargar una, abra la página oficial y compruebe
+que la vacante sigue ahí.
+
 La oferta queda como **pendiente**. Todavía no la ve nadie.
 
 ### 2. Verificar una oferta
@@ -120,6 +135,13 @@ Entre y revise dos cosas:
 
 **Panel → Respaldo** → baje una copia de la base de datos y guárdela en una computadora de la
 institución. No en la suya personal, y no la mande por WhatsApp: tiene datos de gente.
+
+**Ofertas nuevas.** El sitio no busca ofertas solo: en Guatemala no hay una fuente que se pueda
+conectar de forma legal y automática (lo explica la sección 6 del `CLAUDE.md`). Hasta que haya un
+convenio con el Ministerio de Trabajo o la OIM (`documentos/carta_convenio.md`), alguien tiene
+que revisar las páginas de empleo de las empresas, comprobar que cada vacante sigue ahí y
+cargarla. Una vez por semana alcanza. Las ofertas vencidas desaparecen solas: si nadie carga
+nuevas, el sitio se queda vacío, y eso es preferible a mostrar vacantes que ya no existen.
 
 ---
 

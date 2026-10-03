@@ -87,7 +87,11 @@ require RAIZ_APP . '/vistas/cabecera.php';
 
 <div class="contenedor contenedor--angosto pila">
 
-  <h1 class="titulo-pagina">Entrar a mi cuenta</h1>
+  <div class="acceso__cabeza">
+    <svg class="acceso__logo" viewBox="0 0 120 70" aria-hidden="true" focusable="false"><use href="#mj-marca" xlink:href="#mj-marca"></use></svg>
+    <h1 class="titulo-pagina">Entrar a mi cuenta</h1>
+    <p class="texto-guia">Con el correo y la contraseña que pusiste al crearla.</p>
+  </div>
 
   <?php if ($error !== null): ?>
     <p class="aviso aviso--error" role="alert"><?= escapar($error) ?></p>
@@ -110,7 +114,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
     </div>
 
     <div class="acciones separado">
-      <button class="boton boton--principal boton--ancho" type="submit">Entrar</button>
+      <button class="boton boton--principal boton--ancho" type="submit"><?= icono('persona') ?> Entrar</button>
     </div>
   </form>
 
@@ -125,7 +129,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
       Nunca le des tu contraseña a nadie, ni siquiera a alguien que diga trabajar acá.
     </p>
     <p>
-      <a class="boton boton--secundario" href="/cuenta/restablecer.php">Ya tengo un código</a>
+      <a class="boton boton--secundario" href="/cuenta/restablecer.php"><?= icono('llave') ?> Ya tengo un código</a>
     </p>
   </div>
 

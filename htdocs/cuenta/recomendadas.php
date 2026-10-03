@@ -37,12 +37,15 @@ require RAIZ_APP . '/vistas/cabecera.php';
 
 <div class="contenedor pila-grande">
 
-  <section class="pila">
-    <h1 class="titulo-pagina">Ofertas para vos</h1>
-    <p class="texto-guia">
-      Estas son las ofertas verificadas que coinciden con lo que pusiste en tu perfil.
-      Debajo de cada una te explicamos por qué te aparece.
-    </p>
+  <section class="cabeza">
+    <span class="cabeza__icono"><?= icono('estrella') ?></span>
+    <div>
+      <h1 class="titulo-pagina">Ofertas para vos</h1>
+      <p class="texto-guia">
+        Estas son las ofertas verificadas que coinciden con lo que pusiste en tu perfil.
+        Debajo de cada una te explicamos por qué te aparece.
+      </p>
+    </div>
   </section>
 
   <?php if ($recomendadas === []): ?>
@@ -95,8 +98,8 @@ require RAIZ_APP . '/vistas/cabecera.php';
       <h2 class="tarjeta__titulo">¿Por qué te mostramos estas y no otras?</h2>
       <p>
         Solo usamos seis cosas de tu perfil: <strong>los oficios que sabés, tus años de
-        experiencia, tus estudios, tus idiomas, a qué países irías y desde cuándo podrías
-        viajar.</strong>
+        experiencia, tus estudios, tus idiomas, dónde podrías trabajar y desde cuándo podrías
+        empezar.</strong>
       </p>
       <p>
         No usamos tu edad, ni tu sexo, ni de qué departamento sos, ni tu apellido. No los

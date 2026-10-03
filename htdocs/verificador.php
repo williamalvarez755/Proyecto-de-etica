@@ -82,13 +82,16 @@ require RAIZ_APP . '/vistas/cabecera.php';
 
 <div class="contenedor pila-grande">
 
-  <section class="pila">
-    <h1 class="titulo-pagina">¿Quién te contactó está autorizado?</h1>
-    <p class="texto-guia">
-      Escribí el nombre de la empresa o de la persona que te ofreció el trabajo, y te decimos
-      si aparece en el registro de reclutadores autorizados del Ministerio de Trabajo.
-      No necesitás cuenta ni dar ningún dato tuyo.
-    </p>
+  <section class="cabeza">
+    <span class="cabeza__icono"><?= icono('verificar') ?></span>
+    <div>
+      <h1 class="titulo-pagina">¿Quién te contactó está autorizado?</h1>
+      <p class="texto-guia">
+        Escribí el nombre de la empresa o de la persona que te ofreció el trabajo, y te decimos
+        si aparece en el registro de reclutadores autorizados del Ministerio de Trabajo.
+        No necesitás cuenta ni dar ningún dato tuyo.
+      </p>
+    </div>
   </section>
 
   <form method="get" action="/verificador.php" class="tarjeta" data-en-vivo="#resultado-verificador" role="search">
@@ -101,7 +104,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
              aria-describedby="ayuda-nombre" value="<?= escapar($busqueda) ?>" required>
     </div>
     <div class="acciones separado">
-      <button class="boton boton--principal boton--ancho" type="submit">Buscar en el registro</button>
+      <button class="boton boton--principal boton--ancho" type="submit"><?= icono('buscar') ?> Buscar en el registro</button>
     </div>
   </form>
 
@@ -129,15 +132,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
         <section class="<?= $vigente ? 'verificacion' : 'aviso aviso--error' ?>">
 
           <?php if ($vigente): ?>
-            <p class="sello">
-              <span aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z"></path>
-                  <path d="m9 12 2 2 4-4"></path>
-                </svg>
-              </span>
-              Sí aparece en el registro
-            </p>
+            <p class="sello"><?= icono('escudo') ?> Sí aparece en el registro</p>
           <?php else: ?>
             <p><strong>Aparece en el registro, pero su autorización NO está vigente.</strong></p>
           <?php endif; ?>
@@ -232,7 +227,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
         <?php endforeach; ?>
       </ul>
       <div class="acciones">
-        <a class="boton boton--secundario" href="/alertas.php">Ver qué significa cada una</a>
+        <a class="boton boton--secundario" href="/alertas.php"><?= icono('alerta') ?> Ver qué significa cada una</a>
       </div>
     </section>
 

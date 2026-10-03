@@ -43,6 +43,27 @@ function recurso(string $ruta): string
 
 
 /**
+ * El tema que la persona eligió con el botón de modo noche:
+ * 'claro', 'oscuro', o '' si nunca tocó el botón (entonces se sigue lo
+ * que diga su teléfono).
+ *
+ * Lo lee PHP de una cookie y lo pone en <html data-tema="...">, así la
+ * página llega ya con los colores correctos. Si lo pusiera JavaScript
+ * al cargar, cada página empezaría blanca y cambiaría a oscura: un
+ * destello de luz justo cuando alguien eligió el modo noche para no
+ * encandilarse (D-051).
+ *
+ * La cookie la escribe el navegador, así que se compara contra una
+ * lista cerrada: cualquier otro valor, o un arreglo, se ignora.
+ */
+function tema_elegido(): string
+{
+    $tema = $_COOKIE['tema'] ?? '';
+    return in_array($tema, ['claro', 'oscuro'], true) ? $tema : '';
+}
+
+
+/**
  * La fecha y hora de AHORA, lista para guardar en la base.
  *
  * Todas las fechas del sistema salen de acá y de ningún otro lado.

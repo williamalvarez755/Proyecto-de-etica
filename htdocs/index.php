@@ -6,10 +6,18 @@
  * Solo enseña lo que ya funciona: no hay botones que no lleven a
  * ninguna parte ni secciones anunciadas "para después".
  *
- * Lo primero que se ve es el buscador del verificador, y no un botón
- * que lleva a él: quien llega acá suele venir asustada por un mensaje
- * de WhatsApp, y cada pantalla de más es una oportunidad de que se
- * vaya sin comprobar nada.
+ * Arriba de todo hay dos puertas, y cada una trae su buscador adentro,
+ * no un botón que lleva a otra pantalla:
+ *
+ *  - "Busco trabajo": empleos en Guatemala con origen verificado, para
+ *    quien regresó (D-054).
+ *  - "Me ofrecieron un trabajo": el verificador de reclutadores. Quien
+ *    llega acá suele venir asustada por un mensaje de WhatsApp, y cada
+ *    pantalla de más es una oportunidad de que se vaya sin comprobar
+ *    nada.
+ *
+ * Dos puertas con palabras de todos los días, en lugar de un menú: la
+ * persona elige lo que le pasa a ella, no una sección del sitio.
  */
 
 require __DIR__ . '/app/nucleo/inicio.php';
@@ -29,56 +37,98 @@ try {
     registrar_error('Portada sin cifras: ' . $e->getMessage(), __FILE__, __LINE__);
 }
 
+$es_persona_usuaria = hay_sesion() && rol_actual() === ROL_USUARIO;
+
 $titulo_pagina = 'Ofertas de trabajo con origen verificado';
 require RAIZ_APP . '/vistas/cabecera.php';
 ?>
 
 <div class="contenedor pila-grande">
 
-  <section class="portada">
-    <h1 class="portada__titulo">Antes de creerle a una oferta de trabajo, revisá de dónde viene</h1>
-    <p class="texto-guia">
-      Muchas ofertas de trabajo en el extranjero que circulan por Facebook y WhatsApp son falsas.
-      Acá solo hay ofertas cuyo origen fue verificado, y siempre vas a poder ver de dónde salió
-      cada una, quién la ofrece y cuándo se revisó por última vez.
+  <section class="portada" aria-labelledby="titulo-portada">
+    <?php if (SITIO_LEMA !== ''): ?>
+      <p class="portada__lema"><?= icono('mundo', 'icono icono--chico') ?> <?= escapar(SITIO_LEMA) ?></p>
+    <?php endif; ?>
+
+    <h1 class="portada__titulo" id="titulo-portada">Antes de creerle a una oferta de trabajo, revisá de dónde viene</h1>
+
+    <p class="portada__texto">
+      Si regresaste a Guatemala y buscás trabajo, acá hay empleos tomados solo de fuentes
+      oficiales: cada uno dice quién lo ofrece, de dónde salió y cuándo se revisó.
+      Y si te ofrecen irte otra vez, comprobalo antes: muchas de esas ofertas son falsas.
     </p>
 
-    <form method="get" action="/verificador.php" role="search">
-      <label class="etiqueta" for="nombre-portada">
-        ¿Te contactaron por WhatsApp? Escribí el nombre de la empresa o del reclutador:
-      </label>
-      <div class="buscador-grande">
-        <input class="entrada" type="search" id="nombre-portada" name="nombre" maxlength="120"
-               placeholder="El nombre que te dieron" aria-describedby="ayuda-portada" required>
-        <button class="boton boton--principal" type="submit">Comprobar</button>
-      </div>
-      <p class="ayuda separado-poco" id="ayuda-portada">
-        Te decimos si está en el registro de reclutadores autorizados del Ministerio de Trabajo.
-        No necesitás cuenta ni dar ningún dato tuyo.
-      </p>
-    </form>
+    <div class="puertas">
 
-    <div class="acciones">
-      <a class="boton boton--principal" href="/ofertas.php">Ver las ofertas verificadas</a>
-      <a class="boton boton--secundario" href="/alertas.php">Ver señales de estafa</a>
+      <form class="puerta" method="get" action="/ofertas.php" role="search">
+        <div class="puerta__cabeza">
+          <span class="puerta__icono"><?= icono('maletin') ?></span>
+          <div>
+            <h2 class="puerta__titulo">Busco trabajo</h2>
+            <p class="puerta__texto">Empleos en Guatemala con origen verificado. No necesitás cuenta.</p>
+          </div>
+        </div>
+        <div>
+          <label class="etiqueta" for="texto-portada">¿Qué sabés hacer o qué trabajo buscás?</label>
+          <div class="buscador-grande">
+            <input class="entrada" type="search" id="texto-portada" name="texto" maxlength="80"
+                   placeholder="albañil, cosecha, cocina…">
+            <button class="boton boton--principal" type="submit"><?= icono('buscar') ?> Buscar</button>
+          </div>
+        </div>
+        <a class="puerta__enlace" href="/ofertas.php">Ver todas las ofertas <?= icono('flecha', 'icono icono--chico') ?></a>
+      </form>
+
+      <form class="puerta" method="get" action="/verificador.php" role="search">
+        <div class="puerta__cabeza">
+          <span class="puerta__icono puerta__icono--ambar"><?= icono('verificar') ?></span>
+          <div>
+            <h2 class="puerta__titulo">Me ofrecieron un trabajo</h2>
+            <p class="puerta__texto">¿Te ofrecieron trabajo en el extranjero? Comprobá si quien te escribió está autorizado.</p>
+          </div>
+        </div>
+        <div>
+          <label class="etiqueta" for="nombre-portada">Nombre de la empresa o del reclutador</label>
+          <div class="buscador-grande">
+            <input class="entrada" type="search" id="nombre-portada" name="nombre" maxlength="120"
+                   placeholder="El nombre que te dieron" aria-describedby="ayuda-portada" required>
+            <button class="boton boton--principal" type="submit"><?= icono('escudo') ?> Comprobar</button>
+          </div>
+          <p class="ayuda separado-poco" id="ayuda-portada">
+            Lo buscamos en el registro de reclutadores autorizados del Ministerio de Trabajo.
+            No necesitás cuenta ni dar ningún dato tuyo.
+          </p>
+        </div>
+        <a class="puerta__enlace" href="/alertas.php">Ver las señales de una estafa <?= icono('flecha', 'icono icono--chico') ?></a>
+      </form>
+
     </div>
   </section>
 
   <?php if ($cifras !== null): ?>
     <section class="cifras" aria-label="La plataforma hoy">
       <p class="cifra">
-        <span class="cifra__numero"><?= (int) $cifras['ofertas'] ?></span>
-        <span class="cifra__texto">
-          <?= $cifras['ofertas'] === 1 ? 'oferta con origen verificado, disponible hoy' : 'ofertas con origen verificado, disponibles hoy' ?>
+        <span class="cifra__icono cifra__icono--verde"><?= icono('escudo') ?></span>
+        <span>
+          <span class="cifra__numero"><?= (int) $cifras['ofertas'] ?></span>
+          <span class="cifra__texto">
+            <?= $cifras['ofertas'] === 1 ? 'oferta con origen verificado, disponible hoy' : 'ofertas con origen verificado, disponibles hoy' ?>
+          </span>
         </span>
       </p>
       <p class="cifra">
-        <span class="cifra__numero"><?= (int) $cifras['reclutadores'] ?></span>
-        <span class="cifra__texto">reclutadores en nuestra copia del registro del Ministerio</span>
+        <span class="cifra__icono"><?= icono('lista') ?></span>
+        <span>
+          <span class="cifra__numero"><?= (int) $cifras['reclutadores'] ?></span>
+          <span class="cifra__texto">reclutadores en nuestra copia del registro del Ministerio</span>
+        </span>
       </p>
       <p class="cifra">
-        <span class="cifra__numero cifra__numero--fecha"><?= escapar(fecha_en_palabras($cifras['actualizado'])) ?></span>
-        <span class="cifra__texto">última vez que actualizamos esa copia</span>
+        <span class="cifra__icono"><?= icono('calendario') ?></span>
+        <span>
+          <span class="cifra__numero cifra__numero--fecha"><?= escapar(fecha_en_palabras($cifras['actualizado'])) ?></span>
+          <span class="cifra__texto">última vez que actualizamos esa copia</span>
+        </span>
       </p>
     </section>
   <?php endif; ?>
@@ -106,7 +156,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
       </li>
       <li class="paso">
         <div>
-          <p class="paso__titulo">Si querés, creá tu cuenta</p>
+          <p class="paso__titulo">Si querés, subí tu currículum</p>
           <p class="paso__texto">
             Contanos qué sabés hacer y te mostramos las ofertas que coinciden, con la
             explicación de por qué.
@@ -114,35 +164,43 @@ require RAIZ_APP . '/vistas/cabecera.php';
         </div>
       </li>
     </ol>
-    <?php if (!hay_sesion()): ?>
-      <p><a class="boton boton--secundario" href="/cuenta/registrarse.php">Crear mi cuenta</a></p>
-    <?php endif; ?>
+    <div class="acciones">
+      <?php if (!hay_sesion()): ?>
+        <a class="boton boton--principal" href="/cuenta/registrarse.php"><?= icono('persona-mas') ?> Crear mi cuenta</a>
+        <a class="boton boton--secundario" href="/cuenta/entrar.php">Ya tengo cuenta</a>
+      <?php elseif ($es_persona_usuaria): ?>
+        <a class="boton boton--principal" href="/cuenta/cv.php"><?= icono('subir') ?> Subir mi currículum</a>
+        <a class="boton boton--secundario" href="/cuenta/panel.php">Ir a mi cuenta</a>
+      <?php endif; ?>
+    </div>
   </section>
 
-  <section class="tarjeta pila">
-    <h2 class="tarjeta__titulo">Qué significa que una oferta esté verificada</h2>
-    <p>
-      Significa que alguien de la institución comprobó <strong>de dónde viene la oferta</strong>:
-      que la fuente es real, que el empleador o el reclutador existe, y que el reclutador está en
-      el registro de reclutadores autorizados del Ministerio de Trabajo cuando corresponde.
-    </p>
-    <p class="aviso aviso--aviso">
-      <strong>Verificada no quiere decir que tenés el trabajo asegurado.</strong>
-      Quiere decir que la oferta no salió de la nada. La decisión y el trato siguen siendo tuyos.
-    </p>
-  </section>
+  <div class="rejilla rejilla--dos">
+    <section class="tarjeta pila">
+      <h2 class="tarjeta__titulo">Qué significa que una oferta esté verificada</h2>
+      <p>
+        Significa que alguien de la institución comprobó <strong>de dónde viene la oferta</strong>:
+        que la fuente es real, que el empleador o el reclutador existe, y que el reclutador está en
+        el registro de reclutadores autorizados del Ministerio de Trabajo cuando corresponde.
+      </p>
+      <p class="aviso aviso--aviso">
+        <strong>Verificada no quiere decir que tenés el trabajo asegurado.</strong>
+        Quiere decir que la oferta no salió de la nada. La decisión y el trato siguen siendo tuyos.
+      </p>
+    </section>
 
-  <section class="tarjeta pila">
-    <h2 class="tarjeta__titulo">Tres cosas que nunca te vamos a pedir</h2>
-    <ul class="pila">
-      <li>Dinero. Ni acá, ni por ninguna gestión. Un reclutador autorizado tampoco puede cobrarte.</li>
-      <li>Fotos de tu DPI, tu pasaporte, tu visa ni tus datos bancarios.</li>
-      <li>Que digas tu situación migratoria.</li>
-    </ul>
-    <p class="texto-menor">
-      Si alguien que dice representarnos te pide alguna de estas cosas, no es de esta plataforma.
-    </p>
-  </section>
+    <section class="tarjeta pila">
+      <h2 class="tarjeta__titulo">Tres cosas que nunca te vamos a pedir</h2>
+      <ul class="lista-iconos lista-iconos--no">
+        <li><?= icono('prohibido') ?><span><strong>Dinero.</strong> Ni acá, ni por ninguna gestión. Un reclutador autorizado tampoco puede cobrarte.</span></li>
+        <li><?= icono('prohibido') ?><span><strong>Fotos de tus documentos:</strong> ni DPI, ni pasaporte, ni visa, ni datos bancarios.</span></li>
+        <li><?= icono('prohibido') ?><span><strong>Tu situación migratoria.</strong> No la preguntamos en ninguna parte.</span></li>
+      </ul>
+      <p class="texto-menor">
+        Si alguien que dice representarnos te pide alguna de estas cosas, no es de esta plataforma.
+      </p>
+    </section>
+  </div>
 
 </div>
 

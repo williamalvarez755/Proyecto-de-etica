@@ -29,6 +29,12 @@ if (!en_catalogo($pais, PAISES)) {
     $pais = '';
 }
 
+// Dónde es el trabajo dentro de Guatemala (D-057).
+$departamento = parametro('departamento');
+if (!en_catalogo($departamento, DEPARTAMENTOS)) {
+    $departamento = '';
+}
+
 // Ventanas de tiempo permitidas, en días.
 $dias_permitidos = ['7' => 'Últimos 7 días', '30' => 'Último mes', '90' => 'Últimos 3 meses'];
 $dias = parametro('dias');
@@ -40,10 +46,11 @@ $filtros = [
     'texto'    => $texto,
     'rubro_id' => $rubro_id,
     'pais'     => $pais,
+    'departamento' => $departamento,
     'dias'     => $dias,
 ];
 
-$hay_filtros = $texto !== '' || $rubro_id !== null || $pais !== '' || $dias !== '';
+$hay_filtros = $texto !== '' || $rubro_id !== null || $pais !== '' || $departamento !== '' || $dias !== '';
 
 // --- Resultados ---------------------------------------------------
 $total   = contar_ofertas_publicas($filtros);
@@ -64,6 +71,7 @@ function enlace_con_filtros(array $filtros, int $pagina): string
     if ($filtros['texto'] !== '')      { $partes['texto'] = $filtros['texto']; }
     if ($filtros['rubro_id'] !== null) { $partes['rubro'] = $filtros['rubro_id']; }
     if ($filtros['pais'] !== '')       { $partes['pais']  = $filtros['pais']; }
+    if ($filtros['departamento'] !== '') { $partes['departamento'] = $filtros['departamento']; }
     if ($filtros['dias'] !== '')       { $partes['dias']  = $filtros['dias']; }
     if ($pagina > 1)                   { $partes['pagina'] = $pagina; }
 
@@ -85,6 +93,9 @@ if ($texto !== '') {
 if ($rubro_id !== null) {
     $fichas[] = [nombre_de_rubro($rubro_id), enlace_sin_filtro($filtros, 'rubro_id')];
 }
+if ($departamento !== '') {
+    $fichas[] = [DEPARTAMENTOS[$departamento], enlace_sin_filtro($filtros, 'departamento')];
+}
 if ($pais !== '') {
     $fichas[] = [PAISES[$pais], enlace_sin_filtro($filtros, 'pais')];
 }
@@ -94,7 +105,8 @@ if ($dias !== '') {
 
 // Cuántos de los filtros plegables están puestos: si hay alguno, el
 // grupo viene abierto, para que la persona vea lo que eligió.
-$filtros_plegados = ($rubro_id !== null ? 1 : 0) + ($pais !== '' ? 1 : 0) + ($dias !== '' ? 1 : 0);
+$filtros_plegados = ($rubro_id !== null ? 1 : 0) + ($pais !== '' ? 1 : 0)
+                  + ($departamento !== '' ? 1 : 0) + ($dias !== '' ? 1 : 0);
 
 $titulo_pagina = 'Ofertas de trabajo';
 require RAIZ_APP . '/vistas/cabecera.php';
@@ -102,12 +114,15 @@ require RAIZ_APP . '/vistas/cabecera.php';
 
 <div class="contenedor pila-grande">
 
-  <section class="pila">
-    <h1 class="titulo-pagina">Ofertas de trabajo</h1>
-    <p class="texto-guia">
-      Todas las ofertas de esta página tienen su origen verificado y muestran de dónde salieron.
-      No necesitás cuenta para verlas.
-    </p>
+  <section class="cabeza">
+    <span class="cabeza__icono"><?= icono('maletin') ?></span>
+    <div>
+      <h1 class="titulo-pagina">Ofertas de trabajo</h1>
+      <p class="texto-guia">
+        Empleos en Guatemala tomados solo de fuentes oficiales: cada una dice de dónde salió y
+        cuándo se revisó. No necesitás cuenta para verlas.
+      </p>
+    </div>
   </section>
 
   <!-- Los filtros van por GET a propósito: así la persona puede
@@ -121,19 +136,31 @@ require RAIZ_APP . '/vistas/cabecera.php';
       <div class="buscador-grande">
         <input class="entrada" type="search" id="texto" name="texto" maxlength="80"
                value="<?= escapar($texto) ?>" placeholder="albañil, cosecha, hotel...">
-        <button class="boton boton--principal" type="submit">Buscar</button>
+        <button class="boton boton--principal" type="submit"><?= icono('buscar') ?> Buscar</button>
       </div>
     </div>
 
     <details class="filtros__mas"<?= $filtros_plegados > 0 ? ' open' : '' ?>>
       <summary>
-        Filtrar por oficio, país o fecha
+        Filtrar por departamento, oficio o fecha
         <?php if ($filtros_plegados > 0): ?>
           <span class="filtros__cuantos" aria-label="<?= (int) $filtros_plegados ?> puestos"><?= (int) $filtros_plegados ?></span>
         <?php endif; ?>
       </summary>
 
-      <div class="rejilla rejilla--tres">
+      <div class="rejilla rejilla--dos">
+        <div class="campo">
+          <label class="etiqueta" for="departamento">Departamento</label>
+          <select class="entrada" id="departamento" name="departamento">
+            <option value="">Todos los departamentos</option>
+            <?php foreach (DEPARTAMENTOS as $codigo => $nombre): ?>
+              <option value="<?= escapar($codigo) ?>" <?= $departamento === $codigo ? 'selected' : '' ?>>
+                <?= escapar($nombre) ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+
         <div class="campo">
           <label class="etiqueta" for="rubro">Oficio</label>
           <select class="entrada" id="rubro" name="rubro">
@@ -196,28 +223,37 @@ require RAIZ_APP . '/vistas/cabecera.php';
 
       <?php if (!$hay_ofertas_publicadas): ?>
         <div class="vacio pila">
+          <p><span class="vacio__icono"><?= icono('escudo') ?></span></p>
           <p data-anuncio><strong>Todavía no hay ofertas publicadas.</strong></p>
           <p>
             Las ofertas aparecen acá después de que alguien de la institución comprueba de dónde
             salieron. Preferimos no mostrar nada antes que mostrar algo sin verificar.
           </p>
+          <p>Mientras tanto, si alguien ya te ofreció un trabajo, podés comprobarlo:</p>
+          <div class="acciones">
+            <a class="boton boton--principal" href="/verificador.php"><?= icono('verificar') ?> Comprobar un reclutador</a>
+            <a class="boton boton--secundario" href="/alertas.php"><?= icono('alerta') ?> Señales de estafa</a>
+          </div>
         </div>
       <?php else: ?>
         <div class="vacio pila">
+          <p><span class="vacio__icono"><?= icono('buscar') ?></span></p>
           <p data-anuncio><strong>No encontramos ofertas con esa búsqueda.</strong></p>
           <p>Probá con menos filtros o con otra palabra.</p>
-          <p><a class="boton boton--secundario" href="/ofertas.php" data-en-vivo-enlace="#resultados">Ver todas las ofertas</a></p>
+          <div class="acciones">
+            <a class="boton boton--secundario" href="/ofertas.php" data-en-vivo-enlace="#resultados">Ver todas las ofertas</a>
+          </div>
         </div>
       <?php endif; ?>
 
     <?php else: ?>
 
       <p class="texto-menor" data-anuncio>
-        <?= $total ?> oferta<?= $total === 1 ? '' : 's' ?>
+        <span class="resultados__cuantos"><?= $total ?> oferta<?= $total === 1 ? '' : 's' ?></span>
         <?= $hay_filtros ? 'con esta búsqueda' : 'disponibles' ?>.
       </p>
 
-      <div class="rejilla rejilla--ofertas">
+      <div class="rejilla rejilla--ofertas rejilla--ofertas-tres">
         <?php foreach ($ofertas as $oferta): ?>
           <?php require RAIZ_APP . '/vistas/tarjeta_oferta.php'; ?>
         <?php endforeach; ?>

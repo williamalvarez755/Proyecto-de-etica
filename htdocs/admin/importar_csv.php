@@ -33,6 +33,19 @@ const COLUMNAS_CSV = [
     'salario_texto', 'url_original', 'fecha_publicacion', 'fecha_vencimiento', 'idiomas',
 ];
 
+/**
+ * El mismo formato con dos columnas más al final, para el empleo en
+ * Guatemala (D-057 y D-058): el departamento y cómo se postula la
+ * persona ('plataforma' o 'externa'; vacío es 'plataforma').
+ * Se aceptan los dos formatos, así los archivos viejos siguen sirviendo.
+ */
+const COLUMNAS_CSV_GUATEMALA = [
+    'titulo', 'empleador', 'descripcion', 'pais_codigo', 'ciudad', 'rubro_codigo',
+    'requisitos', 'experiencia_anios_min', 'estudios_min', 'disponibilidad_requerida',
+    'salario_texto', 'url_original', 'fecha_publicacion', 'fecha_vencimiento', 'idiomas',
+    'departamento_codigo', 'forma_postulacion',
+];
+
 $resultado = null;
 $errores   = [];
 $fuentes   = listar_fuentes(true);
@@ -70,16 +83,26 @@ if (es_post()) {
     if ($errores === []) {
         $manejador = fopen($archivo['tmp_name'], 'r');
 
-        $encabezado = fgetcsv($manejador);
+        // Los cuatro parámetros de fgetcsv() van escritos: desde PHP 8.4
+        // omitir $escape avisa que su valor por defecto va a cambiar, y el
+        // manejador de errores del sistema lo trata como un error. Se deja
+        // la barra invertida, que es lo que PHP usó siempre.
+        $encabezado = fgetcsv($manejador, null, ',', '"', '\\');
         if ($encabezado !== false && isset($encabezado[0])) {
             // Quita la marca invisible que Excel pone al principio.
             $encabezado[0] = preg_replace('/^\xEF\xBB\xBF/', '', $encabezado[0]);
         }
         $encabezado = array_map(static fn($c) => trim((string) $c), $encabezado ?: []);
 
-        if ($encabezado !== COLUMNAS_CSV) {
+        $columnas = match (true) {
+            $encabezado === COLUMNAS_CSV_GUATEMALA => COLUMNAS_CSV_GUATEMALA,
+            $encabezado === COLUMNAS_CSV           => COLUMNAS_CSV,
+            default                                => null,
+        };
+
+        if ($columnas === null) {
             $errores['archivo'] = 'El archivo no tiene las columnas esperadas. '
-                                . 'Usá la plantilla: ' . implode(', ', COLUMNAS_CSV);
+                                . 'Usá la plantilla: ' . implode(', ', COLUMNAS_CSV_GUATEMALA);
             fclose($manejador);
         } else {
             $importadas = 0;
@@ -87,7 +110,7 @@ if (es_post()) {
             $rechazadas = [];
             $fila_num   = 1;
 
-            while (($fila = fgetcsv($manejador)) !== false) {
+            while (($fila = fgetcsv($manejador, null, ',', '"', '\\')) !== false) {
                 $fila_num++;
 
                 if ($fila_num > CSV_MAXIMO_FILAS + 1) {
@@ -100,12 +123,17 @@ if (es_post()) {
                     continue;
                 }
 
-                if (count($fila) !== count(COLUMNAS_CSV)) {
-                    $rechazadas[] = ['fila' => $fila_num, 'motivo' => 'Tiene ' . count($fila) . ' columnas y deberían ser ' . count(COLUMNAS_CSV) . '.'];
+                if (count($fila) !== count($columnas)) {
+                    $rechazadas[] = ['fila' => $fila_num, 'motivo' => 'Tiene ' . count($fila) . ' columnas y deberían ser ' . count($columnas) . '.'];
                     continue;
                 }
 
-                $d = array_combine(COLUMNAS_CSV, array_map(static fn($v) => limpiar_texto((string) $v), $fila));
+                $d = array_combine($columnas, array_map(static fn($v) => limpiar_texto((string) $v), $fila));
+                $d['departamento_codigo'] = $d['departamento_codigo'] ?? '';
+                $d['forma_postulacion']   = ($d['forma_postulacion'] ?? '') === '' ? 'plataforma' : $d['forma_postulacion'];
+                if ($d['pais_codigo'] !== 'gt') {
+                    $d['departamento_codigo'] = '';
+                }
 
                 // --- Validación de la fila ------------------------
                 $motivo = null;
@@ -144,6 +172,14 @@ if (es_post()) {
                     $motivo = 'Los requisitos tienen más de 5000 caracteres.';
                 } elseif (!largo_valido($d['url_original'], 0, 255)) {
                     $motivo = 'La dirección tiene más de 255 caracteres.';
+                } elseif ($d['departamento_codigo'] !== '' && !en_catalogo($d['departamento_codigo'], DEPARTAMENTOS)) {
+                    $motivo = 'El departamento "' . $d['departamento_codigo'] . '" no está en la lista.';
+                } elseif ($columnas === COLUMNAS_CSV_GUATEMALA && $d['pais_codigo'] === 'gt' && $d['departamento_codigo'] === '') {
+                    $motivo = 'Es en Guatemala y le falta el departamento.';
+                } elseif (!en_catalogo($d['forma_postulacion'], FORMAS_POSTULACION)) {
+                    $motivo = 'La forma de postularse "' . $d['forma_postulacion'] . '" no es plataforma ni externa.';
+                } elseif ($d['forma_postulacion'] === 'externa' && !url_segura($d['url_original'])) {
+                    $motivo = 'Se postula en la página de la empresa, pero falta esa dirección.';
                 }
 
                 if ($motivo !== null) {
@@ -164,6 +200,7 @@ if (es_post()) {
                     'reclutador_id'            => null,
                     'fuente_id'                => (int) $fuente['id'],
                     'pais_codigo'              => $d['pais_codigo'],
+                    'departamento_codigo'      => $d['departamento_codigo'],
                     'ciudad'                   => $d['ciudad'],
                     'rubro_id'                 => $rubro_id,
                     'requisitos'               => $d['requisitos'],
@@ -172,6 +209,7 @@ if (es_post()) {
                     'disponibilidad_requerida' => $d['disponibilidad_requerida'],
                     'salario_texto'            => $d['salario_texto'],
                     'url_original'             => $d['url_original'],
+                    'forma_postulacion'        => $d['forma_postulacion'],
                     'fecha_publicacion'        => $d['fecha_publicacion'],
                     'fecha_vencimiento'        => $d['fecha_vencimiento'],
                 ], id_usuario_actual());
@@ -302,13 +340,16 @@ require RAIZ_APP . '/vistas/cabecera.php';
       <h2 class="tarjeta__titulo">Cómo tiene que ser el archivo</h2>
       <p>La primera fila son los nombres de las columnas, exactamente en este orden:</p>
       <div class="tabla-desliza">
-        <p class="codigo"><?= escapar(implode(',', COLUMNAS_CSV)) ?></p>
+        <p class="codigo"><?= escapar(implode(',', COLUMNAS_CSV_GUATEMALA)) ?></p>
       </div>
       <ul class="pila">
         <li><strong>pais_codigo</strong>: <?= escapar(implode(', ', array_keys(PAISES))) ?></li>
         <li><strong>estudios_min</strong>: <?= escapar(implode(', ', array_keys(NIVELES_ESTUDIO))) ?></li>
         <li><strong>disponibilidad_requerida</strong>: <?= escapar(implode(', ', array_keys(DISPONIBILIDAD))) ?></li>
         <li><strong>idiomas</strong>: separados por punto y coma. Por ejemplo: <em>espanol;ingles</em></li>
+        <li><strong>departamento_codigo</strong>: obligatorio si el país es gt. <?= escapar(implode(', ', array_keys(DEPARTAMENTOS))) ?></li>
+        <li><strong>forma_postulacion</strong>: <em>plataforma</em> o <em>externa</em> (en la página de la empresa; entonces la dirección original es obligatoria). Vacío es plataforma.</li>
+        <li>Los archivos viejos, sin estas dos últimas columnas, se siguen aceptando.</li>
         <li><strong>Las fechas</strong> van como AAAA-MM-DD. Por ejemplo: <em>2026-09-15</em></li>
       </ul>
       <p class="texto-menor">

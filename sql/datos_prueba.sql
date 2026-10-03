@@ -8,6 +8,10 @@
 --    Después de esquema.sql y datos_iniciales.sql, y DESPUÉS de haber
 --    creado la primera cuenta con instalar.php (las ofertas verificadas
 --    necesitan un administrador al cual atribuir la verificación).
+--    Se puede correr más de una vez: primero borra lo de prueba que haya
+--    quedado de una corrida anterior y lo vuelve a cargar con fechas
+--    nuevas. Sirve también para "renovar" las ofertas de ejemplo cuando
+--    se vencen (duran 40 y 60 días).
 --
 --  QUÉ CREA:
 --    2 fuentes, 3 reclutadores (uno vencido a propósito) y 6 ofertas
@@ -27,6 +31,24 @@
 -- ===================================================================
 
 SET NAMES utf8mb4;
+
+
+-- -------------------------------------------------------------------
+--  Antes de cargar, se borra lo de prueba de una corrida anterior.
+--  Solo toca filas que empiezan con EJEMPLO.
+--
+--  Esto arregla un caso que ya pasó: si el archivo se corrió ANTES de
+--  crear el superadministrador, entraban las fuentes y los reclutadores
+--  pero ninguna oferta, y una segunda corrida fallaba en la primera
+--  línea porque el nombre de la fuente ya existía. Ahora se corre de
+--  nuevo y queda bien.
+--
+--  Lo que dependa de una oferta de ejemplo (postulaciones, reportes,
+--  guardadas de prueba) se borra con ella: está así en el esquema.
+-- -------------------------------------------------------------------
+DELETE FROM ofertas WHERE titulo LIKE 'EJEMPLO -%';
+DELETE FROM reclutadores_autorizados WHERE nombre LIKE 'EJEMPLO %';
+DELETE FROM fuentes WHERE nombre LIKE 'EJEMPLO -%';
 
 
 -- -------------------------------------------------------------------
@@ -196,6 +218,16 @@ SELECT id, 'espanol', 1 FROM ofertas WHERE titulo LIKE 'EJEMPLO -%';
 
 INSERT INTO ofertas_idiomas (oferta_id, idioma_codigo, obligatorio)
 SELECT id, 'ingles', 1 FROM ofertas WHERE titulo = 'EJEMPLO - Cosecha de manzana temporada 2026';
+
+
+-- -------------------------------------------------------------------
+--  Para comprobar que entró todo. phpMyAdmin muestra esta tabla al
+--  terminar: tienen que aparecer 6 ofertas, dos de ellas "publicada"
+--  con fecha futura. Si aparecen solo 2, las dos "pendiente", todavía
+--  no existe el superadministrador: entrá a instalar.php, crealo, y
+--  corré este archivo otra vez.
+-- -------------------------------------------------------------------
+SELECT titulo, estado, fecha_vencimiento FROM ofertas WHERE titulo LIKE 'EJEMPLO -%';
 
 
 -- ===================================================================

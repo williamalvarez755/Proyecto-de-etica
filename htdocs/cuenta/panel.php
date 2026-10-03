@@ -15,6 +15,9 @@
  * en nada parecido a "conseguí trabajo": la plataforma no consigue
  * trabajo (regla 12), y la pantalla no puede dar a entender lo
  * contrario.
+ *
+ * Debajo del camino, los accesos son mosaicos con ícono que se tocan
+ * enteros: qué se puede hacer, en un toque, sin leer párrafos.
  */
 
 require __DIR__ . '/../app/nucleo/inicio.php';
@@ -34,11 +37,14 @@ require RAIZ_APP . '/vistas/cabecera.php';
 
 <div class="contenedor pila-grande">
 
-  <section class="pila">
-    <h1 class="titulo-pagina">Hola, <?= escapar($usuario['nombre']) ?></h1>
-    <p class="texto-guia">
-      Desde acá podés ver ofertas, guardar las que te sirvan y mantener tus datos al día.
-    </p>
+  <section class="cabeza">
+    <span class="cabeza__icono"><?= icono('persona') ?></span>
+    <div>
+      <h1 class="titulo-pagina">Hola, <?= escapar($usuario['nombre']) ?></h1>
+      <p class="texto-guia">
+        Desde acá podés ver ofertas, guardar las que te sirvan y mantener tus datos al día.
+      </p>
+    </div>
   </section>
 
   <section class="pila" aria-labelledby="titulo-camino">
@@ -62,15 +68,15 @@ require RAIZ_APP . '/vistas/cabecera.php';
               Revisaste tus datos el <?= escapar(fecha_en_palabras($mi_perfil['confirmado_en'])) ?>.
               Podés cambiarlos cuando quieras.
             </p>
-            <a class="boton boton--secundario" href="/cuenta/confirmar_perfil.php">Revisar mis datos</a>
+            <a class="boton boton--secundario" href="/cuenta/confirmar_perfil.php"><?= icono('editar') ?> Revisar mis datos</a>
           <?php else: ?>
             <p class="paso__texto">
               Subí tu currículum o llená un formulario corto. Antes de mostrarte cualquier oferta
               vas a revisar y corregir lo que entendimos.
             </p>
             <div class="acciones">
-              <a class="boton boton--principal" href="/cuenta/cv.php">Subir mi currículum</a>
-              <a class="boton boton--secundario" href="/cuenta/confirmar_perfil.php">Llenar el formulario</a>
+              <a class="boton boton--principal" href="/cuenta/cv.php"><?= icono('subir') ?> Subir mi currículum</a>
+              <a class="boton boton--secundario" href="/cuenta/confirmar_perfil.php"><?= icono('editar') ?> Llenar el formulario</a>
             </div>
           <?php endif; ?>
         </div>
@@ -81,7 +87,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
           <p class="paso__titulo">Mirá las ofertas para vos</p>
           <?php if ($confirmado): ?>
             <p class="paso__texto">Las que coinciden con tu perfil, con la explicación de por qué te aparecen.</p>
-            <a class="boton boton--principal" href="/cuenta/recomendadas.php">Ver ofertas para mí</a>
+            <a class="boton boton--principal" href="/cuenta/recomendadas.php"><?= icono('estrella') ?> Ver ofertas para mí</a>
           <?php else: ?>
             <p class="paso__texto">Se habilita cuando termines el paso anterior.</p>
           <?php endif; ?>
@@ -90,73 +96,117 @@ require RAIZ_APP . '/vistas/cabecera.php';
     </ol>
   </section>
 
-  <section class="rejilla rejilla--dos">
-    <div class="tarjeta tarjeta--enlace pila">
-      <h2 class="tarjeta__titulo">Todas las ofertas</h2>
-      <p>Buscá por oficio, país y fecha. Todas con su origen verificado.</p>
-      <div class="acciones">
-        <a class="boton boton--secundario" href="/ofertas.php">Ver las ofertas</a>
-      </div>
-    </div>
+  <section class="pila" aria-labelledby="titulo-accesos">
+    <h2 class="subtitulo" id="titulo-accesos">¿Qué querés hacer?</h2>
 
-    <div class="tarjeta tarjeta--enlace pila">
-      <h2 class="tarjeta__titulo">
-        Mis postulaciones
-        <?php if ($guardado['postulaciones'] > 0): ?>
-          <span class="contador-tarjeta"><?= (int) $guardado['postulaciones'] ?></span>
-        <?php endif; ?>
-      </h2>
-      <p>A qué ofertas autorizaste compartir tu currículum, y cuándo.</p>
-      <div class="acciones">
-        <a class="boton boton--secundario" href="/cuenta/postulaciones.php">Ver mis postulaciones</a>
-      </div>
-    </div>
+    <div class="mosaicos">
+      <?php if ($confirmado): ?>
+        <a class="mosaico mosaico--destacado" href="/cuenta/recomendadas.php">
+          <span class="mosaico__icono"><?= icono('estrella') ?></span>
+          <span>
+            <span class="mosaico__titulo">Ofertas para mí</span>
+            <span class="mosaico__texto">Las que coinciden con lo que sabés hacer, y por qué.</span>
+          </span>
+        </a>
+      <?php endif; ?>
 
-    <div class="tarjeta tarjeta--enlace pila">
-      <h2 class="tarjeta__titulo">
-        Ofertas que guardé
-        <?php if ($guardado['guardadas'] > 0): ?>
-          <span class="contador-tarjeta"><?= (int) $guardado['guardadas'] ?></span>
-        <?php endif; ?>
-      </h2>
-      <p>Las que apartaste para leer con calma después.</p>
-      <div class="acciones">
-        <a class="boton boton--secundario" href="/cuenta/guardadas.php">Ver mis guardadas</a>
-      </div>
-    </div>
+      <a class="mosaico" href="/ofertas.php">
+        <span class="mosaico__icono"><?= icono('maletin') ?></span>
+        <span>
+          <span class="mosaico__titulo">Todas las ofertas</span>
+          <span class="mosaico__texto">Buscá por oficio, país y fecha. Todas con su origen verificado.</span>
+        </span>
+      </a>
 
-    <div class="tarjeta tarjeta--enlace pila">
-      <h2 class="tarjeta__titulo">Mi currículum</h2>
+      <a class="mosaico" href="/cuenta/postulaciones.php">
+        <span class="mosaico__icono"><?= icono('enviar') ?></span>
+        <span>
+          <span class="mosaico__titulo">
+            Mis postulaciones
+            <?php if ($guardado['postulaciones'] > 0): ?>
+              <span class="contador-tarjeta"><?= (int) $guardado['postulaciones'] ?></span>
+            <?php endif; ?>
+          </span>
+          <span class="mosaico__texto">A qué ofertas autorizaste compartir tu currículum, y cuándo.</span>
+        </span>
+      </a>
+
+      <a class="mosaico" href="/cuenta/guardadas.php">
+        <span class="mosaico__icono"><?= icono('guardar') ?></span>
+        <span>
+          <span class="mosaico__titulo">
+            Ofertas que guardé
+            <?php if ($guardado['guardadas'] > 0): ?>
+              <span class="contador-tarjeta"><?= (int) $guardado['guardadas'] ?></span>
+            <?php endif; ?>
+          </span>
+          <span class="mosaico__texto">Las que apartaste para leer con calma después.</span>
+        </span>
+      </a>
+
+      <a class="mosaico" href="/cuenta/cv.php">
+        <span class="mosaico__icono"><?= icono('documento') ?></span>
+        <span>
+          <span class="mosaico__titulo">Mi currículum</span>
+          <span class="mosaico__texto">
+            <?= $tiene_cv
+                ? 'Tenés uno guardado. Podés cambiarlo, borrarlo o descargarlo.'
+                : 'Subirlo, o armar uno ordenado con tus datos para imprimir.' ?>
+          </span>
+        </span>
+      </a>
+
+      <?php if ($confirmado): ?>
+        <a class="mosaico" href="/cuenta/perfil.php">
+          <span class="mosaico__icono"><?= icono('persona') ?></span>
+          <span>
+            <span class="mosaico__titulo">Mi perfil</span>
+            <span class="mosaico__texto">Lo que sabés hacer, dónde podrías trabajar y desde cuándo.</span>
+          </span>
+        </a>
+      <?php endif; ?>
+
+      <a class="mosaico" href="/verificador.php">
+        <span class="mosaico__icono"><?= icono('verificar') ?></span>
+        <span>
+          <span class="mosaico__titulo">Comprobar un reclutador</span>
+          <span class="mosaico__texto">Si alguien te escribió por fuera, mirá si está autorizado.</span>
+        </span>
+      </a>
+    </div>
+  </section>
+
+  <div class="rejilla rejilla--dos">
+    <section class="tarjeta">
+      <h2 class="tarjeta__titulo">Los datos de tu cuenta</h2>
+      <dl class="lista-datos">
+        <dt>Nombre</dt>
+        <dd><?= escapar($usuario['nombre']) ?></dd>
+
+        <dt>Correo</dt>
+        <dd><?= escapar($usuario['correo']) ?></dd>
+
+        <dt>Cuenta creada el</dt>
+        <dd><?= escapar(fecha_en_palabras($usuario['creado_en'])) ?></dd>
+
+        <dt>Última vez que entraste</dt>
+        <dd><?= escapar(fecha_hora_en_palabras($usuario['ultimo_acceso_en'])) ?></dd>
+      </dl>
+    </section>
+
+    <section class="tarjeta pila">
+      <h2 class="tarjeta__titulo">Tu contraseña</h2>
       <p>
-        <?= $tiene_cv
-            ? 'Tenés uno guardado. Podés cambiarlo, borrarlo o descargarlo.'
-            : 'Subirlo, o armar uno ordenado con tus datos para imprimir.' ?>
+        Si creés que alguien más la sabe, cambiala ahora: las sesiones que hayan quedado abiertas
+        en otro teléfono o computadora se cierran solas. Acordate de que no hay recuperación por
+        correo: si la olvidás, vas a necesitar ayuda de la institución.
       </p>
       <div class="acciones">
-        <a class="boton boton--secundario" href="/cuenta/cv.php">Mi currículum</a>
-        <?php if ($confirmado): ?>
-          <a class="boton boton--secundario" href="/cuenta/perfil.php">Mi perfil</a>
-        <?php endif; ?>
+        <a class="boton boton--secundario" href="/cuenta/cambiar_contrasena.php"><?= icono('llave') ?> Cambiar mi contraseña</a>
+        <a class="boton boton--secundario" href="/cuenta/salir.php"><?= icono('salir') ?> Cerrar mi sesión</a>
       </div>
-    </div>
-  </section>
-
-  <section class="tarjeta">
-    <h2 class="tarjeta__titulo">Los datos de tu cuenta</h2>
-    <dl class="lista-datos">
-      <dt>Nombre</dt>
-      <dd><?= escapar($usuario['nombre']) ?></dd>
-
-      <dt>Correo</dt>
-      <dd><?= escapar($usuario['correo']) ?></dd>
-
-      <dt>Cuenta creada el</dt>
-      <dd><?= escapar(fecha_en_palabras($usuario['creado_en'])) ?></dd>
-
-      <dt>Última vez que entraste</dt>
-      <dd><?= escapar(fecha_hora_en_palabras($usuario['ultimo_acceso_en'])) ?></dd>
-    </dl>
-  </section>
+    </section>
+  </div>
 
   <section class="tarjeta pila">
     <h2 class="tarjeta__titulo">Qué guardamos de vos</h2>
@@ -167,7 +217,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
       <li>Tu contraseña, guardada de forma que ni nosotros la podemos leer.</li>
       <li>La fecha en que creaste la cuenta y la última vez que entraste.</li>
       <?php if ($confirmado): ?>
-        <li>Tus oficios, años de experiencia, estudios, idiomas, a qué países irías y desde cuándo.</li>
+        <li>Tus oficios, años de experiencia, estudios, idiomas, dónde podrías trabajar y desde cuándo.</li>
       <?php endif; ?>
       <?php if ($guardado['archivos'] > 0): ?>
         <li>
@@ -199,19 +249,10 @@ require RAIZ_APP . '/vistas/cabecera.php';
       ni tu fotografía. Tampoco tu edad, tu sexo ni de qué departamento sos:
       esos datos no se piden en ninguna parte de la plataforma.
     </p>
-  </section>
-
-  <section class="tarjeta pila">
-    <h2 class="tarjeta__titulo">Tu contraseña</h2>
-    <p>
-      Si creés que alguien más la sabe, cambiala ahora: las sesiones que hayan quedado abiertas
-      en otro teléfono o computadora se cierran solas. Acordate de que no hay recuperación por
-      correo: si la olvidás, vas a necesitar ayuda de la institución.
+    <p class="texto-menor">
+      Si usás el botón de modo noche, tu teléfono guarda una cookie que dice "claro" u "oscuro".
+      No dice quién sos y no llega a ningún otro sitio.
     </p>
-    <div class="acciones">
-      <a class="boton boton--secundario" href="/cuenta/cambiar_contrasena.php">Cambiar mi contraseña</a>
-      <a class="boton boton--secundario" href="/cuenta/salir.php">Cerrar mi sesión</a>
-    </div>
   </section>
 
   <section class="tarjeta pila">
@@ -221,7 +262,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
       ni escribirle a nadie. Se borra de verdad: los registros y el archivo de tu currículum.
     </p>
     <div class="acciones">
-      <a class="boton boton--peligro" href="/cuenta/eliminar.php">Borrar mi cuenta</a>
+      <a class="boton boton--peligro" href="/cuenta/eliminar.php"><?= icono('basura') ?> Borrar mi cuenta</a>
     </div>
   </section>
 

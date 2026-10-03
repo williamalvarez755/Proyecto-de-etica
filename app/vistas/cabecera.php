@@ -12,42 +12,79 @@
  * es requerir_permiso() en la página de destino; esto es solo para no
  * mostrarle a la gente puertas que no le sirven.
  *
- * En el teléfono, las cuatro secciones principales bajan a una barra
- * de pestañas fija abajo, al alcance del pulgar, con ícono y palabra.
- * A propósito NO es un menú escondido detrás de tres rayitas: el
- * verificador tiene que estar a la vista en todas las páginas, y
- * mucha gente de nuestra población no reconoce ese ícono. Todo es
- * CSS: funciona igual sin JavaScript.
+ * En el teléfono, las secciones bajan a una barra de pestañas fija
+ * abajo, al alcance del pulgar, con ícono y palabra. A propósito NO es
+ * un menú escondido detrás de tres rayitas: el verificador tiene que
+ * estar a la vista en todas las páginas, y mucha gente de nuestra
+ * población no reconoce ese ícono. Todo es CSS: funciona igual sin
+ * JavaScript.
+ *
+ * El modo noche (D-051): PHP pone data-tema en <html> si la persona ya
+ * eligió uno con el botón; si no, manda lo que diga el teléfono. El
+ * botón lo muestra app.js: sin JavaScript no podría funcionar, y la
+ * regla del proyecto es que no haya botones que no hagan nada.
  */
 
 $titulo_pagina = $titulo_pagina ?? SITIO_NOMBRE;
 $mensaje       = tomar_mensaje();
 $usuario       = usuario_actual();
+$tema          = tema_elegido();
 
 // Qué sección se marca como la actual (aria-current), para que la
 // persona sepa dónde está parada, también con lector de pantalla.
 $ruta_actual = $_SERVER['SCRIPT_NAME'] ?? '';
 $seccion_actual = match (true) {
+    $ruta_actual === '/index.php', $ruta_actual === '/'                          => 'inicio',
     in_array($ruta_actual, ['/ofertas.php', '/oferta.php', '/reportar.php'], true) => 'ofertas',
     $ruta_actual === '/verificador.php'                                          => 'verificar',
     $ruta_actual === '/alertas.php'                                              => 'alertas',
     str_starts_with($ruta_actual, '/cuenta/'), str_starts_with($ruta_actual, '/admin/') => 'cuenta',
     default                                                                      => '',
 };
+
+// Las pestañas de la navegación: [sección, dirección, ícono, palabra
+// corta (teléfono), palabra larga (pantalla ancha)].
+$pestanas = [
+    ['inicio',    '/',                'inicio',    'Inicio',    'Inicio'],
+    ['ofertas',   '/ofertas.php',     'maletin',   'Ofertas',   'Ofertas'],
+    ['verificar', '/verificador.php', 'verificar', 'Verificar', 'Verificar reclutador'],
+    ['alertas',   '/alertas.php',     'alerta',    'Alertas',   'Señales de estafa'],
+];
+if ($usuario === null) {
+    $pestanas[] = ['cuenta', '/cuenta/entrar.php', 'persona', 'Entrar', 'Entrar'];
+} elseif (es_administrativo()) {
+    $pestanas[] = ['cuenta', '/admin/index.php', 'panel', 'Panel', 'Panel'];
+} else {
+    $pestanas[] = ['cuenta', '/cuenta/panel.php', 'persona', 'Mi cuenta', 'Mi cuenta'];
+}
+
+// Color de la barra del navegador del teléfono. Si la persona eligió
+// un tema, uno solo; si no, uno para cada tema del teléfono.
+$color_claro  = '#FFFFFF';
+$color_oscuro = '#0A1120';
 ?>
 <!doctype html>
-<html lang="es">
+<html lang="es"<?= $tema !== '' ? ' data-tema="' . escapar($tema) . '"' : '' ?>>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#12496B">
+<meta name="color-scheme" content="light dark">
+<?php if ($tema === ''): ?>
+<meta name="theme-color" content="<?= escapar($color_claro) ?>" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="<?= escapar($color_oscuro) ?>" media="(prefers-color-scheme: dark)">
+<?php else: ?>
+<meta name="theme-color" content="<?= escapar($tema === 'oscuro' ? $color_oscuro : $color_claro) ?>">
+<?php endif; ?>
 <title><?= escapar($titulo_pagina) ?> · <?= escapar(SITIO_NOMBRE) ?></title>
 <!-- Ícono propio: sin él, cada navegador pide /favicon.ico, cae en el
      404 y gasta una petición de PHP del tope diario del hosting. -->
 <link rel="icon" href="/recursos/icono.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/recursos/icono-180.png">
 <link rel="stylesheet" href="<?= escapar(recurso('/recursos/estilo.css')) ?>">
 </head>
 <body>
+
+<?php require RAIZ_APP . '/vistas/logo.php'; ?>
 
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 
@@ -57,59 +94,40 @@ $seccion_actual = match (true) {
 
 <header class="barra">
   <div class="barra__interior">
-    <a class="marca" href="/">
-      <span class="marca__icono" aria-hidden="true">
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z"></path>
-          <path d="m9 12 2 2 4-4"></path>
-        </svg>
-      </span>
-      <span class="marca__texto"><?= escapar(SITIO_NOMBRE) ?></span>
-    </a>
+    <?php require RAIZ_APP . '/vistas/marca.php'; ?>
 
     <nav class="navegacion" aria-label="Navegación principal">
-      <!-- Ofertas y verificador van primero y se ven sin cuenta
-           (regla 4). El verificador es la función más útil para quien
-           llega asustado por un mensaje de WhatsApp, así que tiene que
-           estar a la vista en todas las páginas, no escondida. -->
-      <a class="navegacion__enlace" href="/ofertas.php"<?= $seccion_actual === 'ofertas' ? ' aria-current="page"' : '' ?>>
-        <svg class="navegacion__icono" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="M3 13h18"></path></svg>
-        <span>Ofertas</span>
-      </a>
-      <a class="navegacion__enlace" href="/verificador.php"<?= $seccion_actual === 'verificar' ? ' aria-current="page"' : '' ?>>
-        <svg class="navegacion__icono" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path><path d="m8.3 11 1.9 1.9 3.5-3.6"></path></svg>
-        <span>Verificar</span>
-      </a>
-      <a class="navegacion__enlace" href="/alertas.php"<?= $seccion_actual === 'alertas' ? ' aria-current="page"' : '' ?>>
-        <svg class="navegacion__icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
-        <span>Alertas</span>
-      </a>
-
-      <?php if ($usuario === null): ?>
-        <a class="navegacion__enlace" href="/cuenta/entrar.php"<?= $seccion_actual === 'cuenta' ? ' aria-current="page"' : '' ?>>
-          <svg class="navegacion__icono" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"></path></svg>
-          <span>Entrar</span>
+      <!-- Ofertas y verificador se ven sin cuenta (regla 4). El
+           verificador es la función más útil para quien llega asustado
+           por un mensaje de WhatsApp: tiene que estar a la vista en
+           todas las páginas, no escondido. -->
+      <?php foreach ($pestanas as [$seccion, $destino, $dibujo, $corto, $largo]): ?>
+        <a class="navegacion__enlace<?= $seccion === 'inicio' ? ' navegacion__enlace--inicio' : '' ?>" href="<?= escapar($destino) ?>"<?= $seccion_actual === $seccion ? ' aria-current="page"' : '' ?>>
+          <span class="navegacion__icono"><?= icono($dibujo) ?></span>
+          <?php if ($corto === $largo): ?>
+            <span class="navegacion__texto"><?= escapar($corto) ?></span>
+          <?php else: ?>
+            <span class="navegacion__texto navegacion__texto--corto"><?= escapar($corto) ?></span>
+            <span class="navegacion__texto navegacion__texto--largo"><?= escapar($largo) ?></span>
+          <?php endif; ?>
         </a>
-      <?php elseif (es_administrativo()): ?>
-        <a class="navegacion__enlace" href="/admin/index.php"<?= $seccion_actual === 'cuenta' ? ' aria-current="page"' : '' ?>>
-          <svg class="navegacion__icono" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>
-          <span>Panel</span>
-        </a>
-      <?php else: ?>
-        <a class="navegacion__enlace" href="/cuenta/panel.php"<?= $seccion_actual === 'cuenta' ? ' aria-current="page"' : '' ?>>
-          <svg class="navegacion__icono" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"></path></svg>
-          <span>Mi cuenta</span>
-        </a>
-      <?php endif; ?>
+      <?php endforeach; ?>
     </nav>
 
     <div class="barra__acciones">
+      <!-- Lo muestra app.js. El texto dice a qué modo se pasa al tocarlo. -->
+      <button class="boton-tema" type="button" data-tema-boton hidden>
+        <span class="boton-tema__icono boton-tema__icono--luna"><?= icono('luna') ?></span>
+        <span class="boton-tema__icono boton-tema__icono--sol"><?= icono('sol') ?></span>
+        <span class="boton-tema__texto">Modo noche</span>
+      </button>
+
       <?php if ($usuario === null): ?>
-        <a class="boton-barra boton-barra--destacado" href="/cuenta/registrarse.php">Crear cuenta</a>
+        <a class="boton-barra boton-barra--destacado" href="/cuenta/registrarse.php"><?= icono('persona-mas') ?><span class="boton-barra__texto">Crear cuenta</span></a>
       <?php elseif (es_administrativo()): ?>
-        <a class="boton-barra" href="/admin/salir.php">Salir</a>
+        <a class="boton-barra boton-barra--salir" href="/admin/salir.php"><?= icono('salir') ?><span>Salir</span></a>
       <?php else: ?>
-        <a class="boton-barra" href="/cuenta/salir.php">Salir</a>
+        <a class="boton-barra boton-barra--salir" href="/cuenta/salir.php"><?= icono('salir') ?><span>Salir</span></a>
       <?php endif; ?>
     </div>
   </div>

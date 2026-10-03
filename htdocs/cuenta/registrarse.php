@@ -92,11 +92,14 @@ require RAIZ_APP . '/vistas/cabecera.php';
 
 <div class="contenedor contenedor--angosto pila">
 
-  <h1 class="titulo-pagina">Crear mi cuenta</h1>
-  <p class="texto-guia">
-    Solo necesitamos un correo y una contraseña. No pedimos DPI, pasaporte,
-    situación migratoria ni datos bancarios.
-  </p>
+  <div class="acceso__cabeza">
+    <svg class="acceso__logo" viewBox="0 0 120 70" aria-hidden="true" focusable="false"><use href="#mj-marca" xlink:href="#mj-marca"></use></svg>
+    <h1 class="titulo-pagina">Crear mi cuenta</h1>
+    <p class="texto-guia">
+      Solo necesitamos un correo y una contraseña. No pedimos DPI, pasaporte,
+      situación migratoria ni datos bancarios.
+    </p>
+  </div>
 
   <?php if (isset($errores['general'])): ?>
     <p class="aviso aviso--error"><?= escapar($errores['general']) ?></p>
@@ -164,7 +167,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
     </p>
 
     <div class="acciones">
-      <button class="boton boton--principal boton--ancho" type="submit">Crear mi cuenta</button>
+      <button class="boton boton--principal boton--ancho" type="submit"><?= icono('persona-mas') ?> Crear mi cuenta</button>
     </div>
   </form>
 

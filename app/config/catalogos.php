@@ -15,8 +15,11 @@
  */
 
 // =================================================================
-//  Países de destino
-//  Solo los del programa de trabajo temporal y los destinos reales.
+//  Países
+//  Desde el 2026-10-03 las ofertas son de empleo en Guatemala (D-054),
+//  por eso Guatemala va primero. Los demás quedan para las ofertas de
+//  trabajo temporal en el extranjero que pueda traer una fuente
+//  oficial (el Programa de Trabajo Temporal del Ministerio).
 // =================================================================
 const PAISES = [
     'gt' => 'Guatemala',
@@ -67,10 +70,56 @@ const ORDEN_ESTUDIOS = [
 ];
 
 // =================================================================
+//  Departamentos de Guatemala
+//  Dónde es el TRABAJO, nunca de dónde es la persona (D-008, D-057):
+//  el departamento de origen ni siquiera se pregunta (regla 7).
+// =================================================================
+const DEPARTAMENTOS = [
+    'alta_verapaz'   => 'Alta Verapaz',
+    'baja_verapaz'   => 'Baja Verapaz',
+    'chimaltenango'  => 'Chimaltenango',
+    'chiquimula'     => 'Chiquimula',
+    'el_progreso'    => 'El Progreso',
+    'escuintla'      => 'Escuintla',
+    'guatemala'      => 'Guatemala',
+    'huehuetenango'  => 'Huehuetenango',
+    'izabal'         => 'Izabal',
+    'jalapa'         => 'Jalapa',
+    'jutiapa'        => 'Jutiapa',
+    'peten'          => 'Petén',
+    'quetzaltenango' => 'Quetzaltenango',
+    'quiche'         => 'Quiché',
+    'retalhuleu'     => 'Retalhuleu',
+    'sacatepequez'   => 'Sacatepéquez',
+    'san_marcos'     => 'San Marcos',
+    'santa_rosa'     => 'Santa Rosa',
+    'solola'         => 'Sololá',
+    'suchitepequez'  => 'Suchitepéquez',
+    'totonicapan'    => 'Totonicapán',
+    'zacapa'         => 'Zacapa',
+];
+
+// =================================================================
+//  Cómo se postula la persona a una oferta (D-058)
+//  'plataforma': acá, con su consentimiento, y la institución le pasa
+//  el currículum al empleador. 'externa': en la página oficial de la
+//  empresa; la plataforma no recibe ni guarda nada. Si una oferta
+//  tomada de la página de una empresa se postulara por acá, el
+//  currículum quedaría guardado sin que nadie se lo mande a la empresa
+//  (regla 12).
+// =================================================================
+const FORMAS_POSTULACION = [
+    'plataforma' => 'Por esta plataforma (la institución le pasa el currículum al empleador)',
+    'externa'    => 'En la página oficial de la empresa (el enlace de la publicación original)',
+];
+
+// =================================================================
 //  Disponibilidad
+//  Dicho sin "viajar": sirve igual para la oferta ("cuándo hay que
+//  empezar") y para la persona ("desde cuándo podés empezar").
 // =================================================================
 const DISPONIBILIDAD = [
-    'inmediata'   => 'Puedo viajar de inmediato',
+    'inmediata'   => 'De inmediato',
     'un_mes'      => 'En un mes',
     'tres_meses'  => 'En tres meses',
     'a_convenir'  => 'A convenir',

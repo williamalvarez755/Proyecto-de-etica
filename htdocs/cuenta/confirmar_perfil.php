@@ -47,7 +47,8 @@ if ($ya_confirmado) {
     // Primera vez: se propone lo que se pudo leer del currículum.
     $valores = [
         'rubros' => [], 'anios_experiencia' => 0, 'nivel_estudios' => null,
-        'idiomas' => [], 'paises' => [], 'disponibilidad' => null, 'disponible_desde' => '',
+        // Guatemala ya viene marcada: las ofertas son de empleo acá (D-054).
+        'idiomas' => [], 'paises' => ['gt'], 'disponibilidad' => null, 'disponible_desde' => '',
     ];
 
     if ($perfil !== null && $perfil['cv_archivo'] !== null) {
@@ -116,7 +117,7 @@ if (es_post()) {
     }
 
     if ($valores['paises'] === []) {
-        $errores['paises'] = 'Marcá al menos un país al que estarías dispuesto a ir.';
+        $errores['paises'] = 'Marcá al menos un lugar donde podrías trabajar.';
     }
     foreach ($valores['paises'] as $codigo) {
         if (!en_catalogo($codigo, PAISES)) {
@@ -126,7 +127,7 @@ if (es_post()) {
     }
 
     if ($valores['disponibilidad'] === '' || !en_catalogo($valores['disponibilidad'], DISPONIBILIDAD)) {
-        $errores['disponibilidad'] = 'Elegí desde cuándo podrías viajar.';
+        $errores['disponibilidad'] = 'Elegí desde cuándo podrías empezar a trabajar.';
     }
 
     if ($valores['disponible_desde'] !== '' && !es_fecha_valida($valores['disponible_desde'])) {
@@ -233,10 +234,10 @@ require RAIZ_APP . '/vistas/cabecera.php';
     </fieldset>
 
     <fieldset class="campo">
-      <legend class="etiqueta">¿A qué países estarías dispuesto a ir?</legend>
+      <legend class="etiqueta">¿Dónde podrías trabajar?</legend>
       <span class="ayuda">
-        Marcá todos los que te sirvan. Solo preguntamos a dónde querés ir,
-        nunca de dónde sos.
+        Guatemala ya viene marcada. Si también te interesa trabajar en otro país, marcalo.
+        Solo preguntamos dónde podrías trabajar, nunca de dónde sos.
       </span>
       <?php if (isset($errores['paises'])): ?>
         <span class="error-campo"><?= escapar($errores['paises']) ?></span>
@@ -251,7 +252,7 @@ require RAIZ_APP . '/vistas/cabecera.php';
     </fieldset>
 
     <div class="campo">
-      <label class="etiqueta" for="disponibilidad">¿Desde cuándo podrías viajar?</label>
+      <label class="etiqueta" for="disponibilidad">¿Desde cuándo podrías empezar a trabajar?</label>
       <select class="entrada <?= isset($errores['disponibilidad']) ? 'entrada--error' : '' ?>"
               id="disponibilidad" name="disponibilidad" required>
         <option value="">Elegí una opción</option>

@@ -1,4 +1,7 @@
-# CLAUDE.md — Plataforma de ofertas laborales verificadas para personas migrantes y retornadas
+# CLAUDE.md — Mjob for all · Trabajo sin fronteras
+
+**Plataforma de ofertas laborales verificadas para personas migrantes y retornadas.**
+El nombre visible es **Mjob for all**, con el lema **Trabajo sin fronteras** (desde el 2026-10-03, D-050).
 
 > Este archivo es la memoria del proyecto. Se lee al inicio de **cada** sesión.
 > Si una decisión ya está acá, no se vuelve a discutir: se consulta.
@@ -24,6 +27,12 @@ le dice qué oportunidad le sirve a él.
 muestra ofertas que coinciden con lo que sabe hacer, tomadas **únicamente de fuentes verificadas**.
 Además, cualquiera —sin cuenta— puede consultar si un reclutador que lo contactó por fuera está en
 el registro autorizado, y ver las señales de alerta de una estafa.
+
+> **Cambio de rumbo del 2026-10-03 (D-054).** Las ofertas son de **empleo en Guatemala**, para
+> personas que **regresaron** al país (muchas deportadas). El estudiante lo dijo así: "los
+> migrantes ya están acá". El verificador de reclutadores y las señales de estafa se quedan,
+> porque a quien regresa lo vuelven a buscar con ofertas falsas para irse otra vez. El texto de
+> arriba describe el planteamiento original y se deja como historia.
 
 **Población:** personas migrantes guatemaltecas y personas retornadas del occidente del país
 (Huehuetenango, San Marcos, Quiché, Quetzaltenango). Muchas entran desde un celular de gama baja,
@@ -142,6 +151,29 @@ borrar su cuenta), cinco altas y varias medias. Todas corregidas. La interfaz se
 dinámica sin tocar la CSP ni el funcionamiento sin JavaScript (D-048). Quedan seis puntos que
 necesitan una decisión del equipo: sección 4 de `AUDITORIA.md`.
 
+**Rediseño del 2026-10-03** (D-050 a D-053): el sitio pasa a llamarse **Mjob for all · Trabajo
+sin fronteras**, con el logo nuevo redibujado en vector; colores sacados del logo; **modo noche**;
+portada con dos "puertas" (busco trabajo / me ofrecieron un trabajo); "Inicio" en la barra de
+abajo del teléfono; íconos con palabra en toda la interfaz; "Mi cuenta" con accesos que se tocan
+enteros. Se probó **ejecutando** en una copia local con XAMPP (MariaDB 10.4, PHP 8.4): teléfono
+y computadora, claro y oscuro, persona usuaria y administración, sin errores en la consola ni
+choques con la CSP, y la prueba de humo pasa las páginas y cabeceras. En el servidor real todavía
+no se subió: hay que subir los archivos y agregar `SITIO_LEMA` al `config.php` del servidor.
+
+**Empleo en Guatemala, mismo día** (D-054 a D-058): las ofertas pasan a ser de empleo en
+Guatemala para personas retornadas; solo de fuentes oficiales; departamento en cada oferta y
+filtro por departamento; postulación en la página de la empresa cuando la oferta se tomó de ahí;
+y un **primer lote de 6 vacantes reales** (Allied Global e IntouchCX) comprobadas el 2026-10-03
+en sus páginas oficiales, en `sql/ofertas_reales_2026-10-03.sql`, que **vencen solas el
+2026-11-02**. Se probó ejecutando: migración sobre la base vieja y esquema nuevo desde cero, el
+lote corrido dos veces sin duplicar, el filtro, la página de la oferta, el bloqueo de la
+postulación interna, el formulario del panel y la importación por CSV con el formato nuevo.
+
+**Lo que esto NO resuelve, dicho claro:** no existe una fuente legal y automática de vacantes en
+Guatemala (ver la sección 6). Mientras no haya un convenio (`documentos/carta_convenio.md`), las
+ofertas nuevas las tiene que buscar y comprobar una persona, y el lote actual se vence el
+2026-11-02.
+
 ### Pendientes de verificar en el servidor real (bloquean decisiones)
 
 - [ ] Versión de **MySQL / MariaDB** que reporta el panel de InfinityFree.
@@ -160,6 +192,16 @@ necesitan una decisión del equipo: sección 4 de `AUDITORIA.md`.
       `REGISTRO_MAX_POR_IP = 3` se cierra el registro para todos a la cuarta cuenta del día.
       En la auditoría se comprobó que la cuarta se rechaza. Ver D1 en `AUDITORIA.md`.
 - [ ] Correr `sql/migracion_001.sql` si la base del servidor es anterior al 2026-10-01.
+- [ ] Correr `sql/migracion_002.sql` (departamento, forma de postularse y el oficio "Atención al
+      cliente y call center") si la base es anterior al 2026-10-03.
+- [ ] Importar `sql/ofertas_reales_2026-10-03.sql` **antes del 2026-11-02** (después no carga
+      nada, a propósito). Y no importar `datos_prueba.sql` en el servidor: sus ofertas de EJEMPLO
+      son en el extranjero y confundirían ahora que el sitio es de empleo en Guatemala.
+- [ ] Mandar la carta de `documentos/carta_convenio.md` al Ministerio de Trabajo y a la OIM.
+- [x] ~~Para la demostración: importar `sql/datos_prueba.sql`~~ **Superado el mismo día** por el
+      lote de ofertas reales (abajo). El archivo sigue sirviendo para probar en una copia local
+      (se puede correr más de una vez: borra lo de EJEMPLO y lo vuelve a cargar). Si ya se importó
+      en el servidor, se borra con las tres líneas del final del archivo.
 - [ ] `python herramientas/prueba_de_humo.py https://...` termina en "todo en orden".
 
 Las cuatro primeras y la de la IP las contesta `htdocs/diagnostico.php`, que se sube, se lee una
@@ -314,7 +356,11 @@ cambió: el historial de por qué algo cambió vale tanto como la decisión actu
   que a esa persona se le ocurriera salir. Cuesta una consulta y compra que las bajas sean
   inmediatas.
 
-### D-015 · 2026-09-03 · Dirección visual: "institucional cálido" · VIGENTE
+### D-015 · 2026-09-03 · Dirección visual: "institucional cálido" · PARCIALMENTE SUPERADA POR D-050
+
+> **Nota del 2026-10-03:** la paleta (papel cálido, azul `#12496B`) se reemplazó por la del logo
+> de Mjob (D-050). Lo demás sigue vigente sin cambios: verde solo para "origen verificado", cero
+> urgencia, tipografías del sistema, cuerpo de 17px, botones de 48px, todo desde variables.
 
 - **Decisión:** papel claro cálido, azul profundo de documento oficial, verde reservado
   **únicamente** para el sello de verificación, tipografías del sistema, cuerpo de 17px, botones de
@@ -697,6 +743,187 @@ cambió: el historial de por qué algo cambió vale tanto como la decisión actu
   navegador") dependía de que alguien se acordara.
 - **Lo siguiente:** pruebas de flujo completas en GitHub Actions (idea 3 de `AUDITORIA.md`).
 
+### D-050 · 2026-10-03 · Identidad Mjob: nombre, logo y colores del logo · VIGENTE
+
+- **Decisión:** el sitio se llama **Mjob for all**, con el lema **Trabajo sin fronteras**. Los dos
+  salen de `SITIO_NOMBRE` y `SITIO_LEMA` en `config.php`; si falta `SITIO_LEMA`, `inicio.php` lo
+  define vacío y el sitio arranca igual. `app/vistas/marca.php` (una sola pieza para la barra y el
+  pie) lo dibuja como el logo: la primera palabra en negrita con la M en el azul del logo
+  (`::first-letter`), y el resto ("for all") más delgado. El nombre sigue siendo uno solo y
+  editable.
+- **Corrección del mismo día:** primero se había puesto solo "Mjob". El nombre correcto, confirmado
+  por el estudiante, es "Mjob for all". Al ser más largo, en teléfonos de menos de 360 px el botón
+  "Crear cuenta" de la barra queda solo con su dibujo (la palabra sigue para el lector de
+  pantalla); se midió sin desborde en 320, 360, 768 y 1024 px.
+- **El logo:** el original (`marca/mjob-logo-original.png`, 1254×1254, 495 KB) se redibujó en
+  vector en `app/vistas/logo.php`: la M, la estela con el avión y la persona. Pesa poco más de
+  1 KB y va dentro del HTML (cero peticiones). Se dibuja una vez por página como `<symbol>` y se
+  usa con `<use href="#mj-marca">` en la barra, el pie y las pantallas de entrar y crear cuenta.
+  Sus colores son variables CSS (`--logo-*`), así que en modo noche se aclara (el azul marino del
+  original desaparecería sobre fondo oscuro). El favicon (`icono.svg`) es la M blanca sobre el
+  degradado; `icono-180.png` (17 KB, para "agregar a la pantalla de inicio" en iPhone) se generó
+  del dibujo original.
+- **Colores:** los del logo. El azul vivo de la M (`#0A74EC`) es `--marca`; para botones y
+  enlaces se usa un punto más oscuro (`#0A66D8`), porque el de la M sobre blanco no llega al
+  contraste mínimo para letra chica (4,45:1 contra 4,5:1). Fondo azul grisáceo muy claro en
+  lugar del papel cálido, porque el logo es frío y los dos juntos peleaban.
+- **Lo que NO cambió de D-015, a propósito:** el verde sigue significando SOLO "origen
+  verificado"; nada de rojo de urgencia, contadores ni animaciones que apuren.
+- **Un riesgo que hay que tener presente:** un avión y "sin fronteras" se parecen a la estética
+  de los anuncios que prometen viajes. Se compensa así: el lema nunca va solo; en la portada va
+  justo encima de "Antes de creerle a una oferta de trabajo, revisá de dónde viene", y en el pie
+  junto a "no consigue trabajo, no gestiona trámites, no cobra dinero" (regla 12). Si la
+  institución que reciba el proyecto ve que la gente lo lee como promesa de viaje, el lema se
+  cambia en `config.php` sin tocar código.
+- **Alternativas descartadas:** usar el PNG original (495 KB por página para una persona con
+  datos contados, y no se puede aclarar en modo noche); una versión PNG chica (sigue sin
+  adaptarse al modo noche y suma una petición por página); cargar una fuente parecida a la del
+  logo (dependería de un servidor externo, regla 11, o sumaría archivos pesados).
+
+### D-051 · 2026-10-03 · Modo noche: lo decide PHP con una cookie, no JavaScript al cargar · VIGENTE
+
+- **Decisión:** si la persona nunca tocó el botón, se sigue lo que diga su teléfono
+  (`prefers-color-scheme`). Si lo tocó, `app.js` guarda una cookie `tema=claro|oscuro` y en las
+  páginas siguientes PHP pone `<html data-tema="...">` (`tema_elegido()` en `salida.php`).
+- **Por qué PHP y no `localStorage`:** la CSP prohíbe JavaScript dentro del HTML, así que el
+  tema solo se podría aplicar cuando carga `app.js`, al final de la página: cada página
+  aparecería blanca y después se oscurecería. Un destello de luz es justo lo que no quiere quien
+  eligió el modo noche. Con la cookie, la página llega ya con sus colores.
+- **La cookie:** dice "claro" u "oscuro" y nada más. No identifica a nadie, es `SameSite=Lax`,
+  `Secure` en HTTPS, dura un año, y PHP solo acepta esos dos valores (cualquier otro se ignora).
+  Se le cuenta a la persona en "Qué guardamos de vos".
+- **El botón** existe en el HTML con `hidden`, y solo `app.js` lo muestra: sin JavaScript no
+  podría funcionar, y la regla del proyecto es que no haya botones que no hacen nada. Muestra la
+  luna en claro y el sol en oscuro (a dónde te lleva); la palabra queda para el lector de
+  pantalla y como globito, porque en la barra del teléfono no entra.
+- **Los colores del modo noche** están DOS veces en `estilo.css` (una para el teléfono, otra para
+  la elección con el botón), porque CSS no deja compartir un bloque entre una consulta de medios
+  y un selector. Si se cambia un color, se cambia en los dos. Ningún componente escribe un color
+  a mano; la hoja del currículum armado es la excepción a propósito: es papel, sale blanca.
+
+### D-052 · 2026-10-03 · Los íconos son SVG dentro del HTML, desde una sola función · VIGENTE
+
+- **Decisión:** `icono('nombre')` en `app/nucleo/iconos.php` devuelve el dibujo desde una lista
+  fija (`ICONOS`). Ninguna página escribe un `<svg>` de ícono a mano.
+- **Por qué:** sin descargas aparte (cuidan datos y el tope de peticiones), toman el color del
+  texto (cambian solos con el modo noche) y hay un solo lugar donde están. Siempre son
+  decorativos (`aria-hidden`): al lado va la palabra.
+- **Seguridad:** el nombre lo escribe el código; si no existe, devuelve vacío. Por eso
+  `revision_seguridad.py` acepta `icono(` como salida segura aunque reciba una variable.
+- **Descartado:** una fuente de íconos o una librería externa (regla 11, y más archivos); un
+  archivo `.svg` con todos los dibujos (una petición más por página).
+
+### D-053 · 2026-10-03 · La portada abre con dos puertas, cada una con su buscador · VIGENTE
+
+- **Decisión:** arriba de todo, dos tarjetas con palabras de todos los días: **"Busco trabajo"**
+  (buscador de ofertas) y **"Me ofrecieron un trabajo"** (el verificador). Cada una trae su caja
+  de búsqueda adentro.
+- **Qué cambió:** antes el verificador iba primero y solo, porque quien llega asustada por un
+  mensaje de WhatsApp no tiene que pasar por otra pantalla para comprobarlo. Eso se mantiene: el
+  verificador sigue en la portada, con su caja, sin un clic de más. Lo que se agregó es la otra
+  mitad: la persona que entra a buscar trabajo ahora también ve su camino de entrada, en lugar
+  de un párrafo y un botón.
+- **Navegación:** en el teléfono la barra de abajo suma "Inicio" (cinco pestañas con ícono y
+  palabra). En pantalla ancha "Inicio" no va, porque el logo lleva al inicio y sin él entra todo;
+  las palabras largas ("Verificar reclutador", "Señales de estafa") solo desde 1280 px.
+- **"Mi cuenta":** los accesos son mosaicos con ícono que se tocan enteros, en lugar de tarjetas
+  con párrafo y botón. Cada pantalla de la cuenta abre con el mismo ícono que tiene su mosaico,
+  para que la persona reconozca dónde está.
+
+### D-054 · 2026-10-03 · Las ofertas son de empleo en Guatemala, para quien regresó · VIGENTE
+
+- **Decisión:** el centro de la plataforma pasa a ser el **empleo en Guatemala** para personas
+  retornadas. Las ofertas en el extranjero no se eliminan del sistema (el país sigue siendo un
+  campo), pero ya no son el objetivo.
+- **Por qué:** lo pidió el estudiante con una razón que pesa: la población a la que apunta el
+  proyecto ya está acá, deportada o de regreso. Mostrarle ofertas para irse otra vez no es lo
+  que necesita, y es justo el terreno donde operan las estafas.
+- **Qué se mantiene:** el verificador de reclutadores y las señales de estafa. A quien regresa lo
+  buscan con ofertas falsas para volver a migrar; comprobar antes sigue siendo la función que
+  más protege.
+- **Qué cambió en pantalla:** portada ("Si regresaste a Guatemala y buscás trabajo…", sin la
+  palabra "deportado", que estigmatiza), buscador, perfil (Guatemala ya viene marcada; "¿Dónde
+  podrías trabajar?" y "¿Desde cuándo podrías empezar?" en lugar de "ir" y "viajar") y el
+  emparejamiento ("Es en Guatemala, donde dijiste que podés trabajar").
+- **Lo que se dejó de usar:** Adzuna (D-004) no cubre Guatemala, y las ofertas H-2A/H-2B del
+  Departamento de Trabajo de EE. UU. (que se investigaron ese mismo día y tienen datos abiertos
+  oficiales) son para irse. El mecanismo de D-004 (CSV preparado afuera e importado) sigue
+  vigente para cualquier fuente oficial.
+
+### D-055 · 2026-10-03 · Solo fuentes oficiales; nada se publica solo · VIGENTE
+
+- **Lo que se pidió:** que las ofertas se publicaran y actualizaran solas, sin un empleado que
+  las revise, conectando LinkedIn u otras plataformas.
+- **Lo que se le explicó al estudiante antes de decidir:** (1) LinkedIn queda descartado (D-001);
+  (2) Computrabajo, Tecoloco, Indeed y Jooble prohíben copiar sus ofertas y en Guatemala obtener
+  datos de una base sin autorización es delito (Código Penal, art. 274F); (3) si las empresas
+  publicaran solas sin que nadie las revise, cualquier estafador podría crear una "empresa" y su
+  oferta saldría con nuestro sello, frente a personas recién deportadas; (4) en este hosting no
+  hay forma automática de comprobar que una empresa existe (sin correo, sin SAT, sin conexiones
+  salientes confiables).
+- **Opciones que se le ofrecieron:** verificar cada empresa una sola vez y después publicar sus
+  ofertas solas; publicar sin verificar con una etiqueta "no verificada"; o solo fuentes
+  oficiales.
+- **Lo que decidió el estudiante:** **solo fuentes oficiales**: ofertas que ya verificó el
+  Ministerio de Trabajo o la OIM (por convenio), o que publica la propia empresa en su página
+  oficial y alguien comprobó. **No se construyó** el formulario para que las empresas publiquen.
+- **Consecuencia que hay que tener presente:** sin convenio, las ofertas nuevas las busca y
+  comprueba una persona. Por eso existe `documentos/carta_convenio.md`. La actualización
+  automática de verdad necesita dos cosas que hoy no hay: un convenio con una fuente oficial y un
+  servidor con tareas programadas (ver `TRASPASO.md`).
+
+### D-056 · 2026-10-03 · El primer lote lo comprobó el asistente y se aprueba al importarlo · VIGENTE
+
+- **Decisión:** 6 vacantes reales (Allied Global e IntouchCX), comprobadas el 2026-10-03 en las
+  páginas oficiales de cada empresa con las mismas cinco comprobaciones de D-017, entran
+  **publicadas** con `sql/ofertas_reales_2026-10-03.sql`. Quedan atribuidas al primer
+  superadministrador, que las aprueba al correr el archivo, y en la bitácora queda escrito qué se
+  comprobó, cuándo y que lo hizo el asistente.
+- **Por qué es una excepción a D-017 y D-021, y por qué se aceptó:** la verificación sí se hizo,
+  una por una, contra la fuente oficial; lo distinto es quién la hizo. El estudiante lo pidió
+  así, sabiendo que no tiene quién revise. Queda registrado para que nadie lo confunda con un
+  atajo general: el panel y la importación por CSV siguen sin poder crear ofertas verificadas.
+- **Fechas fijas a propósito:** "se revisó el" dice 2026-10-03 aunque se importe después, y todas
+  vencen el 2026-11-02. Si el archivo se corre después de esa fecha, no carga nada. **No se
+  renueva cambiando la fecha:** una vacante de hace un mes puede ya no existir; hay que volver a
+  comprobarla.
+- **Lo que se descartó en la búsqueda:** Concentrix (su portal no deja filtrar Guatemala de forma
+  confiable), Walmart "Martes de Oportunidades" (la página oficial de la campaña da error 404 y el
+  anuncio es de julio de 2025: no se pudo confirmar que siga), la "Academia" de Allied Global (es
+  un curso, no un trabajo), y las vacantes que piden "6 meses de experiencia" (el sistema cuenta
+  años: cargarlas diría "no se pide experiencia" o "1 año", y las dos cosas son falsas).
+
+### D-057 · 2026-10-03 · Departamento en las ofertas, no en el perfil · VIGENTE
+
+- **Decisión:** `ofertas.departamento_codigo` (los 22 departamentos, en `DEPARTAMENTOS`).
+  Obligatorio si el trabajo es en Guatemala. El buscador filtra por departamento, y la tarjeta dice
+  "Melchor de Mencos, Petén" (`lugar_de_oferta()`).
+- **Por qué no en el perfil:** se le preguntó al estudiante y eligió "solo en las ofertas". Para
+  mucha gente, el departamento donde podría trabajar coincide con el de origen, que la regla 7
+  prohíbe recolectar (D-008). La persona filtra por departamento cuando busca; el sistema no
+  guarda nada de eso sobre ella.
+
+### D-058 · 2026-10-03 · Postulación en la página de la empresa · VIGENTE
+
+- **Decisión:** `ofertas.forma_postulacion`: `plataforma` (como hasta ahora: consentimiento y la
+  institución le pasa el currículum al empleador) o `externa` (el botón lleva a la página oficial
+  de la empresa y dice a qué dirección lleva).
+- **Por qué:** si una oferta tomada de la página de una empresa se postulara por acá, el
+  currículum quedaría guardado y nadie se lo mandaría a la empresa: prometer algo que no se
+  cumple (regla 12) y guardar datos sin razón (regla 4).
+- **Se comprueba en el servidor** (regla 5): `cuenta/postular.php` rechaza las externas aunque se
+  escriba la dirección a mano, y una externa no se puede publicar sin una dirección válida.
+
+### D-059 · 2026-10-03 · Oficio "Atención al cliente y call center" y disponibilidad sin "viajar" · VIGENTE
+
+- **Decisión:** se agrega el rubro `atencion_cliente` (es uno de los tres sectores que más
+  contratan a personas retornadas, junto con construcción y carpintería) y la disponibilidad
+  pasa a decir "De inmediato" en lugar de "Puedo viajar de inmediato", porque sirve igual para la
+  oferta y para la persona.
+- **Detalle:** `fgetcsv()` y `fputcsv()` llevan sus cuatro parámetros escritos: en PHP 8.4 omitir
+  `$escape` da un aviso que el manejador de errores convierte en error. En el servidor (8.3) no
+  pasaba todavía; en la copia local (8.4) rompía la importación.
+
 ---
 
 ## 6. Cosas que ya se intentaron y no funcionaron
@@ -733,6 +960,47 @@ cambió: el historial de por qué algo cambió vale tanto como la decisión actu
 - **Qué se hace:** revisar cada llave por su nombre, y que todo control sepa decir `[X]`. Y la
   lección de fondo: leer el código no reemplaza ejecutarlo (D-049).
 
+### 2026-10-03 · Buscar una fuente automática de empleos en Guatemala
+
+- **Qué se intentó:** encontrar una API o un conjunto de datos abiertos con vacantes en Guatemala,
+  para conectarlo y que se actualice solo.
+- **Lo que se encontró, fuente por fuente:**
+  - *LinkedIn:* descartado desde D-001.
+  - *Tu Empleo (Ministerio de Trabajo):* la mejor fuente posible, pero está detrás de una
+    verificación anti-robots de Cloudflare. No se intentó saltarla: hacerlo viola la regla 3.
+  - *Computrabajo:* responde 403 a los programas. *Tecoloco, Indeed:* sus términos prohíben
+    copiar. *Jooble:* sus términos prohíben republicar sin permiso escrito; su API es para socios
+    y no se pudo confirmar que cubra Guatemala.
+  - *Adzuna:* no cubre Guatemala.
+  - *Departamento de Trabajo de EE. UU. (seasonaljobs.dol.gov):* tiene datos abiertos oficiales
+    y diarios, pero son ofertas para irse (H-2A, H-2B). Útil si algún día se vuelven a mostrar
+    ofertas en el extranjero: el formato está en seasonaljobs.dol.gov/feeds.
+  - *Quioscos y ferias del Ministerio:* oficiales, pero son eventos de un día que la prensa
+    publica casi siempre después.
+  - *Páginas oficiales de las empresas:* sí sirven, una por una. De ahí sale el primer lote.
+- **La lección:** en Guatemala no hay una fuente legal que se pueda conectar sola. Lo que se
+  puede automatizar es lo que una institución acepte compartir: de ahí la carta de convenio.
+
+### 2026-10-03 · El vidrio esmerilado en la barra de arriba
+
+- **Qué se intentó:** `backdrop-filter: blur()` en `.barra`, para que el contenido se vea
+  borroso detrás de la barra al bajar.
+- **Por qué no sirve:** un `backdrop-filter` convierte al elemento en el marco de referencia de
+  todo lo que tiene adentro con `position: fixed`. La barra de pestañas del teléfono vive
+  dentro de `.barra`, y en lugar de quedar pegada abajo de la pantalla quedó pegada arriba,
+  tapando el logo. Solo se vio al probar en el navegador.
+- **Qué se hace:** el efecto existe solo desde 48rem, donde la navegación no es fija. En el
+  teléfono la barra es de color sólido (que además es más barato para un teléfono de gama baja).
+
+### 2026-10-03 · Poner las palabras largas del menú en cualquier pantalla ancha
+
+- **Qué se intentó:** "Verificar reclutador" y "Señales de estafa" desde 1024 px.
+- **Por qué no sirve:** a 1024 px la barra no entraba y aparecía desplazamiento horizontal en
+  todo el sitio.
+- **Qué se hace:** palabras cortas hasta 1280 px, y se midió con JavaScript que el contenido no
+  sea más ancho que la pantalla a 768, 1024 y 1280 px. Si se agrega una pestaña, hay que volver
+  a medir.
+
 ### 2026-09-08 · Escribir archivos largos con heredoc desde la terminal
 
 - **Qué se intentó:** crear el `CLAUDE.md` inicial con `cat > archivo <<'FIN'`.
@@ -764,6 +1032,7 @@ cambió: el historial de por qué algo cambió vale tanto como la decisión actu
 app/config/     configuración y catálogos      app/vistas/    plantillas de pantalla
 app/nucleo/     primitivas compartidas         app/almacen/   datos (CV, logs, respaldos)
 app/modelos/    consultas SQL por entidad      htdocs/        lo único público
+marca/          el logo original (no se sube al servidor)
 ```
 
 **Toda página empieza igual**, y con eso ya tiene sesión segura, cabeceras, manejo de errores,
@@ -783,7 +1052,10 @@ Tener dos maneras de comprobar lo mismo es como aparecen los huecos.
 |---|---|---|
 | `nucleo/autorizacion.php` | `requerir_sesion()`, `requerir_administrativo()`, `requerir_permiso()`, `requerir_superadministrador()`, `tiene_permiso()`, `usuario_actual()` | **Regla 5.** Único lugar donde se decide quién puede hacer qué |
 | `nucleo/csrf.php` | `campo_csrf()`, `validar_csrf()` | Token de formularios. La validación es automática (D-011); en el formulario solo hay que poner `campo_csrf()` |
-| `nucleo/salida.php` | `escapar()`, `ahora()`, `fecha_en_palabras()`, `guardar_mensaje()`, `guardar_mensaje_si_no_hay()`, `recurso()` | Imprimir sin XSS, fechas del sistema, avisos después de redirigir, CSS y JS con versión |
+| `nucleo/salida.php` | `escapar()`, `ahora()`, `fecha_en_palabras()`, `guardar_mensaje()`, `guardar_mensaje_si_no_hay()`, `recurso()`, `tema_elegido()` | Imprimir sin XSS, fechas del sistema, avisos después de redirigir, CSS y JS con versión, modo noche elegido (D-051) |
+| `nucleo/iconos.php` | `icono()` | Todos los íconos de la interfaz, de una lista fija (D-052). Nunca un `<svg>` de ícono escrito a mano |
+| `vistas/logo.php` | *(lo incluye la cabecera)* | El logo de Mjob en vector, una vez por página. Se usa con `<use href="#mj-marca">` (D-050) |
+| `vistas/marca.php` | *(se incluye)* | Logo + nombre + lema, igual en la barra y en el pie. El nombre se escribe solo acá |
 | `nucleo/bd.php` | `consultar()`, `consultar_una()`, `consultar_todas()`, `consultar_valor()`, `consultar_paginado()`, `parametros_de_texto()` | Todas las consultas, siempre preparadas. Ni una concatenación de SQL. **Nunca repetir un parámetro con nombre** |
 | `nucleo/validacion.php` | `es_correo_valido()`, `en_catalogo()`, `id_valido()`, `revisar_contrasena()`, `normalizar_nombre()` | Validar en el servidor lo que llega del usuario |
 | `nucleo/peticion.php` | `es_post()`, `campo()`, `campo_crudo()`, `ip_cliente()`, `redirigir()`, `abortar()` | Lo que viene del navegador y a dónde se manda después |
@@ -792,7 +1064,7 @@ Tener dos maneras de comprobar lo mismo es como aparecen los huecos.
 | `nucleo/sesion.php` | `iniciar_sesion_de_usuario()`, `cerrar_sesion()`, `renovar_sello_de_clave()` | Sesión segura, expiración, inicio de sesión, y cierre de las otras sesiones al cambiar la contraseña (D-047) |
 | `nucleo/codigos.php` | `generar_codigo()`, `generar_contrasena_temporal()` | Códigos aleatorios seguros y legibles al dictarlos |
 | `modelos/usuarios.php` | `autenticar()`, `crear_usuario()`, `cambiar_contrasena()`, `desactivar_usuario()`, `es_correo_administrativo()`, `hash_de_relleno()` | Todo lo que toca la tabla `usuarios` |
-| `modelos/ofertas.php` | `listar_ofertas_publicas()`, `buscar_oferta_publica()`, `crear_oferta()`, `transicion_permitida()`, `motivo_para_no_publicar()`, `marcar_verificada()`, `parametros_oferta_publica()`, `ofertas_publicadas_con_reclutador_no_vigente()` | Ofertas y su ciclo de vida. Contiene `CONDICION_OFERTA_PUBLICA`, que es la regla 1 escrita una sola vez. Toda consulta que la use pasa `parametros_oferta_publica()` |
+| `modelos/ofertas.php` | `listar_ofertas_publicas()`, `buscar_oferta_publica()`, `crear_oferta()`, `transicion_permitida()`, `motivo_para_no_publicar()`, `marcar_verificada()`, `parametros_oferta_publica()`, `ofertas_publicadas_con_reclutador_no_vigente()`, `lugar_de_oferta()` | Ofertas y su ciclo de vida. Contiene `CONDICION_OFERTA_PUBLICA`, que es la regla 1 escrita una sola vez. Toda consulta que la use pasa `parametros_oferta_publica()` |
 | `modelos/fuentes.php` | `listar_fuentes()`, `crear_fuente()`, `cambiar_estado_fuente()` | De dónde salió cada oferta |
 | `modelos/reclutadores.php` | `listar_reclutadores()`, `reclutador_vigente_hoy()`, `agregar_alias()` | El registro del Ministerio. Alimenta el verificador de la Fase 5 |
 | `modelos/rubros.php` | `listar_rubros()`, `rubro_valido()`, `id_de_rubro()` | Los oficios |
@@ -829,6 +1101,17 @@ Tener dos maneras de comprobar lo mismo es como aparecen los huecos.
   | `data-igual-a="id"` en la confirmación | Si coincide con el campo `id` |
   | `data-max-bytes` en el `<input type="file">` de `.zona-archivo` | Avisa antes de subir si pesa de más |
   | `data-compartir-url` en `.compartir` | Agrega "Copiar el enlace" y el menú de compartir del teléfono |
+  | `data-tema-boton` en el botón de la cabecera | Lo muestra y lo hace cambiar entre modo día y modo noche (D-051) |
+
+- **Cada pantalla principal abre con `.cabeza`**: un `.cabeza__icono` con el mismo ícono que
+  tiene esa sección en el menú o en "Mi cuenta", y al lado el título y la guía. Así la persona
+  reconoce dónde está sin leer.
+- **Componentes del rediseño** (D-050 a D-053): `.portada` y `.puerta` (portada), `.chip`
+  (país, oficio), `.oferta__datos` (datos con ícono en la tarjeta), `.detalle` (página de una
+  oferta en dos columnas), `.datos-oferta` y `.dato`, `.mosaicos` y `.mosaico` (accesos de "Mi
+  cuenta"), `.acceso__cabeza` (entrar y crear cuenta), `.lista-iconos`, `.vacio__icono`.
+- **Ningún color escrito a mano en un componente**: siempre una variable del bloque de arriba de
+  `estilo.css`, o el modo noche deja de funcionar ahí.
 
 ---
 

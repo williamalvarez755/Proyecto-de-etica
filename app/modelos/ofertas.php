@@ -101,6 +101,11 @@ function filtros_de_busqueda(array $filtros): array
         $parametros[':pais'] = $filtros['pais'];
     }
 
+    if (!empty($filtros['departamento'])) {
+        $condiciones[] = 'o.departamento_codigo = :departamento';
+        $parametros[':departamento'] = $filtros['departamento'];
+    }
+
     if (!empty($filtros['dias'])) {
         $condiciones[] = 'o.fecha_publicacion >= :desde_fecha';
         $parametros[':desde_fecha'] = date('Y-m-d', time() - ((int) $filtros['dias'] * 86400));
@@ -119,6 +124,31 @@ function filtros_de_busqueda(array $filtros): array
     $sql = $condiciones === [] ? '' : ' AND ' . implode(' AND ', $condiciones);
 
     return [$sql, $parametros];
+}
+
+
+/**
+ * Dónde es el trabajo, en palabras: "Ciudad de Guatemala, Guatemala",
+ * "Melchor de Mencos, Petén", "Kelowna, Canadá".
+ *
+ * En Guatemala se dice el departamento (D-057) y no se repite el país,
+ * porque todas las ofertas de la plataforma son de acá salvo que digan
+ * otra cosa. Afuera se dice el país.
+ */
+function lugar_de_oferta(array $oferta): string
+{
+    $partes = [];
+    if (!empty($oferta['ciudad'])) {
+        $partes[] = $oferta['ciudad'];
+    }
+
+    if ($oferta['pais_codigo'] === 'gt' && !empty($oferta['departamento_codigo'])) {
+        $partes[] = DEPARTAMENTOS[$oferta['departamento_codigo']] ?? $oferta['departamento_codigo'];
+    } else {
+        $partes[] = PAISES[$oferta['pais_codigo']] ?? $oferta['pais_codigo'];
+    }
+
+    return implode(', ', $partes);
 }
 
 
@@ -245,11 +275,12 @@ function crear_oferta(array $datos, ?int $admin_id): int
 {
     consultar(
         'INSERT INTO ofertas
-            (titulo, descripcion, empleador, reclutador_id, fuente_id, pais_codigo, ciudad,
-             rubro_id, requisitos, experiencia_anios_min, estudios_min, disponibilidad_requerida,
-             salario_texto, url_original, estado, fecha_publicacion, fecha_vencimiento,
+            (titulo, descripcion, empleador, reclutador_id, fuente_id, pais_codigo,
+             departamento_codigo, ciudad, rubro_id, requisitos, experiencia_anios_min,
+             estudios_min, disponibilidad_requerida, salario_texto, url_original,
+             forma_postulacion, estado, fecha_publicacion, fecha_vencimiento,
              creada_por, creado_en)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         [
             $datos['titulo'],
             $datos['descripcion'],
@@ -257,6 +288,7 @@ function crear_oferta(array $datos, ?int $admin_id): int
             $datos['reclutador_id'] ?: null,
             $datos['fuente_id'],
             $datos['pais_codigo'],
+            ($datos['departamento_codigo'] ?? '') ?: null,
             $datos['ciudad'] ?: null,
             $datos['rubro_id'],
             $datos['requisitos'] ?: null,
@@ -265,6 +297,7 @@ function crear_oferta(array $datos, ?int $admin_id): int
             $datos['disponibilidad_requerida'],
             $datos['salario_texto'] ?: null,
             $datos['url_original'] ?: null,
+            ($datos['forma_postulacion'] ?? '') ?: 'plataforma',
             'pendiente',
             $datos['fecha_publicacion'] ?: null,
             $datos['fecha_vencimiento'] ?: null,
@@ -294,9 +327,10 @@ function actualizar_oferta(int $id, array $datos): bool
     consultar(
         'UPDATE ofertas
          SET titulo = ?, descripcion = ?, empleador = ?, reclutador_id = ?, fuente_id = ?,
-             pais_codigo = ?, ciudad = ?, rubro_id = ?, requisitos = ?,
+             pais_codigo = ?, departamento_codigo = ?, ciudad = ?, rubro_id = ?, requisitos = ?,
              experiencia_anios_min = ?, estudios_min = ?, disponibilidad_requerida = ?,
-             salario_texto = ?, url_original = ?, fecha_publicacion = ?, fecha_vencimiento = ?,
+             salario_texto = ?, url_original = ?, forma_postulacion = ?,
+             fecha_publicacion = ?, fecha_vencimiento = ?,
              actualizado_en = ?
          WHERE id = ?',
         [
@@ -306,6 +340,7 @@ function actualizar_oferta(int $id, array $datos): bool
             $datos['reclutador_id'] ?: null,
             $datos['fuente_id'],
             $datos['pais_codigo'],
+            ($datos['departamento_codigo'] ?? '') ?: null,
             $datos['ciudad'] ?: null,
             $datos['rubro_id'],
             $datos['requisitos'] ?: null,
@@ -314,6 +349,7 @@ function actualizar_oferta(int $id, array $datos): bool
             $datos['disponibilidad_requerida'],
             $datos['salario_texto'] ?: null,
             $datos['url_original'] ?: null,
+            ($datos['forma_postulacion'] ?? '') ?: 'plataforma',
             $datos['fecha_publicacion'] ?: null,
             $datos['fecha_vencimiento'] ?: null,
             ahora(),
@@ -403,6 +439,12 @@ function motivo_para_no_publicar(array $oferta): ?string
     }
     if (empty($oferta['fuente_id'])) {
         return 'Le falta la fuente, y toda oferta tiene que mostrar de dónde salió.';
+    }
+    // D-058: si la persona se postula en la página de la empresa, esa
+    // página tiene que existir. Si no, el botón no llevaría a ningún lado.
+    if (($oferta['forma_postulacion'] ?? 'plataforma') === 'externa'
+        && !url_segura((string) ($oferta['url_original'] ?? ''))) {
+        return 'Se postula en la página de la empresa, pero le falta esa dirección (o no es válida).';
     }
     // D-020 y D-045: el reclutador pudo perder la autorización entre
     // que se verificó la oferta y ahora.

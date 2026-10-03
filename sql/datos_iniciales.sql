@@ -89,5 +89,6 @@ INSERT INTO rubros (codigo, nombre, activo, orden) VALUES
 ('cuidado_personas',       'Cuidado de personas',                1, 120),
 ('transporte',             'Transporte y pilotaje',              1, 130),
 ('comercio',               'Comercio y ventas',                  1, 140),
+('atencion_cliente',       'Atención al cliente y call center',  1, 145),
 ('seguridad',              'Seguridad',                          1, 150),
 ('otros',                  'Otro oficio',                        1, 900);

@@ -38,12 +38,15 @@ require RAIZ_APP . '/vistas/cabecera.php';
 
 <div class="contenedor pila-grande">
 
-  <section class="pila">
-    <h1 class="titulo-pagina">Mis postulaciones</h1>
-    <p class="texto-guia">
-      Acá está cada oferta con la que autorizaste compartir tu currículum, y en qué momento
-      lo hiciste.
-    </p>
+  <section class="cabeza">
+    <span class="cabeza__icono"><?= icono('enviar') ?></span>
+    <div>
+      <h1 class="titulo-pagina">Mis postulaciones</h1>
+      <p class="texto-guia">
+        Acá está cada oferta con la que autorizaste compartir tu currículum, y en qué momento
+        lo hiciste.
+      </p>
+    </div>
   </section>
 
   <?php if ($postulaciones === []): ?>

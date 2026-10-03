@@ -1,7 +1,10 @@
-# Plataforma de ofertas laborales verificadas
+# Mjob for all · Trabajo sin fronteras
 
-Ofertas de trabajo en el extranjero con **origen verificado**, para personas migrantes
-guatemaltecas y personas retornadas del occidente del país.
+Plataforma de ofertas de trabajo en el extranjero con **origen verificado**, para personas
+migrantes guatemaltecas y personas retornadas del occidente del país.
+
+El logo original está en `marca/mjob-logo-original.png`. El sitio usa un redibujo en vector
+(`app/vistas/logo.php`), que pesa poco y cambia de color en el modo noche.
 
 Proyecto de responsabilidad social del curso de Ética Aplicada,
 Universidad Rafael Landívar.

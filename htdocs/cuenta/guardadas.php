@@ -36,11 +36,14 @@ require RAIZ_APP . '/vistas/cabecera.php';
 
 <div class="contenedor pila-grande">
 
-  <section class="pila">
-    <h1 class="titulo-pagina">Ofertas que guardé</h1>
-    <p class="texto-guia">
-      Guardar una oferta no es postularse. No compartimos ningún dato tuyo con nadie.
-    </p>
+  <section class="cabeza">
+    <span class="cabeza__icono"><?= icono('guardar') ?></span>
+    <div>
+      <h1 class="titulo-pagina">Ofertas que guardé</h1>
+      <p class="texto-guia">
+        Guardar una oferta no es postularse. No compartimos ningún dato tuyo con nadie.
+      </p>
+    </div>
   </section>
 
   <?php if ($ya_no_estan > 0): ?>

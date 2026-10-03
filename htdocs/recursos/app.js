@@ -27,6 +27,75 @@
     return Array.prototype.slice.call((dentro || document).querySelectorAll(selector));
   }
 
+  /* ----------------------------------------------------------------
+     Modo noche (D-051).
+     El tema lo pone PHP en <html data-tema="..."> leyendo una cookie,
+     así cada página llega ya con sus colores, sin destello blanco.
+     Acá solo vive el botón: cambia el atributo en el momento y guarda
+     la elección en esa cookie para las páginas que siguen.
+
+     La cookie dice "claro" u "oscuro" y nada más: no identifica a
+     nadie y no viaja a ningún otro sitio.
+
+     Si la persona nunca tocó el botón, se sigue lo que diga su
+     teléfono, y el botón se acomoda solo si el teléfono cambia.
+     ---------------------------------------------------------------- */
+  var botonTema = document.querySelector('[data-tema-boton]');
+  if (botonTema) {
+    var textoTema = botonTema.querySelector('.boton-tema__texto');
+    var temaDelSistema = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+    var COLOR_BARRA = { claro: '#FFFFFF', oscuro: '#0A1120' };
+
+    var temaActual = function () {
+      var elegido = raiz.getAttribute('data-tema');
+      if (elegido === 'claro' || elegido === 'oscuro') {
+        return elegido;
+      }
+      return (temaDelSistema && temaDelSistema.matches) ? 'oscuro' : 'claro';
+    };
+
+    var pintarBotonTema = function () {
+      var oscuro = temaActual() === 'oscuro';
+      botonTema.setAttribute('data-estado', oscuro ? 'oscuro' : 'claro');
+      if (textoTema) {
+        textoTema.textContent = oscuro ? 'Modo día' : 'Modo noche';
+      }
+      botonTema.setAttribute('title', oscuro ? 'Pasar a colores claros' : 'Pasar a colores oscuros');
+    };
+
+    // La barra del navegador del teléfono también cambia de color.
+    var pintarBarraDelNavegador = function (tema) {
+      todos('meta[name="theme-color"]').forEach(function (meta) {
+        meta.parentNode.removeChild(meta);
+      });
+      var meta = document.createElement('meta');
+      meta.name = 'theme-color';
+      meta.content = COLOR_BARRA[tema];
+      document.head.appendChild(meta);
+    };
+
+    botonTema.addEventListener('click', function () {
+      var nuevo = temaActual() === 'oscuro' ? 'claro' : 'oscuro';
+      raiz.setAttribute('data-tema', nuevo);
+      document.cookie = 'tema=' + nuevo + '; path=/; max-age=31536000; samesite=lax'
+        + (window.location.protocol === 'https:' ? '; secure' : '');
+      pintarBotonTema();
+      pintarBarraDelNavegador(nuevo);
+    });
+
+    if (temaDelSistema) {
+      if (temaDelSistema.addEventListener) {
+        temaDelSistema.addEventListener('change', pintarBotonTema);
+      } else if (temaDelSistema.addListener) {
+        temaDelSistema.addListener(pintarBotonTema);
+      }
+    }
+
+    pintarBotonTema();
+    botonTema.hidden = false;
+  }
+
+
   function formatoPeso(bytes) {
     if (bytes < 1024 * 1024) {
       return Math.max(1, Math.round(bytes / 1024)) + ' KB';
@@ -225,7 +294,7 @@
     }, { rootMargin: '0px 0px -40px 0px' });
 
     var marcados = [];
-    todos('.oferta, .paso, .senal, .tarjeta, .cifra', dentro).forEach(function (elemento) {
+    todos('.oferta, .paso, .senal, .tarjeta, .cifra, .mosaico', dentro).forEach(function (elemento) {
       if (elemento.getBoundingClientRect().top > alto) {
         elemento.classList.add('por-revelar');
         observador.observe(elemento);

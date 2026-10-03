@@ -1,15 +1,14 @@
 /* ==================================================================
    HOJA DE ESTILO ÚNICA
-   Plataforma de ofertas laborales verificadas
+   Mjob · Trabajo sin fronteras
    ------------------------------------------------------------------
-   DIRECCIÓN VISUAL: "institucional cálido".
+   DIRECCIÓN VISUAL: "confiable y luminoso" (D-050, sobre D-015).
 
    El problema de diseño no es que se vea bonito: es que se vea creíble
    por alguien que ya fue engañado antes. Por eso:
 
-   - Papel claro y cálido, no blanco frío de plantilla.
-   - Un azul profundo, del lado del documento oficial, lejos del azul
-     brillante de la publicidad.
+   - Los azules salen del logo: el azul vivo de la M para la marca y las
+     acciones, el azul marino para los títulos y el encabezado.
    - Cero urgencia: sin rojos de "última oportunidad", sin contadores,
      sin animaciones que apuren. Ese lenguaje visual es exactamente el
      de las páginas de estafa, y acá juega en contra.
@@ -19,34 +18,68 @@
      conexión saliente y se ven nativas en cada teléfono.
    - Cuerpo de 17px y toques de 48px de alto: es un dedo bajo el sol,
      no un mouse.
+   - Modo noche (D-051): los mismos componentes con otro juego de
+     colores. Ningún componente escribe un color a mano: todos usan
+     las variables de abajo, y el modo noche solo cambia las variables.
 
    TODO lo visual sale de las variables de abajo. Cambiar la identidad
    del proyecto es cambiar este bloque y nada más.
    ================================================================== */
 
 :root {
-  /* --- Color --------------------------------------------------- */
-  --papel:          #FBFAF8;
+  color-scheme: light;
+
+  /* --- Color: fondos ------------------------------------------- */
+  --papel:          #F3F6FB;
   --superficie:     #FFFFFF;
-  --superficie-2:   #F4F1EC;
-  --borde:          #E0DCD4;
-  --borde-fuerte:   #C9C3B8;
+  --superficie-2:   #EEF3FA;
+  --superficie-3:   #E2EAF5;
+  --borde:          #DAE3EF;
+  --borde-fuerte:   #B8C6D9;
 
-  --tinta:          #1B1A17;
-  --tinta-suave:    #5A564E;
+  /* --- Color: texto -------------------------------------------- */
+  --tinta:          #0D1B2E;
+  --tinta-suave:    #4B5B71;
 
-  --azul:           #12496B;
-  --azul-oscuro:    #0C3550;
-  --azul-claro:     #E7EFF5;
+  /* --- Color: marca y acciones --------------------------------- */
+  --marca:          #0A74EC;   /* el azul de la M del logo */
+  --azul:           #0A66D8;   /* botones y enlaces: el de la M, un punto más oscuro para que se lea */
+  --azul-oscuro:    #0852B0;
+  --azul-claro:     #E7F0FE;
+  --azul-borde:     #B9D3FA;
+  --sobre-azul:     #FFFFFF;   /* texto encima de un botón azul */
 
-  --verde:          #1B6046;
-  --verde-claro:    #E9F3EE;
+  /* --- Color: significados ------------------------------------- */
+  --verde:          #146C4E;   /* SOLO "origen verificado" */
+  --verde-claro:    #E7F5EE;
+  --verde-borde:    #9FD3B9;
+  --verde-tinta:    #0E4A35;
 
-  --ambar:          #7A5200;
-  --ambar-claro:    #FAF0DA;
+  --ambar:          #8A5300;
+  --ambar-claro:    #FFF4DC;
+  --ambar-borde:    #EFC877;
+  --ambar-tinta:    #5C3A00;
 
-  --rojo:           #9B211A;
-  --rojo-claro:     #FBEBE9;
+  --rojo:           #B42318;
+  --rojo-claro:     #FDECEA;
+  --rojo-borde:     #F1B4AD;
+  --rojo-tinta:     #7A1610;
+
+  /* --- El logo (ver app/vistas/logo.php) ----------------------- */
+  --logo-1:         #2A8BFF;
+  --logo-2:         #0A5BD6;
+  --logo-3:         #062F78;
+  --logo-4:         #0B4FB8;
+  --logo-5:         #05245E;
+  --logo-solido:    #0B2F72;
+  --logo-texto:     #0B2A5B;
+
+  /* --- La portada ---------------------------------------------- */
+  --portada-fondo:  linear-gradient(140deg, #0B2A5B 0%, #0A4AA8 55%, #0A66D8 100%);
+  --portada-tinta:  #FFFFFF;
+  --portada-suave:  #D6E5FB;
+
+  --barra-fondo:    rgba(255, 255, 255, 0.94);
 
   /* --- Tipografía ---------------------------------------------- */
   --fuente: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
@@ -70,13 +103,14 @@
   --esp-8: 64px;
 
   /* --- Formas -------------------------------------------------- */
-  --radio-sm: 6px;
-  --radio:    10px;
-  --radio-lg: 16px;
+  --radio-sm: 8px;
+  --radio:    12px;
+  --radio-lg: 18px;
+  --radio-xl: 26px;
 
-  --sombra-1: 0 1px 2px rgba(27, 26, 23, 0.06);
-  --sombra-2: 0 2px 8px rgba(27, 26, 23, 0.08);
-  --sombra-3: 0 8px 24px rgba(27, 26, 23, 0.10);
+  --sombra-1: 0 1px 2px rgba(13, 27, 46, 0.05), 0 1px 3px rgba(13, 27, 46, 0.04);
+  --sombra-2: 0 4px 14px rgba(13, 27, 46, 0.08);
+  --sombra-3: 0 14px 34px rgba(13, 27, 46, 0.13);
 
   /* --- Movimiento ---------------------------------------------- */
   /* Corto y suave: que se note que algo respondió, nunca que apure.
@@ -88,11 +122,139 @@
   --curva:      cubic-bezier(0.2, 0.7, 0.3, 1);
 
   /* Alto de la barra de pestañas de abajo, en el teléfono. */
-  --alto-pestanas: 64px;
+  --alto-pestanas: 66px;
 
-  --ancho-maximo:  960px;
-  --ancho-angosto: 520px;
+  --ancho-maximo:  1080px;
+  --ancho-angosto: 540px;
 }
+
+
+/* ==================================================================
+   MODO NOCHE
+   ------------------------------------------------------------------
+   El mismo bloque va dos veces, y tiene que quedar igual en las dos:
+     1. Si la persona no eligió nada, se sigue al teléfono.
+     2. Si eligió "Modo noche" con el botón, PHP pone
+        <html data-tema="oscuro"> y se usa aunque el teléfono esté
+        en claro. Y con data-tema="claro" el bloque 1 no aplica.
+   CSS no deja compartir un bloque entre una consulta de medios y un
+   selector, así que se repite. Si cambiás un color, cambialo en los dos.
+
+   No es solo "invertir": el fondo es un azul noche (no negro puro,
+   que cansa más con letras claras), y los colores de significado se
+   aclaran lo justo para seguir leyéndose sobre oscuro.
+   ================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    color-scheme: dark;
+
+    --papel:          #0A1120;
+    --superficie:     #111A2C;
+    --superficie-2:   #172238;
+    --superficie-3:   #1E2B45;
+    --borde:          #24324D;
+    --borde-fuerte:   #3A4B6B;
+
+    --tinta:          #E7EEF8;
+    --tinta-suave:    #A4B3C9;
+
+    --marca:          #4C9BFF;
+    --azul:           #5EA4FF;
+    --azul-oscuro:    #8CBEFF;
+    --azul-claro:     #13284A;
+    --azul-borde:     #29497D;
+    --sobre-azul:     #06152E;
+
+    --verde:          #4CC48C;
+    --verde-claro:    #0D2A1F;
+    --verde-borde:    #1F5C43;
+    --verde-tinta:    #BFEBD6;
+
+    --ambar:          #F2B654;
+    --ambar-claro:    #2B2112;
+    --ambar-borde:    #6B4E1C;
+    --ambar-tinta:    #F8DDA8;
+
+    --rojo:           #FF8A80;
+    --rojo-claro:     #2E1517;
+    --rojo-borde:     #6E2A2A;
+    --rojo-tinta:     #FFC9C3;
+
+    --logo-1:         #7DB8FF;
+    --logo-2:         #3D8BFF;
+    --logo-3:         #2563D6;
+    --logo-4:         #2B6FD8;
+    --logo-5:         #163F8F;
+    --logo-solido:    #9CC7FF;
+    --logo-texto:     #E7EEF8;
+
+    --portada-fondo:  linear-gradient(140deg, #08142C 0%, #0C2C66 60%, #0F4BA6 100%);
+    --portada-tinta:  #FFFFFF;
+    --portada-suave:  #C3D6F3;
+
+    --barra-fondo:    rgba(17, 26, 44, 0.94);
+
+    --sombra-1: 0 1px 2px rgba(0, 0, 0, 0.35);
+    --sombra-2: 0 4px 14px rgba(0, 0, 0, 0.35);
+    --sombra-3: 0 14px 34px rgba(0, 0, 0, 0.5);
+  }
+}
+
+:root[data-tema="oscuro"] {
+  color-scheme: dark;
+
+  --papel:          #0A1120;
+  --superficie:     #111A2C;
+  --superficie-2:   #172238;
+  --superficie-3:   #1E2B45;
+  --borde:          #24324D;
+  --borde-fuerte:   #3A4B6B;
+
+  --tinta:          #E7EEF8;
+  --tinta-suave:    #A4B3C9;
+
+  --marca:          #4C9BFF;
+  --azul:           #5EA4FF;
+  --azul-oscuro:    #8CBEFF;
+  --azul-claro:     #13284A;
+  --azul-borde:     #29497D;
+  --sobre-azul:     #06152E;
+
+  --verde:          #4CC48C;
+  --verde-claro:    #0D2A1F;
+  --verde-borde:    #1F5C43;
+  --verde-tinta:    #BFEBD6;
+
+  --ambar:          #F2B654;
+  --ambar-claro:    #2B2112;
+  --ambar-borde:    #6B4E1C;
+  --ambar-tinta:    #F8DDA8;
+
+  --rojo:           #FF8A80;
+  --rojo-claro:     #2E1517;
+  --rojo-borde:     #6E2A2A;
+  --rojo-tinta:     #FFC9C3;
+
+  --logo-1:         #7DB8FF;
+  --logo-2:         #3D8BFF;
+  --logo-3:         #2563D6;
+  --logo-4:         #2B6FD8;
+  --logo-5:         #163F8F;
+  --logo-solido:    #9CC7FF;
+  --logo-texto:     #E7EEF8;
+
+  --portada-fondo:  linear-gradient(140deg, #08142C 0%, #0C2C66 60%, #0F4BA6 100%);
+  --portada-tinta:  #FFFFFF;
+  --portada-suave:  #C3D6F3;
+
+  --barra-fondo:    rgba(17, 26, 44, 0.94);
+
+  --sombra-1: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --sombra-2: 0 4px 14px rgba(0, 0, 0, 0.35);
+  --sombra-3: 0 14px 34px rgba(0, 0, 0, 0.5);
+}
+
 
 /* ==================================================================
    Base
@@ -114,11 +276,11 @@ body {
   min-height: 100vh;
 }
 
-h1, h2, h3 { line-height: 1.25; margin: 0; font-weight: 700; }
+h1, h2, h3 { line-height: 1.25; margin: 0; font-weight: 700; letter-spacing: -0.01em; }
 
 p { margin: 0; }
 
-a { color: var(--azul); }
+a { color: var(--azul); text-underline-offset: 0.18em; }
 a:hover { color: var(--azul-oscuro); }
 
 /* Foco siempre visible: mucha gente va a navegar con teclado, y en un
@@ -134,12 +296,42 @@ a:hover { color: var(--azul-oscuro); }
   left: -9999px;
   top: var(--esp-2);
   background: var(--azul);
-  color: #fff;
+  color: var(--sobre-azul);
   padding: var(--esp-3) var(--esp-4);
   border-radius: var(--radio);
   z-index: 100;
 }
 .saltar:focus { left: var(--esp-4); }
+
+/* Los íconos de app/nucleo/iconos.php: líneas, del color del texto. */
+.icono {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vertical-align: -0.2em;
+}
+.icono--chico  { width: 16px; height: 16px; }
+.icono--grande { width: 28px; height: 28px; }
+
+/* El <svg> que guarda el dibujo del logo: existe pero no ocupa lugar.
+   No puede ser display:none (ver app/vistas/logo.php). */
+.svg-definiciones {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+.mj-tono-1 { stop-color: var(--logo-1); }
+.mj-tono-2 { stop-color: var(--logo-2); }
+.mj-tono-3 { stop-color: var(--logo-3); }
+.mj-tono-4 { stop-color: var(--logo-4); }
+.mj-tono-5 { stop-color: var(--logo-5); }
+.mj-solido { fill: var(--logo-solido); }
 
 
 /* ==================================================================
@@ -182,33 +374,67 @@ a:hover { color: var(--azul-oscuro); }
   position: sticky;
   top: 0;
   z-index: 50;
-  background: var(--superficie);
+  background: var(--barra-fondo);
   border-bottom: 1px solid var(--borde);
   transition: box-shadow var(--mov) var(--curva);
+}
+/* El vidrio esmerilado, solo en pantalla ancha. En el teléfono NO: un
+   backdrop-filter convierte a la barra en el marco de referencia de lo
+   que tiene adentro con position:fixed, y la barra de pestañas, que
+   tiene que quedar pegada abajo de la pantalla, se queda pegada a la
+   barra de arriba. Además, en un teléfono barato el desenfoque cuesta. */
+@media (min-width: 48rem) {
+  @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    .barra {
+      -webkit-backdrop-filter: saturate(1.5) blur(12px);
+              backdrop-filter: saturate(1.5) blur(12px);
+    }
+  }
 }
 .barra--elevada { box-shadow: var(--sombra-2); }
 
 .barra__interior {
   max-width: var(--ancho-maximo);
   margin: 0 auto;
-  padding: var(--esp-3) var(--esp-4);
+  min-height: 64px;
+  padding: var(--esp-2) var(--esp-4);
   display: flex;
   gap: var(--esp-3);
   align-items: center;
   justify-content: space-between;
 }
 
+/* La marca: el logo, el nombre (la M en el azul del logo) y el lema. */
 .marca {
   display: inline-flex;
   align-items: center;
-  gap: var(--esp-2);
-  color: var(--azul);
+  gap: 10px;
   text-decoration: none;
-  font-weight: 700;
-  font-size: var(--texto-lg);
   margin-right: auto;
+  border-radius: var(--radio);
 }
-.marca__icono { display: inline-flex; color: var(--verde); }
+.marca__logo { width: 50px; height: 29px; flex-shrink: 0; }
+.marca__textos { display: flex; flex-direction: column; line-height: 1.05; }
+.marca__nombre {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  color: var(--logo-texto);
+}
+.marca__nombre::first-letter { color: var(--marca); }
+.marca__nombre { white-space: nowrap; }
+/* "for all": más delgado que "Mjob", como en el logo. */
+.marca__resto { font-weight: 500; letter-spacing: -0.02em; }
+.marca__lema {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  color: var(--tinta-suave);
+  white-space: nowrap;
+}
 
 .navegacion { display: flex; gap: var(--esp-1); }
 
@@ -219,52 +445,100 @@ a:hover { color: var(--azul-oscuro); }
   gap: var(--esp-2);
   min-height: 44px;
   padding: 0 var(--esp-3);
-  border-radius: var(--radio);
-  color: var(--azul);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: var(--texto-sm);
-  transition: background-color var(--mov-rapido) ease, color var(--mov-rapido) ease;
-}
-.navegacion__enlace:hover { background: var(--azul-claro); }
-
-/* La sección en la que está parada la persona. */
-.navegacion__enlace[aria-current="page"] { background: var(--azul-claro); color: var(--azul-oscuro); }
-
-.navegacion__icono {
-  width: 20px;
-  height: 20px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  flex-shrink: 0;
-}
-
-.barra__acciones { display: flex; gap: var(--esp-2); }
-
-.boton-barra {
-  display: inline-flex;
-  align-items: center;
-  min-height: 40px;
-  padding: 0 var(--esp-4);
-  border-radius: var(--radio);
-  border: 1px solid var(--borde-fuerte);
-  color: var(--azul);
+  border-radius: 999px;
+  color: var(--tinta-suave);
   text-decoration: none;
   font-weight: 600;
   font-size: var(--texto-sm);
   white-space: nowrap;
-  transition: background-color var(--mov-rapido) ease;
+  transition: background-color var(--mov-rapido) ease, color var(--mov-rapido) ease;
 }
-.boton-barra:hover { background: var(--superficie-2); }
-.boton-barra--destacado { background: var(--azul); border-color: var(--azul); color: #fff; }
-.boton-barra--destacado:hover { background: var(--azul-oscuro); color: #fff; }
+.navegacion__enlace:hover { background: var(--superficie-2); color: var(--tinta); }
 
-/* En el escritorio los íconos sobran: la palabra alcanza. */
+/* La sección en la que está parada la persona. */
+.navegacion__enlace[aria-current="page"] { background: var(--azul-claro); color: var(--azul); }
+
+.navegacion__icono { display: inline-flex; }
+.navegacion__enlace .icono { width: 18px; height: 18px; }
+
+/* Cada pestaña tiene una palabra corta y, a veces, una larga
+   ("Alertas" / "Señales de estafa"). La larga solo cuando sobra lugar. */
+.navegacion__texto--largo { display: none; }
+
+.barra__acciones { display: flex; gap: var(--esp-2); align-items: center; }
+
+.boton-barra {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 42px;
+  padding: 0 var(--esp-4);
+  border-radius: 999px;
+  border: 1px solid var(--borde-fuerte);
+  background: var(--superficie);
+  color: var(--tinta);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: var(--texto-sm);
+  white-space: nowrap;
+  transition: background-color var(--mov-rapido) ease, border-color var(--mov-rapido) ease;
+}
+.boton-barra:hover { background: var(--superficie-2); color: var(--tinta); }
+.boton-barra--destacado { background: var(--azul); border-color: var(--azul); color: var(--sobre-azul); }
+.boton-barra--destacado:hover { background: var(--azul-oscuro); border-color: var(--azul-oscuro); color: var(--sobre-azul); }
+/* "Crear cuenta" lleva su dibujo solo en teléfonos muy chicos (abajo). */
+.boton-barra--destacado .icono { display: none; }
+
+/* Botón de modo noche. Muestra la luna en claro y el sol en oscuro:
+   lo que se ve es a dónde te lleva. Lo hace visible app.js.
+   Es solo el dibujo, que es el que se reconoce en cualquier teléfono:
+   la palabra ("Modo noche" / "Modo día") queda para el lector de
+   pantalla y como globito al pasar el mouse. */
+.boton-tema {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid var(--borde-fuerte);
+  background: var(--superficie);
+  color: var(--tinta);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color var(--mov-rapido) ease, transform var(--mov-rapido) ease;
+}
+.boton-tema[hidden] { display: none; }
+.boton-tema:hover { background: var(--superficie-2); }
+.boton-tema:active { transform: scale(0.94); }
+.boton-tema__icono { display: inline-flex; }
+.boton-tema__icono--sol { display: none; }
+.boton-tema[data-estado="oscuro"] .boton-tema__icono--luna { display: none; }
+.boton-tema[data-estado="oscuro"] .boton-tema__icono--sol  { display: inline-flex; color: var(--ambar); }
+.boton-tema__texto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* En pantalla ancha, todo va en la barra de arriba. "Inicio" sobra:
+   el logo ya lleva al inicio, y sin él entra todo sin apretarse. */
 @media (min-width: 48rem) {
+  .navegacion__enlace--inicio { display: none; }
+}
+/* Tablet: sin íconos ni lema, si no, no entra. */
+@media (min-width: 48rem) and (max-width: 63.99rem) {
   .navegacion__icono { display: none; }
+  .marca__lema { display: none; }
+}
+/* Pantalla grande: las palabras largas, que se entienden solas. */
+@media (min-width: 80rem) {
+  .navegacion__texto--corto { display: none; }
+  .navegacion__texto--largo { display: inline; }
 }
 
 /* En el teléfono: las secciones bajan a una barra de pestañas fija,
@@ -273,7 +547,12 @@ a:hover { color: var(--azul-oscuro); }
 @media (max-width: 47.99rem) {
   body { padding-bottom: calc(var(--alto-pestanas) + env(safe-area-inset-bottom, 0px)); }
 
-  .marca { font-size: var(--texto-base); }
+  .barra { background: var(--superficie); }
+  .barra__interior { min-height: 58px; padding: 6px var(--esp-4); }
+  .marca__logo { width: 44px; height: 26px; }
+  .marca__nombre { font-size: 1.2rem; }
+  .marca { gap: 8px; }
+  .barra__interior { gap: var(--esp-2); }
 
   .navegacion {
     position: fixed;
@@ -282,17 +561,18 @@ a:hover { color: var(--azul-oscuro); }
     bottom: 0;
     z-index: 60;
     gap: 0;
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding: 0 var(--esp-1) env(safe-area-inset-bottom, 0px);
     background: var(--superficie);
     border-top: 1px solid var(--borde);
-    box-shadow: 0 -2px 10px rgba(27, 26, 23, 0.06);
+    box-shadow: 0 -4px 16px rgba(13, 27, 46, 0.06);
   }
 
   .navegacion__enlace {
     flex: 1 1 0;
+    min-width: 0;
     flex-direction: column;
     justify-content: center;
-    gap: 2px;
+    gap: 3px;
     min-height: var(--alto-pestanas);
     padding: var(--esp-1) 0;
     border-radius: 0;
@@ -300,21 +580,47 @@ a:hover { color: var(--azul-oscuro); }
     color: var(--tinta-suave);
   }
   .navegacion__enlace:hover { background: transparent; color: var(--azul); }
+  .navegacion__texto { overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 
-  .navegacion__enlace[aria-current="page"] { background: transparent; color: var(--azul); }
-  /* Una rayita arriba de la pestaña activa, además del color: el color
-     solo no alcanza para quien no distingue bien los tonos. */
-  .navegacion__enlace[aria-current="page"]::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 25%;
-    right: 25%;
-    height: 3px;
-    border-radius: 0 0 3px 3px;
-    background: var(--azul);
+  /* La pestaña activa lleva una pastilla detrás del ícono, además del
+     color: el color solo no alcanza para quien no distingue bien los
+     tonos. */
+  .navegacion__icono {
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 30px;
+    border-radius: 999px;
+    transition: background-color var(--mov) var(--curva);
   }
-  .navegacion__icono { width: 24px; height: 24px; }
+  .navegacion__icono .icono { width: 23px; height: 23px; }
+  .navegacion__enlace[aria-current="page"] { background: transparent; color: var(--azul); font-weight: 700; }
+  .navegacion__enlace[aria-current="page"] .navegacion__icono { background: var(--azul-claro); }
+
+  .boton-barra { padding: 0 var(--esp-3); }
+}
+
+/* Teléfonos muy angostos: el lema no entra al lado del botón, y
+   "Salir" va sin su ícono. */
+@media (max-width: 24rem) {
+  .marca__lema { display: none; }
+  .boton-barra--salir .icono { display: none; }
+}
+/* Por debajo de 360px (teléfonos viejos o chicos) "Mjob for all" y la
+   palabra "Crear cuenta" no entran juntos: el botón queda con su
+   dibujo, y la palabra sigue ahí para el lector de pantalla. Abajo
+   sigue la pestaña "Entrar", y la portada tiene "Crear mi cuenta". */
+@media (max-width: 22.49rem) {
+  .boton-barra--destacado { width: 42px; padding: 0; justify-content: center; }
+  .boton-barra--destacado .icono { display: inline-block; }
+  .boton-barra--destacado .boton-barra__texto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
 }
 
 
@@ -324,10 +630,11 @@ a:hover { color: var(--azul-oscuro); }
 
 .titulo-pagina {
   font-size: var(--texto-2xl);
-  letter-spacing: -0.01em;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
-.subtitulo { font-size: var(--texto-xl); }
+.subtitulo { font-size: var(--texto-xl); font-weight: 800; letter-spacing: -0.015em; }
 
 .texto-guia {
   color: var(--tinta-suave);
@@ -335,6 +642,42 @@ a:hover { color: var(--azul-oscuro); }
 }
 
 .texto-menor { font-size: var(--texto-sm); color: var(--tinta-suave); }
+
+/* Encabezado de página con un ícono al lado del título. */
+.cabeza {
+  display: flex;
+  gap: var(--esp-4);
+  align-items: flex-start;
+}
+.cabeza > div > * + * { margin-top: var(--esp-3); }
+.cabeza__icono {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: var(--azul-claro);
+  color: var(--azul);
+}
+.cabeza__icono .icono { width: 28px; height: 28px; }
+.cabeza__icono--ambar { background: var(--ambar-claro); color: var(--ambar); }
+@media (max-width: 30rem) {
+  .cabeza { flex-direction: column; gap: var(--esp-3); }
+}
+
+/* "← Volver a las ofertas" */
+.volver {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  min-height: 40px;
+  font-weight: 600;
+  font-size: var(--texto-sm);
+  text-decoration: none;
+}
+.volver:hover { text-decoration: underline; }
 
 
 /* ==================================================================
@@ -351,6 +694,8 @@ a:hover { color: var(--azul-oscuro); }
 
 .tarjeta__titulo {
   font-size: var(--texto-xl);
+  font-weight: 800;
+  letter-spacing: -0.015em;
   margin-bottom: var(--esp-2);
 }
 
@@ -371,26 +716,32 @@ a:hover { color: var(--azul-oscuro); }
   border-radius: var(--radio);
   font-family: inherit;
   font-size: var(--texto-base);
-  font-weight: 600;
+  font-weight: 700;
+  line-height: 1.25;
   text-decoration: none;
   cursor: pointer;
   text-align: center;
   transition: background-color var(--mov-rapido) ease, border-color var(--mov-rapido) ease,
-              color var(--mov-rapido) ease, transform var(--mov-rapido) ease;
+              color var(--mov-rapido) ease, transform var(--mov-rapido) ease,
+              box-shadow var(--mov-rapido) ease;
 }
 /* Un hundimiento mínimo al tocar: la persona ve que el toque llegó,
    aunque la página tarde en responder con internet lento. */
 .boton:active { transform: translateY(1px); }
 
-.boton--principal { background: var(--azul); color: #fff; }
-.boton--principal:hover { background: var(--azul-oscuro); color: #fff; }
+.boton--principal {
+  background: var(--azul);
+  color: var(--sobre-azul);
+  box-shadow: 0 2px 6px rgba(10, 102, 216, 0.25);
+}
+.boton--principal:hover { background: var(--azul-oscuro); color: var(--sobre-azul); }
 
 .boton--secundario {
   background: var(--superficie);
   color: var(--azul);
   border-color: var(--borde-fuerte);
 }
-.boton--secundario:hover { background: var(--superficie-2); color: var(--azul-oscuro); }
+.boton--secundario:hover { background: var(--azul-claro); border-color: var(--azul-borde); color: var(--azul); }
 
 .boton--peligro { background: var(--superficie); color: var(--rojo); border-color: var(--rojo); }
 .boton--peligro:hover { background: var(--rojo-claro); color: var(--rojo); }
@@ -401,6 +752,9 @@ a:hover { color: var(--azul-oscuro); }
   display: flex;
   flex-wrap: wrap;
   gap: var(--esp-3);
+  /* Sin esto, un botón al lado de un formulario alto (el panel) se
+     estira hasta la altura del formulario. */
+  align-items: flex-start;
 }
 
 
@@ -414,7 +768,7 @@ a:hover { color: var(--azul-oscuro); }
 
 .etiqueta {
   display: block;
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: var(--esp-2);
 }
 
@@ -427,8 +781,8 @@ a:hover { color: var(--azul-oscuro); }
 
 .entrada {
   width: 100%;
-  min-height: 48px;
-  padding: var(--esp-3);
+  min-height: 50px;
+  padding: var(--esp-3) var(--esp-4);
   border: 2px solid var(--borde-fuerte);
   border-radius: var(--radio);
   background: var(--superficie);
@@ -437,11 +791,15 @@ a:hover { color: var(--azul-oscuro); }
   /* 17px a propósito: por debajo de 16px, el navegador del teléfono
      hace zoom solo al tocar el campo y descoloca la pantalla. */
   font-size: 17px;
+  transition: border-color var(--mov-rapido) ease, box-shadow var(--mov-rapido) ease;
 }
-.entrada { transition: border-color var(--mov-rapido) ease, box-shadow var(--mov-rapido) ease; }
-.entrada:focus { border-color: var(--azul); box-shadow: 0 0 0 4px var(--azul-claro); }
+.entrada::placeholder { color: var(--tinta-suave); opacity: 0.8; }
+.entrada:hover { border-color: var(--azul-borde); }
+.entrada:focus { outline: none; border-color: var(--azul); box-shadow: 0 0 0 4px var(--azul-claro); }
 
 .entrada--error { border-color: var(--rojo); }
+
+select.entrada { cursor: pointer; }
 
 /* Campo trampa para programas automáticos: está en el HTML pero fuera
    de la pantalla. Una persona nunca lo ve ni lo puede llenar; un
@@ -464,18 +822,18 @@ textarea.entrada { min-height: 120px; line-height: 1.5; resize: vertical; }
   display: flex;
   align-items: flex-start;
   gap: var(--esp-3);
-  padding: var(--esp-3);
+  padding: var(--esp-3) var(--esp-4);
   border: 1px solid var(--borde);
   border-radius: var(--radio);
   margin-top: var(--esp-2);
   cursor: pointer;
   background: var(--superficie);
+  transition: background-color var(--mov-rapido) ease, border-color var(--mov-rapido) ease;
 }
-.casilla { transition: background-color var(--mov-rapido) ease, border-color var(--mov-rapido) ease; }
 .casilla:hover { background: var(--superficie-2); }
 /* La casilla marcada se nota en toda la línea, no solo en el cuadrito. */
 .casilla:has(input:checked) { border-color: var(--azul); background: var(--azul-claro); }
-.casilla input { width: 22px; height: 22px; flex-shrink: 0; margin-top: 2px; }
+.casilla input { width: 22px; height: 22px; flex-shrink: 0; margin-top: 2px; accent-color: var(--azul); }
 
 .casilla--grande { font-size: var(--texto-base); line-height: 1.5; }
 
@@ -498,16 +856,19 @@ fieldset.campo legend { padding: 0; }
 .aviso {
   padding: var(--esp-4);
   border-radius: var(--radio);
+  border: 1px solid var(--borde);
   border-left: 5px solid var(--borde-fuerte);
   background: var(--superficie-2);
   margin-bottom: var(--esp-5);
 }
 
-.aviso--exito { background: var(--azul-claro);  border-left-color: var(--azul);  color: var(--azul-oscuro); }
-.aviso--error { background: var(--rojo-claro);  border-left-color: var(--rojo);  color: #6E1712; }
-.aviso--aviso { background: var(--ambar-claro); border-left-color: var(--ambar); color: #5A3D00; }
+.aviso--exito { background: var(--azul-claro);  border-color: var(--azul-borde);  border-left-color: var(--azul);  color: var(--tinta); }
+.aviso--error { background: var(--rojo-claro);  border-color: var(--rojo-borde);  border-left-color: var(--rojo);  color: var(--rojo-tinta); }
+.aviso--aviso { background: var(--ambar-claro); border-color: var(--ambar-borde); border-left-color: var(--ambar); color: var(--ambar-tinta); }
 
 .aviso p + p { margin-top: var(--esp-2); }
+.aviso a { color: inherit; font-weight: 700; }
+.aviso .tarjeta__titulo { color: inherit; }
 
 
 /* ==================================================================
@@ -521,15 +882,16 @@ fieldset.campo legend { padding: 0; }
 .sello {
   display: inline-flex;
   align-items: center;
-  gap: var(--esp-2);
+  gap: 6px;
   padding: var(--esp-1) var(--esp-3);
   border-radius: 999px;
   background: var(--verde-claro);
   color: var(--verde);
-  border: 1px solid var(--verde);
+  border: 1px solid var(--verde-borde);
   font-size: var(--texto-sm);
   font-weight: 700;
 }
+.sello .icono { width: 18px; height: 18px; stroke-width: 2.4; }
 
 .insignia {
   display: inline-flex;
@@ -542,7 +904,23 @@ fieldset.campo legend { padding: 0; }
   font-size: var(--texto-xs);
   font-weight: 600;
 }
-.insignia--rol { background: var(--azul-claro); border-color: var(--azul); color: var(--azul); }
+.insignia--rol { background: var(--azul-claro); border-color: var(--azul-borde); color: var(--azul); }
+
+/* Fichas de datos (país, oficio): informan, no se tocan. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 2px var(--esp-3);
+  border-radius: 999px;
+  background: var(--superficie-2);
+  color: var(--tinta);
+  font-size: var(--texto-xs);
+  font-weight: 600;
+}
+.chip .icono { width: 16px; height: 16px; color: var(--azul); }
+.chips { display: flex; flex-wrap: wrap; gap: var(--esp-2); }
 
 
 /* ==================================================================
@@ -561,9 +939,20 @@ fieldset.campo legend { padding: 0; }
 }
 .lista-datos dd:last-child { margin-bottom: 0; }
 
+/* Lista con un ícono al principio de cada renglón. */
+.lista-iconos { list-style: none; margin: 0; padding: 0; }
+.lista-iconos li { display: flex; gap: var(--esp-3); align-items: flex-start; }
+.lista-iconos li + li { margin-top: var(--esp-3); }
+.lista-iconos .icono { margin-top: 3px; color: var(--azul); }
+.lista-iconos--no .icono { color: var(--rojo); }
+
 /* En pantalla angosta la tabla se desliza sola en lugar de romper
    la página a lo ancho. */
-.tabla-desliza { overflow-x: auto; }
+.tabla-desliza {
+  overflow-x: auto;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+}
 
 .tabla {
   width: 100%;
@@ -577,6 +966,7 @@ fieldset.campo legend { padding: 0; }
   border-bottom: 1px solid var(--borde);
   vertical-align: top;
 }
+.tabla tr:last-child td { border-bottom: 0; }
 .tabla th {
   background: var(--superficie-2);
   font-size: var(--texto-xs);
@@ -585,6 +975,7 @@ fieldset.campo legend { padding: 0; }
   color: var(--tinta-suave);
   white-space: nowrap;
 }
+.tabla tbody tr:hover td { background: var(--superficie-2); }
 
 /* ==================================================================
    Pestañas del panel (filtrar por estado)
@@ -614,9 +1005,9 @@ fieldset.campo legend { padding: 0; }
 .pestana--activa {
   background: var(--azul);
   border-color: var(--azul);
-  color: #fff;
+  color: var(--sobre-azul);
 }
-.pestana--activa:hover { background: var(--azul-oscuro); color: #fff; }
+.pestana--activa:hover { background: var(--azul-oscuro); color: var(--sobre-azul); }
 
 
 /* Título con algo alineado a la derecha (una insignia, un botón). */
@@ -636,12 +1027,12 @@ fieldset.campo legend { padding: 0; }
 /* Los estados de una oferta, con color propio para reconocerlos de un
    vistazo. Verde SOLO para lo que está verificado o publicado: el
    color tiene que significar siempre lo mismo en toda la plataforma. */
-.insignia--pendiente   { background: var(--ambar-claro); border-color: var(--ambar); color: var(--ambar); }
-.insignia--verificada  { background: var(--verde-claro); border-color: var(--verde); color: var(--verde); }
-.insignia--publicada   { background: var(--verde);       border-color: var(--verde); color: #fff; }
+.insignia--pendiente   { background: var(--ambar-claro); border-color: var(--ambar-borde); color: var(--ambar); }
+.insignia--verificada  { background: var(--verde-claro); border-color: var(--verde-borde); color: var(--verde); }
+.insignia--publicada   { background: var(--verde);       border-color: var(--verde);       color: var(--superficie); }
 .insignia--vencida     { background: var(--superficie-2);border-color: var(--borde-fuerte); color: var(--tinta-suave); }
-.insignia--retirada    { background: var(--rojo-claro);  border-color: var(--rojo);  color: var(--rojo); }
-.insignia--en_revision { background: var(--ambar-claro); border-color: var(--ambar); color: var(--ambar); }
+.insignia--retirada    { background: var(--rojo-claro);  border-color: var(--rojo-borde);  color: var(--rojo); }
+.insignia--en_revision { background: var(--ambar-claro); border-color: var(--ambar-borde); color: var(--ambar); }
 
 
 /* Texto que hay que copiar tal cual (la lista de columnas del CSV). */
@@ -663,12 +1054,26 @@ fieldset.campo legend { padding: 0; }
 /* Estado vacío: nunca una pantalla en blanco. */
 .vacio {
   text-align: center;
-  padding: var(--esp-7) var(--esp-4);
+  padding: var(--esp-7) var(--esp-5);
   border: 2px dashed var(--borde-fuerte);
   border-radius: var(--radio-lg);
   color: var(--tinta-suave);
   background: var(--superficie);
 }
+.vacio strong { color: var(--tinta); font-size: var(--texto-lg); }
+.vacio .acciones { justify-content: center; }
+.vacio__icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--azul-claro);
+  color: var(--azul);
+}
+.vacio__icono .icono { width: 30px; height: 30px; }
+.vacio > p { max-width: 52ch; margin-left: auto; margin-right: auto; }
 
 
 /* ==================================================================
@@ -679,7 +1084,7 @@ fieldset.campo legend { padding: 0; }
 
 .verificacion {
   background: var(--verde-claro);
-  border: 1px solid var(--verde);
+  border: 1px solid var(--verde-borde);
   border-radius: var(--radio-lg);
   padding: var(--esp-5);
 }
@@ -687,29 +1092,36 @@ fieldset.campo legend { padding: 0; }
 .verificacion__aclaracion {
   margin-top: var(--esp-3);
   font-size: var(--texto-sm);
-  color: #12402F;
+  color: var(--verde-tinta);
 }
 
 .verificacion__datos {
-  margin-top: var(--esp-5);
+  margin-top: var(--esp-4);
   padding-top: var(--esp-4);
-  border-top: 1px solid var(--verde);
+  border-top: 1px solid var(--verde-borde);
+  display: grid;
+  gap: var(--esp-3) var(--esp-5);
 }
+.verificacion__datos > div { min-width: 0; }
 .verificacion__datos dt {
   font-size: var(--texto-xs);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #2C5C48;
+  color: var(--verde-tinta);
   font-weight: 700;
+  opacity: 0.85;
 }
 .verificacion__datos dd {
-  margin: 0 0 var(--esp-4) 0;
+  margin: 2px 0 0 0;
   color: var(--tinta);
+  font-weight: 600;
   word-break: break-word;
 }
-.verificacion__datos dd:last-child { margin-bottom: 0; }
+.verificacion__datos dd .texto-menor { font-weight: 400; }
+.verificacion .lista-datos dt { color: var(--verde-tinta); }
 
-.sello--chico { font-size: var(--texto-xs); padding: 2px var(--esp-2); }
+.sello--chico { font-size: var(--texto-xs); padding: 3px var(--esp-2); gap: 4px; }
+.sello--chico .icono { width: 15px; height: 15px; }
 
 
 /* ==================================================================
@@ -717,28 +1129,77 @@ fieldset.campo legend { padding: 0; }
    ================================================================== */
 
 .oferta {
+  position: relative;
+  display: flex;
+  flex-direction: column;
   background: var(--superficie);
   border: 1px solid var(--borde);
-  border-left: 4px solid var(--verde);
   border-radius: var(--radio-lg);
   padding: var(--esp-5);
   box-shadow: var(--sombra-1);
+  transition: box-shadow var(--mov) var(--curva), transform var(--mov) var(--curva),
+              border-color var(--mov) ease;
 }
 .oferta > * + * { margin-top: var(--esp-3); }
 
-.oferta__titulo { font-size: var(--texto-xl); }
-.oferta__titulo a { text-decoration: none; }
-.oferta__titulo a:hover { text-decoration: underline; }
+.oferta__arriba {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2);
+  align-items: center;
+  justify-content: space-between;
+}
 
-.oferta__empleador { font-weight: 600; }
+.oferta__titulo { font-size: var(--texto-xl); font-weight: 800; letter-spacing: -0.015em; }
+.oferta__titulo a { color: var(--tinta); text-decoration: none; }
+.oferta__titulo a:hover { color: var(--azul); }
+
+.oferta__empleador {
+  display: flex;
+  gap: var(--esp-2);
+  align-items: center;
+  font-weight: 600;
+  color: var(--tinta-suave);
+}
 
 .oferta__lugar { color: var(--tinta-suave); font-size: var(--texto-sm); }
 
-.oferta__origen {
+/* Los datos que deciden si vale la pena abrirla: oficio, pago, hasta
+   cuándo. Cada uno con su ícono para leerlos de un vistazo. */
+.oferta__datos {
+  list-style: none;
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
   font-size: var(--texto-sm);
+}
+.oferta__datos li { display: flex; gap: var(--esp-2); align-items: flex-start; }
+.oferta__datos .icono { width: 18px; height: 18px; margin-top: 2px; color: var(--azul); }
+
+.oferta__origen {
+  font-size: var(--texto-xs);
   color: var(--tinta-suave);
-  padding-top: var(--esp-3);
+}
+
+.oferta__pie {
+  margin-top: auto;
+  padding-top: var(--esp-4);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2) var(--esp-3);
+  align-items: flex-end;
+  justify-content: space-between;
+}
+/* Empuja el pie al fondo cuando las tarjetas de una fila tienen
+   distinto alto, así todos los "Ver la oferta" quedan alineados. */
+.oferta > .oferta__pie { margin-top: auto; }
+.oferta__separador {
+  border: 0;
   border-top: 1px solid var(--borde);
+  margin: var(--esp-4) 0 0;
 }
 
 
@@ -766,15 +1227,15 @@ fieldset.campo legend { padding: 0; }
 .motivos--coincide {
   background: var(--azul-claro);
   border-left: 4px solid var(--azul);
-  color: var(--azul-oscuro);
+  color: var(--tinta);
 }
 
 .motivos--ojo {
   background: var(--ambar-claro);
   border-left: 4px solid var(--ambar);
-  color: #5A3D00;
+  color: var(--ambar-tinta);
 }
-.motivos--ojo .texto-menor { color: #5A3D00; margin-top: var(--esp-2); }
+.motivos--ojo .texto-menor { color: var(--ambar-tinta); margin-top: var(--esp-2); }
 
 
 /* ==================================================================
@@ -798,28 +1259,35 @@ fieldset.campo legend { padding: 0; }
    ================================================================== */
 
 .rejilla { display: grid; gap: var(--esp-4); }
+/* Dentro de una cuadrícula la separación la pone el gap: el margen de
+   ".campo + .campo" dejaría el segundo y el tercer campo más abajo que
+   el primero en la misma fila. */
+.rejilla > .campo + .campo { margin-top: 0; }
 
 
 /* ==================================================================
    La hoja del currículum armado
    Se ve como una hoja de papel en pantalla y sale limpia al imprimir.
+   Es papel: se queda blanca con letras oscuras también en modo noche,
+   porque eso es lo que va a salir de la impresora.
    ================================================================== */
 
 .hoja {
-  background: #fff;
+  background: #FFFFFF;
   border: 1px solid var(--borde);
   border-radius: var(--radio);
   padding: var(--esp-6);
-  color: #000;
+  color: #000000;
+  box-shadow: var(--sombra-2);
 }
 
 .hoja__encabezado {
-  border-bottom: 2px solid var(--azul);
+  border-bottom: 2px solid #0A4AA8;
   padding-bottom: var(--esp-3);
   margin-bottom: var(--esp-5);
 }
-.hoja__nombre   { font-size: var(--texto-2xl); color: var(--azul); }
-.hoja__contacto { font-size: var(--texto-sm); color: var(--tinta-suave); margin-top: var(--esp-1); }
+.hoja__nombre   { font-size: var(--texto-2xl); color: #0B2A5B; }
+.hoja__contacto { font-size: var(--texto-sm); color: #4B5B71; margin-top: var(--esp-1); }
 
 .hoja__bloque + .hoja__bloque { margin-top: var(--esp-5); }
 
@@ -827,8 +1295,8 @@ fieldset.campo legend { padding: 0; }
   font-size: var(--texto-xs);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--azul);
-  border-bottom: 1px solid var(--borde);
+  color: #0A4AA8;
+  border-bottom: 1px solid #DAE3EF;
   padding-bottom: var(--esp-1);
   margin-bottom: var(--esp-2);
 }
@@ -838,9 +1306,9 @@ fieldset.campo legend { padding: 0; }
 .hoja__pie {
   margin-top: var(--esp-6);
   padding-top: var(--esp-3);
-  border-top: 1px solid var(--borde);
+  border-top: 1px solid #DAE3EF;
   font-size: var(--texto-xs);
-  color: var(--tinta-suave);
+  color: #4B5B71;
 }
 
 
@@ -849,7 +1317,7 @@ fieldset.campo legend { padding: 0; }
 @media print {
   .barra, .pie, .sin-imprimir, .saltar, .aviso { display: none !important; }
 
-  body { background: #fff; font-size: 12pt; }
+  body { background: #fff; color: #000; font-size: 12pt; }
   .contenido { padding: 0; }
   .contenedor { max-width: none; padding: 0; }
 
@@ -867,19 +1335,47 @@ fieldset.campo legend { padding: 0; }
 
 .pie {
   flex-shrink: 0;
-  background: var(--superficie-2);
+  background: var(--superficie);
   border-top: 1px solid var(--borde);
-  padding: var(--esp-6) 0;
+  padding: var(--esp-6) 0 var(--esp-5);
 }
+.pie__interior {
+  display: grid;
+  gap: var(--esp-5);
+}
+.pie__marca .marca { margin-right: 0; }
 .pie__aclaracion {
   font-size: var(--texto-sm);
   color: var(--tinta-suave);
   max-width: 60ch;
 }
+.pie__enlaces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-2) var(--esp-5);
+  align-content: flex-start;
+}
+.pie__enlaces a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  color: var(--tinta);
+  font-weight: 600;
+  font-size: var(--texto-sm);
+  text-decoration: none;
+}
+.pie__enlaces a:hover { color: var(--azul); text-decoration: underline; }
 .pie__nota {
-  margin-top: var(--esp-3);
+  margin-top: var(--esp-5);
+  padding-top: var(--esp-4);
+  border-top: 1px solid var(--borde);
   font-size: var(--texto-xs);
   color: var(--tinta-suave);
+}
+
+@media (min-width: 48rem) {
+  .pie__interior { grid-template-columns: 1.4fr 1fr; gap: var(--esp-7); }
+  .pie__enlaces { flex-direction: column; gap: 0; }
 }
 
 
@@ -889,17 +1385,16 @@ fieldset.campo legend { padding: 0; }
    ================================================================== */
 
 @media (min-width: 48rem) {
-  .titulo-pagina { font-size: 2.125rem; }
+  .titulo-pagina { font-size: 2.25rem; }
   .contenido { padding: var(--esp-7) 0 var(--esp-8); }
   .rejilla--dos  { grid-template-columns: 1fr 1fr; }
   .rejilla--tres { grid-template-columns: 1fr 1fr 1fr; }
+  .verificacion__datos { grid-template-columns: 1fr 1fr; }
 }
 
-/* En pantalla angosta los filtros se apilan, que es lo correcto para
-   un teléfono: tres menús en fila quedarían impracticables. */
-@media (max-width: 47.99rem) {
-  .filtros .rejilla > * + * { margin-top: var(--esp-4); }
-}
+/* En pantalla angosta los filtros se apilan (una sola columna de la
+   cuadrícula), que es lo correcto para un teléfono: tres menús en fila
+   quedarían impracticables. */
 
 
 /* ==================================================================
@@ -950,7 +1445,7 @@ fieldset.campo legend { padding: 0; }
   top: 0;
   bottom: 0;
   width: 40%;
-  background: var(--azul);
+  background: var(--marca);
   border-radius: 3px;
   animation: avanzar 1.1s var(--curva) infinite;
 }
@@ -993,6 +1488,7 @@ fieldset.campo legend { padding: 0; }
   display: flex;
   align-items: flex-start;
   gap: var(--esp-3);
+  box-shadow: var(--sombra-2);
   animation: entrar-desde-arriba var(--mov-lento) var(--curva) both;
 }
 .aviso__texto { flex: 1; }
@@ -1012,7 +1508,7 @@ fieldset.campo legend { padding: 0; }
   line-height: 1;
   cursor: pointer;
 }
-.aviso__cerrar:hover { background: rgba(27, 26, 23, 0.08); }
+.aviso__cerrar:hover { background: var(--superficie-3); }
 .aviso--cerrandose {
   animation: salir-hacia-arriba var(--mov) ease both;
 }
@@ -1048,86 +1544,184 @@ fieldset.campo legend { padding: 0; }
 
 /* ------------------------------------------------------------------
    Portada
+   Un encabezado en los azules del logo, con las dos puertas de
+   entrada: "busco trabajo" y "me ofrecieron un trabajo". Cada una
+   trae su buscador adentro: quien llega asustado por un mensaje de
+   WhatsApp no tiene que pasar por otra pantalla para comprobarlo.
    ------------------------------------------------------------------ */
 .portada {
   position: relative;
   overflow: hidden;
-  border-radius: var(--radio-lg);
+  border-radius: var(--radio-xl);
   padding: var(--esp-6) var(--esp-5);
-  background:
-    radial-gradient(120% 140% at 100% 0%, rgba(18, 73, 107, 0.10) 0%, transparent 55%),
-    linear-gradient(180deg, var(--superficie) 0%, var(--superficie-2) 100%);
-  border: 1px solid var(--borde);
+  background: var(--portada-fondo);
+  color: var(--portada-tinta);
+  box-shadow: var(--sombra-3);
 }
-/* El escudo de fondo, grande y casi transparente: identidad, no adorno
-   que distraiga. Es CSS puro, sin imagen que descargar. */
+/* La ruta de un avión, punteada y casi transparente: dice "viaje" sin
+   prometer nada. Es un dibujo de 300 bytes dentro del CSS, sin
+   archivo que descargar. */
+.portada::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  right: -30px;
+  width: 520px;
+  height: 260px;
+  opacity: 0.28;
+  pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 520 260'%3E%3Cpath d='M10 250C120 120 300 60 500 30' fill='none' stroke='%23fff' stroke-width='3' stroke-dasharray='2 14' stroke-linecap='round'/%3E%3Ccircle cx='10' cy='250' r='6' fill='%23fff'/%3E%3C/svg%3E") no-repeat right top / contain;
+}
 .portada::after {
   content: "";
   position: absolute;
-  right: -40px;
-  bottom: -50px;
-  width: 260px;
-  height: 260px;
-  opacity: 0.06;
+  left: -120px;
+  bottom: -160px;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.14), transparent);
   pointer-events: none;
-  background: var(--azul);
-  -webkit-mask: url("escudo.svg") center / contain no-repeat;
-          mask: url("escudo.svg") center / contain no-repeat;
 }
 .portada > * { position: relative; z-index: 1; }
 .portada > * + * { margin-top: var(--esp-4); }
 
-.portada__titulo {
-  font-size: 1.875rem;
-  line-height: 1.15;
-  letter-spacing: -0.015em;
-  max-width: 20ch;
+.portada__lema {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: 6px var(--esp-3);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: var(--portada-tinta);
+  font-size: var(--texto-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
 }
+
+.portada__titulo {
+  font-size: 2rem;
+  line-height: 1.12;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  max-width: 22ch;
+}
+
+.portada__texto {
+  color: var(--portada-suave);
+  font-size: var(--texto-lg);
+  max-width: 58ch;
+}
+
+/* Las dos puertas: tarjetas encima del azul. */
+.puertas {
+  display: grid;
+  gap: var(--esp-4);
+  margin-top: var(--esp-5) !important;
+}
+.puerta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-3);
+  padding: var(--esp-5);
+  border-radius: var(--radio-lg);
+  background: var(--superficie);
+  color: var(--tinta);
+  box-shadow: var(--sombra-2);
+}
+.puerta__cabeza { display: flex; gap: var(--esp-3); align-items: center; }
+.puerta__icono {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--azul-claro);
+  color: var(--azul);
+}
+.puerta__icono .icono { width: 26px; height: 26px; }
+.puerta__icono--ambar { background: var(--ambar-claro); color: var(--ambar); }
+.puerta__titulo { font-size: var(--texto-xl); font-weight: 800; letter-spacing: -0.015em; }
+.puerta__texto { color: var(--tinta-suave); font-size: var(--texto-sm); }
+.puerta .etiqueta { font-size: var(--texto-sm); margin-bottom: 6px; }
+.puerta__enlace {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  font-weight: 700;
+  font-size: var(--texto-sm);
+  text-decoration: none;
+}
+.puerta__enlace:hover { text-decoration: underline; }
 
 .buscador-grande {
   display: flex;
   gap: var(--esp-2);
-  padding: var(--esp-2);
+  padding: 6px;
   background: var(--superficie);
   border: 2px solid var(--borde-fuerte);
   border-radius: var(--radio-lg);
-  box-shadow: var(--sombra-2);
   transition: border-color var(--mov-rapido) ease, box-shadow var(--mov-rapido) ease;
 }
-.buscador-grande:focus-within { border-color: var(--azul); box-shadow: 0 0 0 4px var(--azul-claro), var(--sombra-2); }
-.buscador-grande .entrada { border: 0; min-height: 48px; box-shadow: none; }
+.buscador-grande:focus-within { border-color: var(--azul); box-shadow: 0 0 0 4px var(--azul-claro); }
+.buscador-grande .entrada { border: 0; min-height: 48px; box-shadow: none; padding-left: var(--esp-3); }
 .buscador-grande .entrada:focus { box-shadow: none; }
 .buscador-grande .boton { flex-shrink: 0; }
 
 /* En un teléfono angosto el botón va abajo, a todo el ancho: si no,
-   la caja de texto queda tan corta que no se lee lo que se escribe. */
+   la caja de texto queda tan corta que no se lee lo que se escribe.
+   Y la portada gasta menos borde, para que las cajas de búsqueda
+   tengan todo el ancho posible. */
 @media (max-width: 30rem) {
   .buscador-grande { flex-direction: column; }
+  .portada { padding: var(--esp-5) var(--esp-4); border-radius: var(--radio-lg); }
+  .portada__titulo { font-size: 1.75rem; }
+  .puerta { padding: var(--esp-4); }
 }
 
 /* Cifras del sistema: cuántas ofertas, cuántos reclutadores y cuándo
    se revisó el registro. Es transparencia, no publicidad. */
 .cifras {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: var(--esp-3);
 }
 .cifra {
+  display: flex;
+  gap: var(--esp-3);
+  align-items: flex-start;
   padding: var(--esp-4);
   background: var(--superficie);
   border: 1px solid var(--borde);
-  border-radius: var(--radio);
+  border-radius: var(--radio-lg);
+  box-shadow: var(--sombra-1);
 }
+.cifra__icono {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--azul-claro);
+  color: var(--azul);
+}
+.cifra__icono--verde { background: var(--verde-claro); color: var(--verde); }
 .cifra__numero {
   display: block;
   font-size: var(--texto-2xl);
-  font-weight: 700;
-  color: var(--azul);
+  font-weight: 800;
+  color: var(--tinta);
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
 }
 .cifra__texto { display: block; font-size: var(--texto-sm); color: var(--tinta-suave); margin-top: var(--esp-1); }
-.cifra__numero--fecha { font-size: var(--texto-lg); padding-top: 6px; }
+.cifra__numero--fecha { font-size: var(--texto-lg); padding-top: 4px; }
 
 /* Pasos numerados ("cómo funciona", "tu camino"). */
 .pasos {
@@ -1146,10 +1740,11 @@ fieldset.campo legend { padding: 0; }
   display: flex;
   gap: var(--esp-4);
   align-items: flex-start;
-  padding: var(--esp-4);
+  padding: var(--esp-4) var(--esp-5) var(--esp-4) var(--esp-4);
   background: var(--superficie);
   border: 1px solid var(--borde);
   border-radius: var(--radio-lg);
+  box-shadow: var(--sombra-1);
   counter-increment: paso;
 }
 .paso::before {
@@ -1158,21 +1753,23 @@ fieldset.campo legend { padding: 0; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   background: var(--azul-claro);
   color: var(--azul);
-  font-weight: 700;
+  font-weight: 800;
 }
-.paso__titulo { font-weight: 700; }
+.paso__titulo { font-weight: 800; }
 .paso__texto { color: var(--tinta-suave); font-size: var(--texto-sm); margin-top: var(--esp-1); }
 .paso .boton { margin-top: var(--esp-3); }
+.paso .acciones .boton { margin-top: 0; }
+.paso .acciones { margin-top: var(--esp-3); }
 
 /* En el panel de la persona: hecho, siguiente, todavía no. */
-.paso--hecho::before { content: "✓"; background: var(--azul); color: #fff; }
-.paso--siguiente { border-color: var(--azul); box-shadow: 0 0 0 3px var(--azul-claro); }
-.paso--despues { opacity: 0.75; }
+.paso--hecho::before { content: "✓"; background: var(--azul); color: var(--sobre-azul); }
+.paso--siguiente { border-color: var(--azul); box-shadow: 0 0 0 3px var(--azul-claro), var(--sombra-2); }
+.paso--despues { opacity: 0.7; }
 
 
 /* ------------------------------------------------------------------
@@ -1180,11 +1777,6 @@ fieldset.campo legend { padding: 0; }
    En un teléfono, acertarle a un título de dos líneas es difícil. El
    enlace del título se estira sobre toda la tarjeta (sin JavaScript).
    ------------------------------------------------------------------ */
-.oferta {
-  position: relative;
-  transition: box-shadow var(--mov) var(--curva), transform var(--mov) var(--curva),
-              border-color var(--mov) ease;
-}
 .oferta__titulo a::after {
   content: "";
   position: absolute;
@@ -1196,30 +1788,33 @@ fieldset.campo legend { padding: 0; }
 .oferta .boton { position: relative; z-index: 1; }
 
 @media (hover: hover) {
-  .oferta:hover { box-shadow: var(--sombra-3); transform: translateY(-2px); }
+  .oferta:hover { box-shadow: var(--sombra-3); transform: translateY(-2px); border-color: var(--azul-borde); }
 }
 
-.oferta__pie {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--esp-2) var(--esp-3);
-  align-items: center;
-  justify-content: space-between;
-}
 .oferta__ir {
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px var(--esp-3);
+  border-radius: 999px;
+  background: var(--azul-claro);
+  font-weight: 700;
   color: var(--azul);
   font-size: var(--texto-sm);
   white-space: nowrap;
+  transition: background-color var(--mov-rapido) ease;
 }
-.oferta__ir::after { content: " →"; transition: margin-left var(--mov-rapido) ease; }
+.oferta__ir .icono { width: 16px; height: 16px; transition: transform var(--mov-rapido) ease; }
 @media (hover: hover) {
-  .oferta:hover .oferta__ir::after { margin-left: 4px; }
+  .oferta:hover .oferta__ir .icono { transform: translateX(3px); }
 }
 
-/* Dos columnas de tarjetas cuando hay espacio. */
+/* Dos columnas de tarjetas cuando hay espacio, tres si sobra. */
 @media (min-width: 48rem) {
   .rejilla--ofertas { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 68rem) {
+  .rejilla--ofertas-tres { grid-template-columns: 1fr 1fr 1fr; }
 }
 
 
@@ -1233,7 +1828,7 @@ fieldset.campo legend { padding: 0; }
   gap: var(--esp-2);
   min-height: 44px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--azul);
   list-style: none;
 }
@@ -1259,7 +1854,7 @@ fieldset.campo legend { padding: 0; }
   padding: 0 6px;
   border-radius: 999px;
   background: var(--azul);
-  color: #fff;
+  color: var(--sobre-azul);
   font-size: var(--texto-xs);
 }
 
@@ -1273,14 +1868,14 @@ fieldset.campo legend { padding: 0; }
   padding: 0 var(--esp-2) 0 var(--esp-3);
   border-radius: 999px;
   background: var(--azul-claro);
-  border: 1px solid var(--azul);
-  color: var(--azul-oscuro);
+  border: 1px solid var(--azul-borde);
+  color: var(--azul);
   font-size: var(--texto-sm);
   font-weight: 600;
   text-decoration: none;
-  transition: background-color var(--mov-rapido) ease;
+  transition: background-color var(--mov-rapido) ease, border-color var(--mov-rapido) ease;
 }
-.ficha:hover { background: #d7e5ef; color: var(--azul-oscuro); }
+.ficha:hover { border-color: var(--azul); color: var(--azul); }
 .ficha__x {
   display: inline-flex;
   align-items: center;
@@ -1288,13 +1883,15 @@ fieldset.campo legend { padding: 0; }
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: rgba(18, 73, 107, 0.12);
+  background: var(--superficie);
   font-size: 1rem;
   line-height: 1;
 }
 
 .resultados { transition: opacity var(--mov) ease; }
 .resultados[aria-busy="true"] { opacity: 0.45; }
+
+.resultados__cuantos { font-weight: 700; color: var(--tinta); }
 
 .paginacion {
   display: flex;
@@ -1339,11 +1936,12 @@ fieldset.campo legend { padding: 0; }
 .senal {
   display: flex;
   gap: var(--esp-4);
-  padding: var(--esp-4);
+  padding: var(--esp-4) var(--esp-5) var(--esp-4) var(--esp-4);
   background: var(--superficie);
   border: 1px solid var(--borde);
   border-left: 5px solid var(--ambar);
   border-radius: var(--radio);
+  box-shadow: var(--sombra-1);
   counter-increment: senal;
 }
 .senal::before {
@@ -1352,14 +1950,14 @@ fieldset.campo legend { padding: 0; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   background: var(--ambar-claro);
   color: var(--ambar);
-  font-weight: 700;
+  font-weight: 800;
 }
-.senal__titulo { font-weight: 700; }
+.senal__titulo { font-weight: 800; }
 .senal__texto { margin-top: var(--esp-1); color: var(--tinta-suave); }
 
 @media (min-width: 48rem) {
@@ -1376,9 +1974,10 @@ fieldset.campo legend { padding: 0; }
   border-radius: var(--radio);
   border: 1px solid var(--borde-fuerte);
   background: var(--superficie);
-  font-weight: 700;
+  font-weight: 800;
   text-decoration: none;
 }
+.telefono:hover { background: var(--azul-claro); }
 
 
 /* ------------------------------------------------------------------
@@ -1422,7 +2021,7 @@ fieldset.campo legend { padding: 0; }
 .zona-archivo {
   position: relative;
   display: block;
-  padding: var(--esp-5) var(--esp-4);
+  padding: var(--esp-6) var(--esp-4);
   border: 2px dashed var(--borde-fuerte);
   border-radius: var(--radio-lg);
   background: var(--superficie-2);
@@ -1442,6 +2041,7 @@ fieldset.campo legend { padding: 0; }
   width: 100%;
   margin-top: var(--esp-3);
   font-size: var(--texto-sm);
+  color: var(--tinta);
 }
 .js .zona-archivo input[type="file"] {
   position: absolute;
@@ -1452,8 +2052,8 @@ fieldset.campo legend { padding: 0; }
   cursor: pointer;
 }
 .zona-archivo__icono {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   margin: 0 auto var(--esp-2);
   fill: none;
   stroke: var(--azul);
@@ -1461,7 +2061,7 @@ fieldset.campo legend { padding: 0; }
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.zona-archivo__principal { display: block; font-weight: 700; color: var(--azul); }
+.zona-archivo__principal { display: block; font-weight: 800; color: var(--azul); }
 .zona-archivo__elegido { display: block; margin-top: var(--esp-2); font-size: var(--texto-sm); color: var(--tinta); word-break: break-all; }
 .zona-archivo--lista { border-style: solid; border-color: var(--azul); background: var(--azul-claro); }
 .zona-archivo--mal   { border-style: solid; border-color: var(--rojo); background: var(--rojo-claro); }
@@ -1486,12 +2086,138 @@ fieldset.campo legend { padding: 0; }
   padding: 0 var(--esp-2);
   margin-left: var(--esp-2);
   border-radius: 999px;
-  background: var(--azul-claro);
-  color: var(--azul);
+  background: var(--azul);
+  color: var(--sobre-azul);
   font-size: var(--texto-sm);
-  font-weight: 700;
+  font-weight: 800;
   vertical-align: middle;
 }
+
+/* Mosaicos: accesos grandes con ícono, que se tocan enteros. Es lo
+   primero que ve la persona en su cuenta: qué puede hacer, en un
+   toque, sin leer párrafos. */
+.mosaicos {
+  display: grid;
+  gap: var(--esp-3);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr));
+}
+.mosaico {
+  position: relative;
+  display: flex;
+  gap: var(--esp-3);
+  align-items: flex-start;
+  padding: var(--esp-4);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-lg);
+  box-shadow: var(--sombra-1);
+  color: var(--tinta);
+  text-decoration: none;
+  transition: box-shadow var(--mov) var(--curva), border-color var(--mov) ease, transform var(--mov) var(--curva);
+}
+.mosaico:hover { color: var(--tinta); border-color: var(--azul-borde); }
+@media (hover: hover) {
+  .mosaico:hover { box-shadow: var(--sombra-3); transform: translateY(-2px); }
+}
+.mosaico__icono {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: var(--azul-claro);
+  color: var(--azul);
+}
+.mosaico__icono .icono { width: 24px; height: 24px; }
+.mosaico--destacado { border-color: var(--azul); box-shadow: 0 0 0 3px var(--azul-claro), var(--sombra-1); }
+.mosaico--destacado .mosaico__icono { background: var(--azul); color: var(--sobre-azul); }
+.mosaico__titulo { display: block; font-weight: 800; }
+.mosaico__texto { display: block; margin-top: 2px; font-size: var(--texto-sm); color: var(--tinta-suave); }
+
+
+/* ------------------------------------------------------------------
+   Página de una oferta
+   En el teléfono va todo en una columna, en este orden: título, sello
+   con sus datos, botones, y recién después el detalle. En pantalla
+   ancha el sello y los botones pasan a una columna a la derecha que
+   acompaña al bajar.
+   ------------------------------------------------------------------ */
+.detalle { display: grid; gap: var(--esp-5); }
+.detalle > * { min-width: 0; }
+.detalle__cabeza > * + * { margin-top: var(--esp-3); }
+.detalle__principal > * + *,
+.detalle__lado > * + *,
+.detalle__extra > * + * { margin-top: var(--esp-5); }
+
+@media (min-width: 60rem) {
+  .detalle {
+    grid-template-columns: minmax(0, 1fr) 360px;
+    grid-template-areas:
+      "cabeza    cabeza"
+      "principal lado"
+      "principal extra";
+    grid-template-rows: auto auto 1fr;
+    gap: var(--esp-5) var(--esp-6);
+    align-items: start;
+  }
+  .detalle__cabeza    { grid-area: cabeza; }
+  .detalle__principal { grid-area: principal; }
+  .detalle__lado      { grid-area: lado; }
+  .detalle__extra     { grid-area: extra; }
+
+  /* En la columna angosta, los datos del sello van de a uno. */
+  .detalle__lado .verificacion__datos { grid-template-columns: 1fr; }
+}
+
+/* Lo que pide la oferta, en casillas con ícono. */
+.datos-oferta {
+  margin: 0;
+  display: grid;
+  gap: var(--esp-3);
+}
+.dato {
+  padding: var(--esp-3) var(--esp-4);
+  border-radius: var(--radio);
+  background: var(--superficie-2);
+}
+.dato dt {
+  display: flex;
+  gap: var(--esp-2);
+  align-items: center;
+  font-size: var(--texto-xs);
+  color: var(--tinta-suave);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.dato dt .icono { width: 18px; height: 18px; color: var(--azul); }
+.dato dd { margin: 4px 0 0; font-weight: 600; word-break: break-word; }
+.dato--ancho { grid-column: 1 / -1; }
+@media (min-width: 40rem) {
+  .datos-oferta { grid-template-columns: 1fr 1fr; }
+}
+
+.pago {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: var(--esp-2) var(--esp-3);
+  border-radius: var(--radio);
+  background: var(--azul-claro);
+  color: var(--tinta);
+  font-weight: 700;
+}
+.pago .icono { color: var(--azul); }
+
+
+/* ------------------------------------------------------------------
+   Entrar y crear cuenta
+   ------------------------------------------------------------------ */
+.acceso__cabeza { text-align: center; }
+.acceso__cabeza > * + * { margin-top: var(--esp-3); }
+.acceso__logo { width: 92px; height: 54px; }
 
 
 /* ------------------------------------------------------------------
@@ -1500,16 +2226,23 @@ fieldset.campo legend { padding: 0; }
 .resultado-nuevo { animation: entrar-desde-arriba var(--mov-lento) var(--curva) both; }
 
 
+/* Tablet: las dos puertas van lado a lado, pero cada una es angosta y
+   el botón al lado de la caja no deja leer lo que se escribe. */
+@media (min-width: 48rem) and (max-width: 63.99rem) {
+  .puerta .buscador-grande { flex-direction: column; }
+}
+
 @media (min-width: 48rem) {
-  .portada { padding: var(--esp-7) var(--esp-6); }
-  .portada__titulo { font-size: 2.5rem; }
+  .portada { padding: var(--esp-7) var(--esp-7) var(--esp-6); }
+  .portada__titulo { font-size: 2.875rem; }
+  .puertas { grid-template-columns: 1fr 1fr; }
   .pasos--fila { grid-template-columns: repeat(3, 1fr); }
   .pasos--fila .paso { flex-direction: column; gap: var(--esp-3); }
 }
 
 @media print {
   body { padding-bottom: 0; }
-  .cargando-barra, .compartir { display: none !important; }
+  .cargando-barra, .compartir, .boton-tema { display: none !important; }
 }
 
 

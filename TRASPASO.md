@@ -25,10 +25,17 @@ se pueden revisar, y están todas anotadas con su razón.
 2. Importar en este orden:
    - `sql/esquema.sql` — las 21 tablas
    - `sql/datos_iniciales.sql` — roles, permisos y rubros
-   - `sql/datos_prueba.sql` — **opcional**, solo para demostrar. Trae instrucciones para borrarlo.
+   - `sql/datos_prueba.sql` — **opcional**, solo para probar en una copia local. Sus ofertas de
+     EJEMPLO son en el extranjero: no se usa en el sitio público desde que es de empleo en
+     Guatemala (D-054). Trae instrucciones para borrarlo.
 3. **Si la base ya existía antes del 2026-10-01:** correr también `sql/migracion_001.sql`. Sin
    ella, borrar una oferta con postulaciones falla. (Borrar una cuenta funciona igual: el código
    ya no depende de la migración.)
+4. **Si la base ya existía antes del 2026-10-03:** correr también `sql/migracion_002.sql`
+   (departamento, forma de postularse y el oficio "Atención al cliente y call center").
+5. **Ofertas reales:** `sql/ofertas_reales_2026-10-03.sql` carga 6 vacantes comprobadas en las
+   páginas oficiales de las empresas. Vencen solas el 2026-11-02 y después de esa fecha el archivo
+   ya no carga nada (D-056). Las siguientes se cargan desde el panel.
 
 ### 2.2. Configuración
 
@@ -38,7 +45,8 @@ Copiar `app/config/config.ejemplo.php` como `app/config/config.php` y llenar:
 |---|---|
 | `BD_SERVIDOR`, `BD_NOMBRE`, `BD_USUARIO`, `BD_CLAVE` | Credenciales de MySQL |
 | `SITIO_URL` | Dirección pública, sin barra final |
-| `SITIO_NOMBRE` | Nombre visible |
+| `SITIO_NOMBRE` | Nombre visible (hoy `Mjob for all`). La primera palabra va en negrita con la M en el azul del logo; el resto, más delgado |
+| `SITIO_LEMA` | El lema debajo del nombre (hoy `Trabajo sin fronteras`). Si falta, el sitio anda igual, sin lema |
 | `ENTORNO` | `produccion` en el servidor. **Nunca `desarrollo` en público** |
 
 **`config.php` no está en el repositorio y no debe estarlo nunca.** Está en `.gitignore`.
@@ -251,6 +259,13 @@ la aplicación**: todo está escrito en PHP y SQL estándar a propósito.
    y necesita verificación humana (decisión D-021). Eso no es una limitación del hosting, es una
    regla del proyecto.
 
+   **Actualización del 2026-10-03:** Adzuna no cubre Guatemala, y desde D-054 las ofertas son de
+   empleo en Guatemala. No hay una fuente legal que se pueda conectar sola (sección 6 del
+   `CLAUDE.md`). Lo que sí se puede automatizar es lo que una institución acepte compartir: si el
+   Ministerio de Trabajo o la OIM firman el convenio (`documentos/carta_convenio.md`) y mandan un
+   archivo periódico, se arma un script que lo convierta al CSV de `admin/importar_csv.php` (con
+   las columnas `departamento_codigo` y `forma_postulacion`), y en un servidor propio corre solo.
+
 6. **Cabecera CSP.** Si el hosting deja de inyectar JavaScript en las respuestas, se puede
    endurecer todavía más la línea de CSP en `app/nucleo/inicio.php`.
 
@@ -295,6 +310,10 @@ reciba debería cambiarlas.
 ## 10. Antes de entregar a la institución
 
 - [ ] Borrar los datos de prueba (instrucciones al final de `sql/datos_prueba.sql`).
+- [ ] Revisar que las ofertas del primer lote (`sql/ofertas_reales_2026-10-03.sql`) ya vencieron
+      o reemplazarlas por vacantes comprobadas de nuevo en las páginas de las empresas.
+- [ ] Mandar la carta de convenio (`documentos/carta_convenio.md`) al Ministerio de Trabajo y a
+      la OIM: sin convenio, alguien tiene que buscar y comprobar las ofertas a mano cada semana.
 - [ ] Comprobar que `instalar.php` y `diagnostico.php` no están en el servidor.
 - [ ] Comprobar que `ENTORNO` dice `produccion` en `config.php`.
 - [ ] Cargar el registro real de reclutadores del Ministerio de Trabajo.
