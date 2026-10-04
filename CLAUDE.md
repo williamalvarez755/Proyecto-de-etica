@@ -169,6 +169,11 @@ en sus páginas oficiales, en `sql/ofertas_reales_2026-10-03.sql`, que **vencen 
 lote corrido dos veces sin duplicar, el filtro, la página de la oferta, el bloqueo de la
 postulación interna, el formulario del panel y la importación por CSV con el formato nuevo.
 
+**Segundo lote, mismo día** (D-060): 12 vacantes de oficios del grupo Progreso (bodega, pilotos,
+ayudantes de albañil, maquinaria, mecánica, ventas y campo), 8 de ellas en el occidente o cerca.
+Con los dos lotes hay **18 ofertas** en 8 departamentos. El buscador ahora también busca en los
+requisitos ("albañil" encuentra 4).
+
 **Lo que esto NO resuelve, dicho claro:** no existe una fuente legal y automática de vacantes en
 Guatemala (ver la sección 6). Mientras no haya un convenio (`documentos/carta_convenio.md`), las
 ofertas nuevas las tiene que buscar y comprobar una persona, y el lote actual se vence el
@@ -195,7 +200,9 @@ ofertas nuevas las tiene que buscar y comprobar una persona, y el lote actual se
 - [ ] Correr `sql/migracion_002.sql` (departamento, forma de postularse y el oficio "Atención al
       cliente y call center") si la base es anterior al 2026-10-03.
 - [ ] Importar `sql/ofertas_reales_2026-10-03.sql` **antes del 2026-11-02** (después no carga
-      nada, a propósito). Y no importar `datos_prueba.sql` en el servidor: sus ofertas de EJEMPLO
+      nada, a propósito).
+- [ ] Importar `sql/ofertas_reales_2026-10-03_oficios.sql` (12 vacantes de oficios, D-060)
+      **antes del 2026-10-17** para que entren las 12; después de esa fecha entran 10. Y no importar `datos_prueba.sql` en el servidor: sus ofertas de EJEMPLO
       son en el extranjero y confundirían ahora que el sitio es de empleo en Guatemala.
 - [ ] Mandar la carta de `documentos/carta_convenio.md` al Ministerio de Trabajo y a la OIM.
 - [x] ~~Para la demostración: importar `sql/datos_prueba.sql`~~ **Superado el mismo día** por el
@@ -923,6 +930,31 @@ cambió: el historial de por qué algo cambió vale tanto como la decisión actu
 - **Detalle:** `fgetcsv()` y `fputcsv()` llevan sus cuatro parámetros escritos: en PHP 8.4 omitir
   `$escape` da un aviso que el manejador de errores convierte en error. En el servidor (8.3) no
   pasaba todavía; en la copia local (8.4) rompía la importación.
+
+### D-060 · 2026-10-03 · Segundo lote: oficios del grupo Progreso, y el buscador mira los requisitos · VIGENTE
+
+- **Decisión:** 12 vacantes reales de oficios (ayudantes de bodega, pilotos, ayudantes de albañil,
+  operador de maquinaria, mecánico, ventas y campo), comprobadas el 2026-10-03 en el portal
+  oficial de empleo del grupo Progreso (Cementos Progreso, Construfácil, Mixto Listo, Agreca), en
+  `sql/ofertas_reales_2026-10-03_oficios.sql`. Ocho de ellas en el occidente o cerca:
+  Huehuetenango, San Marcos (2), Xela (2), Coatepeque, Santa Cruz del Quiché y Sololá. Mismo
+  procedimiento y misma excepción que D-056.
+- **Por qué Progreso:** lo pidió el estudiante ("oficios como construcción"), y es de las pocas
+  empresas del sector con un portal propio donde cada vacante dice lugar, requisitos y contrato.
+  Varias piden justo la experiencia que trae mucha gente que regresa: "1 año como ayudante de
+  albañil, ayudante de bodega o cargador".
+- **Sobre la dirección del portal:** está en `cementosprogreso.pandape.computrabajo.com`. Pandapé
+  es el sistema de reclutamiento que la empresa usa para su página de empleo; **no es** la bolsa
+  pública de Computrabajo (`gt.computrabajo.com`), que sigue descartada (D-055). Cada vacante se
+  leyó una por una en el navegador, como lo haría una persona, sin programas que las copien.
+- **Vencimientos escalonados:** las publicadas en septiembre y octubre vencen el 2026-11-02; las
+  dos publicadas en agosto, el 2026-10-17, porque llevan más tiempo abiertas.
+- **Lo que se descartó:** DECONSA (maestro de obra en Xela): venció el 2026-09-10 y solo aparecía
+  en un agregador. Puestos de gerencia, docencia e ingeniería del mismo portal: no son oficios.
+- **El buscador ahora también busca en los requisitos.** Antes, quien escribía "albañil" no
+  encontraba "ayudante de bodega" aunque la oferta pida "1 año como ayudante de albañil". Con eso,
+  "albañil" encuentra 4 ofertas. La condición usa `:texto1` a `:texto4`, cada uno con su nombre
+  (sección 6, parámetros repetidos).
 
 ---
 

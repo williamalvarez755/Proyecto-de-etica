@@ -117,8 +117,11 @@ function filtros_de_busqueda(array $filtros): array
         // (EMULATE_PREPARES en false, ver bd.php) PDO NO deja repetir un
         // parámetro con nombre. Si se repite, la consulta revienta con
         // "Invalid parameter number" y el buscador entero da error.
-        $condiciones[] = '(o.titulo LIKE :texto1 OR o.empleador LIKE :texto2 OR o.descripcion LIKE :texto3)';
-        $parametros += parametros_de_texto($filtros['texto'], 3);
+        // También en los requisitos: ahí dice "1 año como ayudante de
+        // albañil", y quien sabe ese oficio busca "albañil" (D-060).
+        $condiciones[] = '(o.titulo LIKE :texto1 OR o.empleador LIKE :texto2 OR o.descripcion LIKE :texto3'
+                       . ' OR o.requisitos LIKE :texto4)';
+        $parametros += parametros_de_texto($filtros['texto'], 4);
     }
 
     $sql = $condiciones === [] ? '' : ' AND ' . implode(' AND ', $condiciones);

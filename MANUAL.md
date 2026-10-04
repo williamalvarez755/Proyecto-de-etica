@@ -64,6 +64,15 @@ el Ministerio de Trabajo o la OIM. Nunca de Facebook, de grupos de WhatsApp ni d
 Computrabajo (sus términos lo prohíben). Antes de cargar una, abra la página oficial y compruebe
 que la vacante sigue ahí.
 
+Ojo con una confusión: algunas empresas tienen su página de empleo en un sistema de reclutamiento
+con dirección parecida a la de una bolsa. Por ejemplo, la de Progreso es
+`cementosprogreso.pandape.computrabajo.com`: es la página **de la empresa** y sí sirve. Lo que no
+sirve es la bolsa pública `gt.computrabajo.com`, donde publica cualquiera.
+
+**Empresas que ya se revisaron** (octubre de 2026) y vale la pena volver a mirar cada semana:
+Progreso (oficios en todo el país, incluido el occidente), Allied Global e IntouchCX (call
+centers en la capital y en Petén).
+
 La oferta queda como **pendiente**. Todavía no la ve nadie.
 
 ### 2. Verificar una oferta
