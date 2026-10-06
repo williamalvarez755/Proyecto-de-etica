@@ -20,13 +20,27 @@
  * campaña, pero NO se muestra en ninguna pantalla pública.
  */
 
+/**
+ * Guarda un reporte. Devuelve su id, o 0 si esa cuenta ya había
+ * reportado esa oferta (incluido el caso de dos envíos a la vez: la
+ * restricción única uk_reporte_cuenta_oferta corta el segundo, y acá se
+ * trata como "ya estaba reportada" en lugar de dejar que explote).
+ */
 function crear_reporte(int $oferta_id, ?int $usuario_id, string $motivo, string $descripcion): int
 {
-    consultar(
-        'INSERT INTO reportes (oferta_id, usuario_id, motivo, descripcion, estado, creado_en)
-         VALUES (?, ?, ?, ?, ?, ?)',
-        [$oferta_id, $usuario_id, $motivo, $descripcion ?: null, 'pendiente', ahora()]
-    );
+    try {
+        consultar(
+            'INSERT INTO reportes (oferta_id, usuario_id, motivo, descripcion, estado, creado_en)
+             VALUES (?, ?, ?, ?, ?, ?)',
+            [$oferta_id, $usuario_id, $motivo, $descripcion ?: null, 'pendiente', ahora()]
+        );
+    } catch (PDOException $e) {
+        // 23000 = violación de una restricción (acá, el reporte repetido).
+        if ($e->getCode() === '23000') {
+            return 0;
+        }
+        throw $e;
+    }
 
     return (int) bd()->lastInsertId();
 }

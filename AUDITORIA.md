@@ -1,3 +1,260 @@
+# Auditoría de seguridad · 2026-10-06
+
+Segunda auditoría, enfocada en los cambios que entraron a `main` después del 2026-10-01: la
+identidad Mjob, el modo noche, los íconos, el empleo en Guatemala (departamento, postulación en
+la página de la empresa), la importación CSV ampliada y los dos lotes de ofertas reales. Se
+revisó archivo por archivo, se probó cada hallazgo en un laboratorio local (MariaDB + PHP 8.3 +
+Apache, con `app/` dentro de `htdocs` como en InfinityFree) y se corrigió lo confirmado. El
+informe del 2026-10-01 queda más abajo, sin cambios.
+
+Decisiones nuevas en [CLAUDE.md](CLAUDE.md): **D-061** (el respaldo lo baja solo el
+superadministrador). Migración nueva: **`sql/migracion_003.sql`**.
+
+---
+
+## Resumen ejecutivo
+
+La base que ya se había auditado sigue sólida: consultas preparadas en todas partes, CSRF
+automático en cada POST, salida escapada, sesión endurecida, control de acceso en el servidor,
+currículums con nombre al azar detrás de tres `.htaccess`. **No apareció ninguna falla crítica
+de las que dan acceso directo ni robo masivo de datos** (ni SQLi, ni XSS, ni RCE, ni path
+traversal, ni IDOR en los flujos de datos de personas). Lo que apareció fueron **fallas de
+control de acceso dentro del panel y de endurecimiento**: un administrador común podía, en la
+práctica, quedarse con la cuenta del superadministrador; podía bajar el respaldo con todos los
+hashes; el ingreso del panel no frenaba por conexión y se le podía inflar la bitácora; y la
+página de diagnóstico pasó a mostrar de más. Todo eso se corrigió y se volvió a probar.
+
+Para dimensionarlo: los problemas estaban del lado de **quien ya tiene una cuenta de
+administrador** (un insider semiconfiable) o de **archivos de instalación que deben borrarse**,
+no del lado del visitante anónimo ni de la persona que sube su currículum. La parte que más
+expone datos sensibles —el flujo del currículum— se mantuvo correcta.
+
+**Puntuación de seguridad: 88/100** (antes de esta auditoría, con los defectos presentes, estaba
+en torno a 78). Qué falta para subirla, al final.
+
+## Riesgos críticos
+
+No se encontró ninguna falla que permita, sin credenciales, acceso no autorizado, robo de
+información, ejecución de código o compromiso de cuentas de personas. El riesgo más alto fue una
+**escalada de privilegios dentro del panel** (A1), que necesita ya tener una cuenta de
+administrador. Se corrigió.
+
+## Tabla de vulnerabilidades
+
+| ID | Vulnerabilidad | Severidad | Archivo | Impacto | Estado |
+|---|---|---|---|---|---|
+| A1 | Un administrador común podía restablecer (y así tomar) la cuenta del superadministrador | **Alta** | `htdocs/admin/restablecimientos.php` | Escalada de privilegios al rol máximo | **Corregida** |
+| M1 | El ingreso del panel no frenaba por conexión; cada intento anónimo escribía en la bitácora | Media | `htdocs/admin/entrar.php`, `app/config/limites.php` | Fuerza bruta distribuida por correo e inundación del registro de auditoría | **Corregida** |
+| M2 | `diagnostico.php` mostraba rutas del servidor y el listado de carpetas sin pedir nada | Media | `htdocs/diagnostico.php` | Divulgación de información del servidor a cualquiera, durante la instalación | **Corregida** |
+| B1 | Cualquier administrador podía bajar el respaldo con correos y hashes de todas las personas | Baja (diseño) | `htdocs/admin/respaldo.php` | Un administrador se lleva toda la base; mínimo privilegio | **Corregida (D-061)** |
+| B2 | Dos envíos simultáneos dejaban reportes duplicados (condición de carrera) | Baja | `app/modelos/reportes.php`, `sql/esquema.sql` | Infla el conteo de reportes; sin daño de datos | **Corregida** |
+| B3 | El lector de PDF corría sin tope de memoria al descomprimir | Baja (endurecimiento) | `app/nucleo/extraccion.php` | Un PDF preparado podría agotar memoria; acotado por el tope de 3 MB y la cuenta | **Corregida** |
+
+## Detalle técnico
+
+### A1 · Escalada: administrador → superadministrador · Alta · CONFIRMADA
+
+**Qué pasaba.** El restablecimiento asistido (D-005) muestra el código **en la pantalla de quien
+lo genera**, para que se lo dicte a la persona. `restablecimientos.php` solo comprobaba que la
+cuenta objetivo existiera y estuviera activa; no miraba su rol. Un administrador común tiene el
+permiso `usuarios.restablecer`.
+
+**Por qué es vulnerable.** Un administrador generaba un código para el correo del
+superadministrador, lo leía de su propia pantalla, iba a la página pública de poner contraseña
+nueva y fijaba una contraseña a la cuenta responsable del sistema. Las cuentas administrativas
+solo las gestiona el superadministrador (`administradores.php` ya exige
+`requerir_superadministrador()`), así que esto saltaba la jerarquía por una puerta lateral.
+
+**Cómo se verificó (laboratorio).** Con una cuenta `administrador` común: enviar el formulario de
+`restablecimientos.php` con el correo del superadministrador. Antes: la página mostraba "Código
+para…". Después del arreglo: muestra "Esa es una cuenta administrativa. Solo el superadministrador
+puede restablecer su contraseña", y el intento queda en la bitácora como `permiso_denegado`. Se
+comprobó además que un administrador **sí** puede restablecer a una persona normal, y que el
+superadministrador **sí** puede restablecer a un administrador.
+
+**Remediación (aplicada).** En el servidor (regla 5): restablecer una cuenta administrativa es
+cosa del superadministrador.
+
+```php
+$objetivo_es_administrativo = $usuario !== null
+    && in_array($usuario['rol'], ROLES_ADMINISTRATIVOS, true);
+// ...
+} elseif ($objetivo_es_administrativo && !es_superadministrador()) {
+    registrar_accion('permiso_denegado', 'usuario', (int) $usuario['id'],
+        'Intentó restablecer una cuenta administrativa sin ser superadministrador');
+    $errores['correo'] = 'Esa es una cuenta administrativa. Solo el superadministrador...';
+}
+```
+
+### M1 · Ingreso del panel sin freno por conexión + inundación de bitácora · Media · CONFIRMADA
+
+**Qué pasaba.** El ingreso del panel bloqueaba por **correo** (3 fallos → 30 min), pero no por
+conexión. Alguien que probara un correo distinto cada vez nunca tocaba ese bloqueo, y cada
+intento escribía dos filas: una en `intentos_acceso` y otra en `bitacora_admin` con el correo tal
+cual se escribió. En el laboratorio, 20 intentos con correos inventados → 20 renglones de
+bitácora.
+
+**Por qué importa.** Dos cosas: (1) deja probar contraseñas contra cuentas conocidas variando el
+correo para esquivar el bloqueo; (2) llena el registro de auditoría de basura —y la bitácora es
+justamente lo que sirve para investigar después— en un hosting con espacio y filas contados.
+El texto que se guardaba iba escapado al mostrarse, así que **no** era XSS almacenado.
+
+**Cómo se verificó.** Tras el arreglo: 40 intentos con correos distintos desde una misma IP se
+cortan en el intento 31 ("Se hicieron demasiados intentos desde esta conexión"), y la bitácora
+queda en 0 renglones por esos intentos inventados. Un fallo con el correo **real** de un
+administrador sí sigue quedando registrado.
+
+**Remediación (aplicada).** Tope por IP en el ingreso del panel (`LOGIN_ADMIN_MAX_POR_IP = 30`
+en `LOGIN_ADMIN_VENTANA_IP_MIN = 30` min) y la bitácora solo anota el fallo cuando el correo
+pertenece de verdad a una cuenta administrativa (el intento igual se cuenta en `intentos_acceso`,
+que se limpia solo). *Compromiso conocido:* mientras una IP está bloqueada, también se frena la
+credencial correcta desde esa IP; el límite es holgado (30/30 min) para no estorbar a una oficina.
+
+### M2 · `diagnostico.php` mostraba de más sin autenticación · Media · CONFIRMADA
+
+**Qué pasaba.** El rediseño le agregó a `diagnostico.php` el listado real de las carpetas
+(revelando que existe `config.php`), las rutas absolutas del servidor y la creación automática de
+`.htaccess`. Todo eso sin pedir nada. El archivo es temporal (se sube, se mira y se borra), pero
+mientras está, cualquiera que acierte la dirección ve versión de PHP, extensiones, rutas y
+estructura.
+
+**Cómo se verificó.** Tras el arreglo, sin la llave: la página responde 403 y solo muestra el
+formulario que pide la frase; no aparecen rutas `/var/www` ni `/home`, ni el listado de archivos,
+ni la tabla de extensiones. Con la llave correcta: muestra el diagnóstico completo.
+
+**Remediación (aplicada).** La página se cierra detrás de la misma llave de instalación que
+`instalar.php` (D-012): el archivo `app/config/instalacion.txt`, que solo puede crear quien tiene
+el FTP. Si esa llave ya no está (el sitio se instaló y se borró), la página no muestra **nada**:
+falla del lado seguro y pide que se borre el archivo. La creación de carpetas y la prueba de
+escritura quedaron también detrás de la llave.
+
+### B1 · El respaldo con todos los hashes, al alcance de cualquier administrador · Baja (diseño) · CONFIRMADA
+
+**Qué pasaba.** `respaldo.php` exigía `mantenimiento.ejecutar`, que tienen tanto el administrador
+como el superadministrador. Ese archivo vuelca de una vez los correos y los hashes de contraseña
+de **todas** las personas a la computadora de quien lo baja. Es el export más sensible del
+sistema.
+
+**Remediación (aplicada, D-061).** El respaldo lo baja solo el superadministrador
+(`requerir_superadministrador()`). El resto del mantenimiento (vencer ofertas, limpiar) sigue
+siendo de los administradores. Verificado: un administrador recibe 403; el superadministrador lo
+baja. Es una decisión de mínimo privilegio; si la institución prefiere que todos los
+administradores puedan respaldar, se revierte cambiando esa línea.
+
+### B2 · Reportes duplicados por condición de carrera · Baja · CONFIRMADA
+
+**Qué pasaba.** `reportar.php` comprobaba con `ya_reporto()` y después insertaba: dos pasos. Dos
+envíos a la vez (doble toque, recarga rápida) pasaban los dos antes de que el primero guardara.
+En Apache (varios procesos) se reprodujeron hasta 2 reportes iguales de la misma cuenta. No es
+grave —ninguna oferta se retira sola por reportes (D-033)—, pero infla el conteo que ve quien
+revisa.
+
+**Remediación (aplicada).** Llave única `(usuario_id, oferta_id)` en `reportes`
+(`sql/migracion_003.sql` para bases existentes, ya incorporada al `esquema.sql`). En MySQL dos
+NULL no chocan, así que los reportes sin identidad (de cuentas borradas, D-041) se conservan
+todos. `crear_reporte()` atrapa el choque y lo trata como "ya estaba reportada", sin error 500.
+Verificado: 8 envíos simultáneos → 1 solo reporte, ninguna respuesta 500.
+
+### B3 · Lector de PDF sin tope de memoria · Baja (endurecimiento) · CONFIRMADA (biblioteca)
+
+**Qué pasaba.** `smalot/pdfparser` descomprime los flujos del PDF con `decodeMemoryLimit = 0`
+(sin tope) por defecto. Un PDF chico con flujos muy comprimidos podría inflarse al leerlo. Está
+acotado porque subir un CV exige cuenta, el archivo no puede pasar de 3 MB y hay tope de subidas
+por día, pero el agotamiento de memoria no lo atrapa el `try/catch`.
+
+**Remediación (aplicada).** Se le pasa al lector un `Config` con `setDecodeMemoryLimit(
+CV_TEXTO_MAXIMO_BYTES)` (el mismo 5 MB que ya limita el `.docx`, D-023/M1), y se recorta el texto
+extraído a ese tope. Verificado: un PDF normal se sigue leyendo (3 181 caracteres extraídos de un
+PDF de prueba real); si falta la clase `Config`, cae a `new Parser()` como antes.
+
+## Lo que se revisó y está bien (no es exhaustivo)
+
+- **Postulación externa (D-058):** el botón externo usa `url_segura()` (solo `http(s)`, bloquea
+  `javascript:`), `rel="noopener noreferrer nofollow"`, y el dominio mostrado sale de `parse_url`
+  escapado. `postular.php` rechaza las externas en el servidor aunque se escriba la dirección a
+  mano, y una externa no se puede publicar sin dirección válida. Probado.
+- **Filtro por departamento y formato CSV ampliado:** todo lo que llega del navegador se valida
+  contra listas cerradas (`DEPARTAMENTOS`, `FORMAS_POSTULACION`, `PAISES`). SQLi no aplica: el
+  filtro de texto usa `:texto1`…`:texto4`, cada uno con su nombre. Las importadas entran siempre
+  `pendiente` (D-021). Probado en los formatos de 15 y 17 columnas.
+- **Íconos (D-052):** `icono()` devuelve de una lista fija; el nombre lo escribe el código, la
+  clase va escapada. Sin inyección.
+- **Modo noche (D-051):** la cookie `tema` se valida contra `['claro','oscuro']`; se imprime en
+  `data-tema` con `escapar()`. No es sensible (por eso puede leerla el JavaScript).
+- **Ofertas reales (SQL):** entran como datos, con fechas fijas y atribuidas al superadministrador
+  (excepción documentada D-056/D-060). No son código ni traen entrada del usuario.
+- **Sin cambios peligrosos de base:** cero `exec`/`system`/`eval`, cero `include` con variable del
+  usuario, cero secretos en el repositorio ni en el historial de git, cero `style=`/`on*=` en el
+  HTML (la CSP los bloquea).
+
+## Priorización
+
+- 🔴 **Corregir inmediatamente:** A1 (escalada a superadministrador). **Hecho.**
+- 🟠 **Corregir pronto:** M1 (freno por IP + bitácora), M2 (diagnóstico cerrado). **Hecho.**
+- 🟡 **Corregir posteriormente:** B1 (respaldo solo superadmin), B2 (reporte duplicado). **Hecho.**
+- 🟢 **Mejora recomendada:** B3 (tope de memoria del PDF). **Hecho.** Y, del informe anterior,
+  sigue pendiente de decisión: los límites por IP compartida (D1), la verificación en dos pasos
+  para el panel y las pruebas automáticas en CI.
+
+## Re-auditoría de las correcciones
+
+Se revisaron los propios arreglos:
+
+- **A1:** usa `$usuario['rol']` (que `buscar_usuario_por_correo` sí devuelve) y
+  `es_superadministrador()` (que existe). La lógica cubre los cuatro casos (admin→persona ✓,
+  admin→admin ✗, super→admin ✓, super→super ✓). El mensaje le revela a un administrador común que
+  un correo es administrativo: es un dato de bajísima sensibilidad entre colegas, se deja a
+  cambio de que el mensaje sea claro.
+- **M1:** el tope por IP corre después de la comprobación de campos vacíos; `es_correo_administrativo`
+  agrega una consulta solo en los fallos (despreciable). Compromiso del bloqueo compartido,
+  documentado.
+- **M2:** los `echo` de la página mínima están dentro de una función que solo se llama al fallar la
+  llave, antes de cualquier otra salida, así que las cabeceras 403 funcionan. La creación de
+  carpetas quedó detrás de la llave.
+- **B2:** `crear_reporte()` atrapa `23000` (violación de restricción). En ese INSERT la única
+  restricción que puede dispararse en uso normal es la llave única nueva; las FK ya están
+  garantizadas por el flujo. Aceptable.
+- **B3:** firma del constructor confirmada (`__construct($cfg = [], ?Config $config = null)`), con
+  reserva por si falta la clase.
+
+Las dos herramientas del proyecto vuelven a pasar (`revision_seguridad.py`: los 14 puntos;
+`revisar_php.py`: solo los avisos heurísticos de `if/endif`, benignos), la prueba de humo pasa
+todos los controles de seguridad en Apache, y los flujos de punta a punta (persona y panel,
+incluida la importación CSV) funcionan. El `esquema.sql` nuevo carga limpio, con el índice único
+y las columnas, sin necesidad de migraciones.
+
+## Qué subir y cómo probarlo en el servidor
+
+1. **En phpMyAdmin, una sola vez**, si la base ya existía: correr `sql/migracion_003.sql`
+   (después de la 001 y la 002). Si la base se creó con el `esquema.sql` nuevo, no hace falta.
+2. **Por FTP**, los archivos cambiados (dentro de `htdocs/`, con `app/` en `htdocs/app/`):
+   `htdocs/admin/restablecimientos.php`, `htdocs/admin/entrar.php`, `htdocs/admin/respaldo.php`,
+   `htdocs/admin/mantenimiento.php`, `htdocs/diagnostico.php`, `app/config/limites.php`,
+   `app/modelos/reportes.php`, `app/nucleo/extraccion.php`. (Más lo que ya traía el `main` del
+   2026-10-03, si no se había subido.)
+3. **Comprobar:** correr `python herramientas/prueba_de_humo.py https://tusitio...` (tiene que
+   terminar sin fallas de seguridad), y a mano: que un administrador común **no** pueda bajar el
+   respaldo ni restablecer a otro administrador, y que `diagnostico.php` pida la llave.
+4. **Borrar `instalar.php` y `diagnostico.php`** cuando termines: la prueba de humo lo recuerda.
+
+## Qué subiría la puntuación al siguiente nivel (de 88 a 95+)
+
+1. **Verificación en dos pasos (TOTP) para las cuentas del panel.** Son las que ponen el sello de
+   "verificada". Hoy, con solo la contraseña de un administrador, se entra. TOTP se calcula con
+   `hash_hmac` de PHP, sin servicio externo.
+2. **Resolver los límites por IP compartida (D1 del informe anterior).** Sigue siendo el punto que
+   más puede afectar el funcionamiento real: comprobar con `diagnostico.php` qué IP ve el servidor
+   y ajustar `REGISTRO_MAX_POR_IP` y los topes del verificador en consecuencia.
+3. **Pruebas automáticas en CI (GitHub Actions).** Las dos fallas críticas del 2026-10-01 pasaban
+   la revisión que lee el código; solo se vieron al ejecutar. Correr los flujos en cada push es lo
+   que más baja el riesgo por hora invertida.
+4. **Cifrar el respaldo (`.sql`) al descargarlo** y no incluir `intentos_acceso`. Hoy sale en
+   claro con todos los hashes a la computadora de quien lo baja.
+5. **Registro de seguridad al día:** revisar periódicamente la bitácora (`permiso_denegado`,
+   `login_admin_bloqueado_ip`) — ahora que no se inunda, los eventos reales se leen.
+
+---
+
 # Auditoría del código · 2026-10-01
 
 Revisión completa de las siete fases, corrección de lo que se encontró, mejora de la interfaz y

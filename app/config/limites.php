@@ -68,6 +68,16 @@ define('LOGIN_BLOQUEO_MINUTOS',   15);  // y este es el castigo
 define('LOGIN_ADMIN_MAX_INTENTOS',    3);
 define('LOGIN_ADMIN_BLOQUEO_MINUTOS', 30);
 
+// Tope por conexión en el ingreso del panel. El bloqueo de arriba es
+// por correo, así que alguien que prueba un correo distinto cada vez no
+// lo toca nunca: cada intento abre un renglón en la bitácora y gasta
+// peticiones del tope diario. Este límite cuenta TODOS los intentos de
+// una misma IP (aciertos y fallos) en la ventana, sin importar el
+// correo. Es alto para no estorbar a varias personas detrás de una
+// misma IP de oficina, pero corta el goteo automático.
+define('LOGIN_ADMIN_MAX_POR_IP',      30);
+define('LOGIN_ADMIN_VENTANA_IP_MIN',  30);
+
 // -- Registro de cuentas nuevas (por dirección IP) --
 define('REGISTRO_MAX_POR_IP',     3);
 define('REGISTRO_VENTANA_HORAS',  24);

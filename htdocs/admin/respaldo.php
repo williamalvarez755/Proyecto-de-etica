@@ -25,7 +25,14 @@
 
 require __DIR__ . '/../app/nucleo/inicio.php';
 
-requerir_permiso('mantenimiento.ejecutar');
+// El respaldo es el único archivo que saca de la base los CORREOS de
+// todas las personas y los HASHES de todas las contraseñas, de una vez
+// y a la computadora de quien lo baja. Es el export más sensible del
+// sistema. Por mínimo privilegio lo baja solo el superadministrador, no
+// cualquier administrador con mantenimiento.ejecutar (D-061): el resto
+// del mantenimiento —vencer ofertas, limpiar— sigue siendo de los
+// administradores.
+requerir_superadministrador();
 
 /** Las tablas del sistema, en orden de dependencias para poder restaurar. */
 const TABLAS_RESPALDO = [

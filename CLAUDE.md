@@ -151,6 +151,15 @@ borrar su cuenta), cinco altas y varias medias. Todas corregidas. La interfaz se
 dinámica sin tocar la CSP ni el funcionamiento sin JavaScript (D-048). Quedan seis puntos que
 necesitan una decisión del equipo: sección 4 de `AUDITORIA.md`.
 
+**Auditoría de seguridad del 2026-10-06** (detalle arriba de todo en `AUDITORIA.md`): revisó los
+cambios del rediseño y del empleo en Guatemala. No apareció ninguna falla crítica de acceso
+anónimo ni de robo de datos. Sí apareció una escalada de privilegios dentro del panel (un
+administrador común podía tomar la cuenta del superadministrador por el restablecimiento) y
+cuatro cosas de control de acceso y endurecimiento (bitácora inundable, `diagnostico.php`
+mostraba de más, respaldo al alcance de cualquier administrador, reporte duplicado por carrera,
+PDF sin tope de memoria). Todas corregidas y probadas. Decisión nueva: D-061. Migración nueva:
+`sql/migracion_003.sql`. Puntuación de seguridad: 88/100.
+
 **Rediseño del 2026-10-03** (D-050 a D-053): el sitio pasa a llamarse **Mjob for all · Trabajo
 sin fronteras**, con el logo nuevo redibujado en vector; colores sacados del logo; **modo noche**;
 portada con dos "puertas" (busco trabajo / me ofrecieron un trabajo); "Inicio" en la barra de
@@ -199,6 +208,8 @@ ofertas nuevas las tiene que buscar y comprobar una persona, y el lote actual se
 - [ ] Correr `sql/migracion_001.sql` si la base del servidor es anterior al 2026-10-01.
 - [ ] Correr `sql/migracion_002.sql` (departamento, forma de postularse y el oficio "Atención al
       cliente y call center") si la base es anterior al 2026-10-03.
+- [ ] Correr `sql/migracion_003.sql` (una cuenta no reporta dos veces la misma oferta) si la base
+      es anterior al 2026-10-06.
 - [ ] Importar `sql/ofertas_reales_2026-10-03.sql` **antes del 2026-11-02** (después no carga
       nada, a propósito).
 - [ ] Importar `sql/ofertas_reales_2026-10-03_oficios.sql` (12 vacantes de oficios, D-060)
@@ -955,6 +966,25 @@ cambió: el historial de por qué algo cambió vale tanto como la decisión actu
   encontraba "ayudante de bodega" aunque la oferta pida "1 año como ayudante de albañil". Con eso,
   "albañil" encuentra 4 ofertas. La condición usa `:texto1` a `:texto4`, cada uno con su nombre
   (sección 6, parámetros repetidos).
+
+### D-061 · 2026-10-06 · El respaldo lo baja solo el superadministrador · VIGENTE
+
+- **Decisión:** `admin/respaldo.php` pasa de exigir `mantenimiento.ejecutar` a exigir
+  `requerir_superadministrador()`. El resto del mantenimiento (vencer ofertas, limpiar intentos,
+  limpiar restablecimientos) sigue siendo de los administradores.
+- **Por qué:** el respaldo es el único archivo que saca de una vez los correos de todas las
+  personas y los hashes de todas las contraseñas, a la computadora de quien lo baja. Es el export
+  más sensible del sistema; por mínimo privilegio no tiene que estar al alcance de cada
+  administrador, sino solo de la cuenta responsable. Lo detectó la auditoría del 2026-10-06
+  (`AUDITORIA.md`, B1).
+- **Si la institución prefiere otra cosa:** que todos los administradores puedan respaldar se
+  recupera cambiando esa única línea por `requerir_permiso('mantenimiento.ejecutar')`. Queda a
+  criterio de quien opere.
+- **Relacionado, misma auditoría:** restablecer la contraseña de una cuenta ADMINISTRATIVA pasó a
+  ser también cosa del superadministrador (`admin/restablecimientos.php`), porque el código de
+  restablecimiento se muestra a quien lo genera y, sin esa barrera, un administrador común podía
+  tomar la cuenta del superadministrador. No es una decisión aparte: es la regla 5 y la jerarquía
+  de D-007 aplicadas donde faltaban.
 
 ---
 

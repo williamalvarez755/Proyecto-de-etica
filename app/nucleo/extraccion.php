@@ -131,9 +131,26 @@ function leer_pdf(string $ruta): ?string
     }
 
     try {
-        $parser = new Smalot\PdfParser\Parser();
+        // Igual que un .docx puede ser una bomba ZIP (D-023/M1), un PDF
+        // chico puede traer flujos comprimidos que, al descomprimirse,
+        // se inflan hasta agotar la memoria. pdfparser deja poner un
+        // tope al descomprimir; sin él, su valor por defecto es 0 (sin
+        // límite). Se ata al mismo CV_TEXTO_MAXIMO_BYTES del .docx.
+        if (class_exists('Smalot\PdfParser\Config')) {
+            $config = new Smalot\PdfParser\Config();
+            $config->setDecodeMemoryLimit(CV_TEXTO_MAXIMO_BYTES);
+            $parser = new Smalot\PdfParser\Parser([], $config);
+        } else {
+            $parser = new Smalot\PdfParser\Parser();
+        }
         $pdf    = $parser->parseFile($ruta);
         $texto  = $pdf->getText();
+
+        // Techo también al texto ya extraído: un PDF legítimo de
+        // currículum no tiene megas de texto.
+        if (strlen($texto) > CV_TEXTO_MAXIMO_BYTES) {
+            $texto = substr($texto, 0, CV_TEXTO_MAXIMO_BYTES);
+        }
     } catch (Throwable $e) {
         // Un PDF hecho de fotos escaneadas no tiene texto adentro, y
         // eso no es un error del sistema: es un caso normal.

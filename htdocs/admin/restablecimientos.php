@@ -25,12 +25,38 @@ if (es_post() && campo('accion') === 'generar') {
     $correo  = normalizar_correo(campo('correo'));
     $usuario = $correo === '' ? null : buscar_usuario_por_correo($correo);
 
+    // Quién puede restablecer a quién.
+    //
+    // El código de restablecimiento se MUESTRA en pantalla a quien lo
+    // genera (es para dictárselo a la persona). Entonces, si un
+    // administrador común pudiera generar uno para la cuenta del
+    // superadministrador, lo leería de su propia pantalla, iría a la
+    // página pública de poner contraseña nueva y se quedaría con la
+    // cuenta responsable del sistema. Eso sería saltarse la jerarquía:
+    // las cuentas administrativas solo las gestiona el superadministrador
+    // (admin/administradores.php ya exige requerir_superadministrador()).
+    //
+    // Regla: restablecer una cuenta ADMINISTRATIVA es cosa del
+    // superadministrador. Un administrador común solo restablece cuentas
+    // de personas (usuarios). Se comprueba en el servidor (regla 5).
+    $objetivo_es_administrativo = $usuario !== null
+        && in_array($usuario['rol'], ROLES_ADMINISTRATIVOS, true);
+
     if (!es_correo_valido($correo)) {
         $errores['correo'] = 'Ese correo no parece estar completo.';
     } elseif ($usuario === null) {
         $errores['correo'] = 'No hay ninguna cuenta con ese correo.';
     } elseif ((int) $usuario['activo'] !== 1) {
         $errores['correo'] = 'Esa cuenta está desactivada. Primero hay que activarla.';
+    } elseif ($objetivo_es_administrativo && !es_superadministrador()) {
+        registrar_accion(
+            'permiso_denegado',
+            'usuario',
+            (int) $usuario['id'],
+            'Intentó restablecer una cuenta administrativa sin ser superadministrador'
+        );
+        $errores['correo'] = 'Esa es una cuenta administrativa. Solo el superadministrador puede '
+                           . 'restablecer su contraseña.';
     } else {
         $codigo = crear_restablecimiento((int) $usuario['id'], (int) id_usuario_actual());
 

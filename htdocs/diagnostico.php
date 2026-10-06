@@ -26,6 +26,67 @@
 $raiz_app = __DIR__ . '/app';
 
 // -----------------------------------------------------------------
+//  Llave antes de mostrar nada
+//  ---------------------------------------------------------------
+//  Esta página enseña rutas del servidor, versiones, extensiones y el
+//  contenido real de las carpetas (ahí se ve que existe config.php).
+//  Eso le sirve a quien instala y le sirve igual a quien ataca. Por
+//  eso, igual que instalar.php (D-012), no muestra nada sin la llave de
+//  instalación: el archivo app/config/instalacion.txt, que solo puede
+//  crear quien tiene el FTP.
+//
+//  Si ese archivo ya no está (el sitio se instaló y la llave se borró),
+//  esta página NO muestra nada: lo que corresponde es borrarla, no
+//  dejar que cualquiera la lea. Falla del lado seguro.
+// -----------------------------------------------------------------
+$ruta_clave_diag = $raiz_app . '/config/instalacion.txt';
+$clave_diag      = is_file($ruta_clave_diag) ? trim((string) file_get_contents($ruta_clave_diag)) : '';
+
+$pagina_minima = static function (string $titulo, string $cuerpo_html): void {
+    http_response_code(403);
+    header('Content-Type: text/html; charset=utf-8');
+    echo '<!doctype html><html lang="es"><head><meta charset="utf-8">';
+    echo '<meta name="viewport" content="width=device-width, initial-scale=1">';
+    echo '<title>' . htmlspecialchars($titulo) . '</title>';
+    echo '<link rel="stylesheet" href="/recursos/estilo.css"></head><body>';
+    echo '<main class="contenido"><div class="contenedor contenedor--angosto pila">';
+    echo '<h1 class="titulo-pagina">' . htmlspecialchars($titulo) . '</h1>';
+    echo $cuerpo_html;
+    echo '</div></main></body></html>';
+};
+
+if ($clave_diag === '' || mb_strlen($clave_diag) < 12) {
+    // No hay llave: o el sitio ya está instalado (y hay que borrar esto),
+    // o todavía no se creó instalacion.txt.
+    $pagina_minima(
+        'Diagnóstico no disponible',
+        '<p class="aviso aviso--aviso">Esta página de diagnóstico está cerrada porque no encuentra '
+        . 'la llave de instalación (<code>app/config/instalacion.txt</code>).</p>'
+        . '<p>Si el sitio ya está instalado, <strong>borrá este archivo por FTP</strong>: no debe '
+        . 'quedarse en el servidor. Si todavía estás instalando, creá ese archivo con una frase '
+        . 'larga y volvé a entrar.</p>'
+    );
+    exit;
+}
+
+$clave_enviada = isset($_POST['clave']) && is_string($_POST['clave']) ? trim($_POST['clave']) : '';
+
+if (!hash_equals($clave_diag, $clave_enviada)) {
+    $pagina_minima(
+        'Diagnóstico del servidor',
+        '<p>Para ver el diagnóstico, escribí la misma frase que pusiste en '
+        . '<code>app/config/instalacion.txt</code>.</p>'
+        . ($clave_enviada !== '' ? '<p class="aviso aviso--error">La frase no coincide.</p>' : '')
+        . '<form method="post" action="/diagnostico.php" class="tarjeta pila">'
+        . '<div class="campo"><label class="etiqueta" for="clave">Llave de instalación</label>'
+        . '<input class="entrada" type="password" id="clave" name="clave" autocomplete="off" required></div>'
+        . '<div class="acciones"><button class="boton boton--principal" type="submit">Entrar</button></div>'
+        . '</form>'
+    );
+    exit;
+}
+
+// -----------------------------------------------------------------
 //  Se crean las carpetas internas y su protección, si faltan.
 //
 //  Esta página no solo revisa: arregla. Los programas de FTP no suben

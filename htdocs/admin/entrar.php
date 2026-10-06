@@ -28,6 +28,12 @@ if (es_post()) {
 
     if ($correo === '' || $contrasena === '') {
         $error = 'Escribí tu correo y tu contraseña.';
+    } elseif (contar_intentos_por_ip('login_admin', LOGIN_ADMIN_VENTANA_IP_MIN) >= LOGIN_ADMIN_MAX_POR_IP) {
+        // Freno por conexión: alguien que prueba un correo distinto cada
+        // vez no toca el bloqueo por correo, pero sí este. Se registra
+        // una sola vez por bloqueo, no uno por intento.
+        $error = 'Se hicieron demasiados intentos desde esta conexión. Esperá un rato.';
+        registrar_accion('login_admin_bloqueado_ip', 'seguridad', null, 'Demasiados intentos desde una IP');
     } elseif (esta_bloqueado('login_admin', $correo, LOGIN_ADMIN_MAX_INTENTOS, LOGIN_ADMIN_BLOQUEO_MINUTOS)) {
         $minutos = minutos_para_reintentar('login_admin', $correo, LOGIN_ADMIN_BLOQUEO_MINUTOS);
         $error = 'Esta cuenta quedó bloqueada por intentos fallidos. '
@@ -40,7 +46,15 @@ if (es_post()) {
         // "existe pero no es cuenta administrativa".
         if ($usuario === null || !in_array($usuario['rol'], ROLES_ADMINISTRATIVOS, true)) {
             registrar_intento('login_admin', $correo, false);
-            registrar_accion('login_admin_fallido', 'usuario', null, 'Correo: ' . $correo);
+            // La bitácora solo anota el fallo cuando el correo es de una
+            // cuenta administrativa de verdad: ese es el evento que vale
+            // la pena mirar. Si se anotara cualquier correo inventado, un
+            // goteo automático llenaría el registro de auditoría con
+            // basura (el intento igual queda en intentos_acceso, que es
+            // la tabla del límite de uso y se limpia sola).
+            if (es_correo_administrativo($correo)) {
+                registrar_accion('login_admin_fallido', 'usuario', null, 'Correo: ' . $correo);
+            }
             $error = 'El correo o la contraseña no coinciden.';
         } else {
             registrar_intento('login_admin', $correo, true);

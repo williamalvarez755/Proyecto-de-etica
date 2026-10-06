@@ -139,7 +139,15 @@ if not hallazgos:
 titulo(3, "CSRF en los formularios que modifican datos")
 hallazgos = []
 total_formularios = 0
+# diagnostico.php es la excepcion, con razon: es un archivo autonomo que
+# NO carga el sistema (no existe campo_csrf() ahi) y se sube, se mira una
+# vez y se borra. Su unico formulario POST pide la llave de instalacion y
+# no cambia nada: la protege la frase secreta (hash_equals contra
+# instalacion.txt), no un token. CSRF no aplica cuando no hay accion que
+# falsificar. Se sigue revisando por XSS, SQL, etc. en los demas puntos.
 for p in ARCHIVOS:
+    if p.name == 'diagnostico.php':
+        continue
     for i, cuerpo in enumerate(re.findall(r'<form[^>]*method="post"[^>]*>(.*?)</form>',
                                           leer(p), flags=re.S | re.I), 1):
         total_formularios += 1

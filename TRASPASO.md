@@ -33,6 +33,8 @@ se pueden revisar, y están todas anotadas con su razón.
    ya no depende de la migración.)
 4. **Si la base ya existía antes del 2026-10-03:** correr también `sql/migracion_002.sql`
    (departamento, forma de postularse y el oficio "Atención al cliente y call center").
+4b. **Si la base ya existía antes del 2026-10-06:** correr también `sql/migracion_003.sql` (una
+   cuenta no puede reportar dos veces la misma oferta). Las tres migraciones van en orden.
 5. **Ofertas reales:** `sql/ofertas_reales_2026-10-03.sql` carga 6 vacantes comprobadas en las
    páginas oficiales de las empresas (call centers), y `sql/ofertas_reales_2026-10-03_oficios.sql`
    otras 12 de oficios del grupo Progreso. Vencen solas (2026-10-17 y 2026-11-02) y después de

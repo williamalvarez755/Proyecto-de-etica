@@ -402,6 +402,13 @@ CREATE TABLE reportes (
     PRIMARY KEY (id),
     KEY idx_reportes_estado (estado, creado_en),
     KEY idx_reportes_oferta (oferta_id),
+    -- Una misma cuenta no puede reportar dos veces la misma oferta. La
+    -- página ya lo comprueba, pero dos envíos a la vez se le escapaban
+    -- (los dos pasaban la comprobación antes de que el primero
+    -- guardara). Acá la base lo garantiza. En MySQL dos NULL no chocan,
+    -- así que los reportes sin identidad (de cuentas borradas, D-041)
+    -- no colisionan entre sí, que es lo que se quiere.
+    UNIQUE KEY uk_reporte_cuenta_oferta (usuario_id, oferta_id),
     CONSTRAINT fk_reportes_oferta  FOREIGN KEY (oferta_id)    REFERENCES ofertas (id)  ON DELETE CASCADE,
     CONSTRAINT fk_reportes_usuario FOREIGN KEY (usuario_id)   REFERENCES usuarios (id) ON DELETE SET NULL,
     CONSTRAINT fk_reportes_revisor FOREIGN KEY (revisado_por) REFERENCES usuarios (id) ON DELETE SET NULL

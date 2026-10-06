@@ -227,10 +227,13 @@ require RAIZ_APP . '/vistas/cabecera.php';
     </p>
   </section>
 
-  <?php if (tiene_permiso('mantenimiento.ejecutar')): ?>
+  <?php if (es_superadministrador()): ?>
     <section class="tarjeta pila">
       <h2 class="tarjeta__titulo">Respaldo de la base de datos</h2>
-      <p>Bajar una copia de todo, para poder restaurarla si algo pasa.</p>
+      <p>
+        Bajar una copia de todo, para poder restaurarla si algo pasa. Incluye correos y
+        contraseñas cifradas de todas las personas, así que solo lo baja la cuenta responsable.
+      </p>
       <div class="acciones">
         <a class="boton boton--secundario" href="/admin/respaldo.php">Ir a respaldos</a>
       </div>
